@@ -60,6 +60,7 @@ public class SighGrammar extends Grammar
     public rule _else           = reserved("else");
     public rule _while          = reserved("while");
     public rule _return         = reserved("return");
+    public rule _mat            = reserved("Mat");
 
     public rule number =
         seq(opt('-'), choice('0', digit.at_least(1)));
