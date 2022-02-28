@@ -51,6 +51,7 @@ public class SighGrammar extends Grammar
     public rule DOT             = word(".");
     public rule DOLLAR          = word("$");
     public rule COMMA           = word(",");
+    public rule HASHTAG         = word("#");
 
     public rule _var            = reserved("var");
     public rule _fun            = reserved("fun");
@@ -114,7 +115,15 @@ public class SighGrammar extends Grammar
 
     public rule array =
         seq(LSQUARE, expressions, RSQUARE)
-        .push($ -> new ArrayLiteralNode($.span(), $.$[0]));
+            .push($ -> new ArrayLiteralNode($.span(), $.$[0]));
+
+    public rule matrix_expressions = lazy(() ->
+        this.expression.sep(1, COMMA)
+            .as_list(ArrayLiteralNode.class));
+
+    public rule matrix =
+        seq(LSQUARE, matrix_expressions, RSQUARE) //[[], [], []]
+            .push($ -> new MatrixLiteralNode($.span(), $.$[0]));
 
     public rule basic_expression = choice(
         constructor,
@@ -123,7 +132,8 @@ public class SighGrammar extends Grammar
         integer,
         string,
         paren_expression,
-        array);
+        array,
+        matrix);
 
     public rule function_args =
         seq(LPAREN, expressions, RPAREN);
@@ -133,7 +143,7 @@ public class SighGrammar extends Grammar
         .suffix(seq(DOT, identifier),
             $ -> new FieldAccessNode($.span(), $.$[0], $.$[1]))
         .suffix(seq(LSQUARE, lazy(() -> this.expression), RSQUARE),
-            $ -> new ArrayAccessNode($.span(), $.$[0], $.$[1]))
+            $ -> new ArrayAccessNode($.span(), $.$[0], $.$[1])) //TODO do general matrix + Array access
         .suffix(function_args,
             $ -> new FunCallNode($.span(), $.$[0], $.$[1]));
 
@@ -185,12 +195,23 @@ public class SighGrammar extends Grammar
             $ -> new BinaryExpressionNode($.span(), $.$[0], $.$[1], $.$[2]));
 
     public rule assignment_expression = right_expression()
-        .operand(or_expression)
+        .operand(or_expression) //FIXME : POURQUOI ?!
         .infix(EQUALS,
             $ -> new AssignmentNode($.span(), $.$[0], $.$[1]));
 
-    public rule expression =
-        seq(assignment_expression);
+    public rule matrix_generator_expression = seq(LBRACE, basic_expression, RBRACE, LPAREN, integer, seq(COMMA, integer).opt(), RPAREN)
+        .push($ -> {
+            System.out.println("matrix_generator_expression");
+            if ($.$.length < 8)
+                return new MatrixGeneratorNode($.span(), $.$[1], $.$[4]);
+            else
+                return new MatrixGeneratorNode($.span(), $.$[1], $.$[4], $.$[6]);
+        });
+
+    public rule expression = choice(
+        seq(assignment_expression),
+        matrix_generator_expression); // FIXME : gestion de expression ? <-- rentre jamais dans generator ??
+        // TODO : slicing expression
 
     public rule expression_stmt =
         expression
@@ -206,8 +227,12 @@ public class SighGrammar extends Grammar
         .suffix(seq(LSQUARE, RSQUARE),
             $ -> new ArrayTypeNode($.span(), $.$[0]));
 
-    public rule type =
-        seq(array_type);
+    public rule matrix_type = seq(_mat, HASHTAG, simple_type)
+        .push($ -> new MatrixTypeNode($.span(), $.$[0]));
+
+    public rule type = choice(
+        seq(array_type),
+        matrix_type);
 
     public rule statement = lazy(() -> choice(
         this.block,
