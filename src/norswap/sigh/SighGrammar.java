@@ -119,12 +119,27 @@ public class SighGrammar extends Grammar
             .push($ -> new ArrayLiteralNode($.span(), $.$[0]));
 
     public rule matrix_expressions = lazy(() ->
-        this.expression.sep(1, COMMA)
+        this.array.sep(1, COMMA)
             .as_list(ArrayLiteralNode.class));
 
     public rule matrix =
         seq(LSQUARE, matrix_expressions, RSQUARE) //[[], [], []]
             .push($ -> new MatrixLiteralNode($.span(), $.$[0]));
+
+    public rule filler = choice(
+        floating,
+        integer,
+        string
+    );
+
+    public rule matrix_generator = seq(LBRACE, filler, RBRACE, LPAREN, integer, seq(COMMA, integer).opt(), RPAREN)
+        .push($ -> {
+            System.out.println("matrix_generator_expression");
+            if ($.$.length < 3)
+                return new MatrixGeneratorNode($.span(), $.$[0], $.$[1]);
+            else
+                return new MatrixGeneratorNode($.span(), $.$[0], $.$[1], $.$[2]);
+        });
 
     public rule basic_expression = choice(
         constructor,
@@ -133,8 +148,9 @@ public class SighGrammar extends Grammar
         integer,
         string,
         paren_expression,
-        array,
-        matrix);
+        matrix_generator,
+        matrix,
+        array);
 
     public rule function_args =
         seq(LPAREN, expressions, RPAREN);
@@ -195,23 +211,13 @@ public class SighGrammar extends Grammar
         .infix(BAR_BAR.as_val(BinaryOperator.OR),
             $ -> new BinaryExpressionNode($.span(), $.$[0], $.$[1], $.$[2]));
 
-    public rule assignment_expression = right_expression()
+    public rule assignment_expression = right_expression() // var a : Mat#Int = [1](3, 3)
         .operand(or_expression) //FIXME : POURQUOI ?!
         .infix(EQUALS,
             $ -> new AssignmentNode($.span(), $.$[0], $.$[1]));
 
-    public rule matrix_generator_expression = seq(LBRACE, basic_expression, RBRACE, LPAREN, integer, seq(COMMA, integer).opt(), RPAREN)
-        .push($ -> {
-            System.out.println("matrix_generator_expression");
-            if ($.$.length < 8)
-                return new MatrixGeneratorNode($.span(), $.$[1], $.$[4]);
-            else
-                return new MatrixGeneratorNode($.span(), $.$[1], $.$[4], $.$[6]);
-        });
-
-    public rule expression = choice(
-        seq(assignment_expression),
-        matrix_generator_expression); // FIXME : gestion de expression ? <-- rentre jamais dans generator ??
+    public rule expression =
+        seq(assignment_expression);
         // TODO : slicing expression
 
     public rule expression_stmt =

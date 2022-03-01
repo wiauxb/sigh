@@ -10,6 +10,7 @@ import norswap.sigh.types.*;
 import norswap.uranium.Attribute;
 import norswap.uranium.Reactor;
 import norswap.uranium.Rule;
+import norswap.uranium.SemanticError;
 import norswap.utils.visitors.ReflectiveFieldWalker;
 import norswap.utils.visitors.Walker;
 import java.util.Arrays;
@@ -122,10 +123,13 @@ public final class SemanticAnalysis
         walker.register(UnaryExpressionNode.class,      PRE_VISIT,  analysis::unaryExpression);
         walker.register(BinaryExpressionNode.class,     PRE_VISIT,  analysis::binaryExpression);
         walker.register(AssignmentNode.class,           PRE_VISIT,  analysis::assignment);
+        walker.register(MatrixLiteralNode.class,        PRE_VISIT,  analysis::matrixLiteral);
+        walker.register(MatrixGeneratorNode.class,      PRE_VISIT,  analysis::matrixGenerator);
 
         // types
         walker.register(SimpleTypeNode.class,           PRE_VISIT,  analysis::simpleType);
         walker.register(ArrayTypeNode.class,            PRE_VISIT,  analysis::arrayType);
+        walker.register(MatrixTypeNode.class,           PRE_VISIT,  analysis::matrixType);
 
         // declarations & scopes
         walker.register(RootNode.class,                 PRE_VISIT,  analysis::root);
@@ -264,15 +268,15 @@ public final class SemanticAnalysis
 
             if (context instanceof VarDeclarationNode)
                 R.rule(node, "type")
-                .using(context, "type")
-                .by(Rule::copyFirst);
+                    .using(context, "type")
+                    .by(Rule::copyFirst);
             else if (context instanceof FunCallNode) {
                 R.rule(node, "type")
-                .using(((FunCallNode) context).function.attr("type"), node.attr("index"))
-                .by(r -> {
-                    FunType funType = r.get(0);
-                    r.set(0, funType.paramTypes[(int) r.get(1)]);
-                });
+                    .using(((FunCallNode) context).function.attr("type"), node.attr("index"))
+                    .by(r -> {
+                        FunType funType = r.get(0);
+                        r.set(0, funType.paramTypes[(int) r.get(1)]);
+                    });
             }
             return;
         }
@@ -281,36 +285,103 @@ public final class SemanticAnalysis
             node.components.stream().map(it -> it.attr("type")).toArray(Attribute[]::new);
 
         R.rule(node, "type")
-        .using(dependencies)
-        .by(r -> {
-            Type[] types = IntStream.range(0, dependencies.length).<Type>mapToObj(r::get)
+            .using(dependencies)
+            .by(r -> {
+                Type[] types = IntStream.range(0, dependencies.length).<Type>mapToObj(r::get)
                     .distinct().toArray(Type[]::new);
 
-            int i = 0;
-            Type supertype = null;
-            for (Type type: types) {
-                if (type instanceof VoidType)
-                    // We report the error, but compute a type for the array from the other elements.
-                    r.errorFor("Void-valued expression in array literal", node.components.get(i));
-                else if (supertype == null)
-                    supertype = type;
-                else {
-                    supertype = commonSupertype(supertype, type);
-                    if (supertype == null) {
-                        r.error("Could not find common supertype in array literal.", node);
-                        return;
+                int i = 0;
+                Type supertype = null;
+                for (Type type: types) {
+                    if (type instanceof VoidType)
+                        // We report the error, but compute a type for the array from the other elements.
+                        r.errorFor("Void-valued expression in array literal", node.components.get(i));
+                    else if (supertype == null)
+                        supertype = type;
+                    else {
+                        supertype = commonSupertype(supertype, type);
+                        if (supertype == null) {
+                            r.error("Could not find common supertype in array literal.", node);
+                            return;
+                        }
                     }
+                    ++i;
                 }
-                ++i;
-            }
 
-            if (supertype == null)
-                r.error(
-                    "Could not find common supertype in array literal: all members have Void type.",
-                    node);
-            else
-                r.set(0, new ArrayType(supertype));
-        });
+                if (supertype == null)
+                    r.error(
+                        "Could not find common supertype in array literal: all members have Void type.",
+                        node);
+                else
+                    r.set(0, new ArrayType(supertype));
+            });
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    private void matrixLiteral (MatrixLiteralNode node)
+    {
+        if (node.components.size() == 0) { // [[]]
+            // Empty array: we need a type int to know the desired type.
+            R.error(new SemanticError("Cannot create empty matrix", null, node));
+        }
+
+        Attribute[] dependencies =
+            node.components.stream().map(it -> it.attr("type")).toArray(Attribute[]::new);
+
+        R.rule(node, "type")
+            .using(dependencies)
+            .by(r -> {
+                Type[] types = IntStream.range(0, dependencies.length).<Type>mapToObj(r::get)
+                    .distinct().toArray(Type[]::new);
+
+                int i = 0;
+                Type supertype = null;
+                for (Type type: types) {
+                    if (type instanceof VoidType)
+                        // We report the error, but compute a type for the array from the other elements.
+                        r.errorFor("Void-valued expression in array literal", node.components.get(i));
+                    else if (supertype == null)
+                        supertype = type;
+                    else {
+                        supertype = commonSupertype(supertype, type);
+                        if (supertype == null) {
+                            r.error("Could not find common supertype in array literal.", node);
+                            return;
+                        }
+                    }
+                    ++i;
+                }
+
+                if (supertype == null)
+                    r.error(
+                        "Could not find common supertype in array literal: all members have Void type.",
+                        node);
+                else
+                    r.set(0, new MatType(supertype));
+            });
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    private void matrixGenerator (MatrixGeneratorNode node)
+    {
+        if (node.shape1.value == 0 || (node.shape2 != null && node.shape2.value == 0)){
+            R.error(new SemanticError("Cannot create matrix with null shape component", null, node));
+        }
+
+        assert node.shape2 != null;
+        R.rule(node, "type")
+            .using(node.filler.attr("type"),
+                node.shape1.attr("type"),
+                node.shape2.attr("type"))
+            .by(r -> {
+                Type supertype = r.get(node.filler.attr("type"));
+                if (!(supertype instanceof IntType || supertype instanceof FloatType || supertype instanceof StringType))
+                    r.error("Invalid filler type",  node);
+                else
+                    r.set(0, new MatType(supertype));
+            });
     }
 
     // ---------------------------------------------------------------------------------------------
