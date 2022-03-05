@@ -326,27 +326,31 @@ public final class SemanticAnalysis
             R.error(new SemanticError("Cannot create empty matrix", null, node));
         }
 
+
+//        R.set(node, "type", new MatType());
+
         Attribute[] dependencies =
             node.components.stream().map(it -> it.attr("type")).toArray(Attribute[]::new);
 
         R.rule(node, "type")
             .using(dependencies)
             .by(r -> {
-                Type[] types = IntStream.range(0, dependencies.length).<Type>mapToObj(r::get)
-                    .distinct().toArray(Type[]::new);
+                ArrayType[] types = IntStream.range(0, dependencies.length).<ArrayType>mapToObj(r::get)
+                    .distinct().toArray(ArrayType[]::new);
+
 
                 int i = 0;
-                Type supertype = null;
-                for (Type type: types) {
-                    if (type instanceof VoidType)
-                        // We report the error, but compute a type for the array from the other elements.
-                        r.errorFor("Void-valued expression in array literal", node.components.get(i));
-                    else if (supertype == null)
+                ArrayType supertype = null;
+                for (ArrayType type: types) {
+//                    if (type instanceof VoidType)
+//                        // We report the error, but compute a type for the array from the other elements.
+//                        r.errorFor("Void-valued expression in matrix literal", node.components.get(i));
+                    if (supertype == null)
                         supertype = type;
                     else {
-                        supertype = commonSupertype(supertype, type);
+                        supertype = (ArrayType) commonSupertype(supertype, type);
                         if (supertype == null) {
-                            r.error("Could not find common supertype in array literal.", node);
+                            r.error("Could not find common supertype in matrix literal.", node);
                             return;
                         }
                     }
@@ -358,7 +362,7 @@ public final class SemanticAnalysis
                         "Could not find common supertype in array literal: all members have Void type.",
                         node);
                 else
-                    r.set(0, new MatType(supertype));
+                    r.set(0, new MatType(supertype.componentType));
             });
     }
 
@@ -366,19 +370,17 @@ public final class SemanticAnalysis
 
     private void matrixGenerator (MatrixGeneratorNode node)
     {
-        if (node.shape1.value == 0 || (node.shape2 != null && node.shape2.value == 0)){
-            R.error(new SemanticError("Cannot create matrix with null shape component", null, node));
+        if (node.shape1.value <= 0 || node.shape2.value <= 0){
+            R.error(new SemanticError(format("Invalid shape argument when initializing a matrix : [%d, %d]",
+                                                node.shape1.value, node.shape2.value), null, node));
         }
 
-        assert node.shape2 != null;
         R.rule(node, "type")
-            .using(node.filler.attr("type"),
-                node.shape1.attr("type"),
-                node.shape2.attr("type"))
+            .using(node.filler.attr("type"))
             .by(r -> {
-                Type supertype = r.get(node.filler.attr("type"));
+                Type supertype = r.get(0);
                 if (!(supertype instanceof IntType || supertype instanceof FloatType || supertype instanceof StringType))
-                    r.error("Invalid filler type",  node);
+                    r.error("Invalid filler type", node);
                 else
                     r.set(0, new MatType(supertype));
             });
@@ -702,6 +704,15 @@ public final class SemanticAnalysis
 
     // ---------------------------------------------------------------------------------------------
 
+    private void matrixType(MatrixTypeNode node)
+    {
+        R.rule(node, "value")
+            .using(node.componentType, "value")
+            .by(r -> r.set(0, new MatType(r.get(0))));
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
     private static boolean isTypeDecl (DeclarationNode decl)
     {
         if (decl instanceof StructDeclarationNode) return true;
@@ -727,6 +738,9 @@ public final class SemanticAnalysis
         if (a instanceof ArrayType)
             return b instanceof ArrayType
                 && isAssignableTo(((ArrayType)a).componentType, ((ArrayType)b).componentType);
+        if (a instanceof MatType)
+            return b instanceof MatType
+                && isAssignableTo(((MatType)a).componentType, ((MatType)b).componentType);
 
         return a instanceof NullType && b.isReference() || a.equals(b);
     }

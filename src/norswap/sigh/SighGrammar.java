@@ -132,9 +132,8 @@ public class SighGrammar extends Grammar
         string
     );
 
-    public rule matrix_generator = seq(LBRACE, filler, RBRACE, LPAREN, integer, seq(COMMA, integer).opt(), RPAREN)
+    public rule matrix_generator = seq(LSQUARE, filler, RSQUARE, LPAREN, integer, seq(COMMA, integer).opt(), RPAREN)
         .push($ -> {
-            System.out.println("matrix_generator_expression");
             if ($.$.length < 3)
                 return new MatrixGeneratorNode($.span(), $.$[0], $.$[1]);
             else

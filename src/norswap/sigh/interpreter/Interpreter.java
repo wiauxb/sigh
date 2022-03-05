@@ -74,6 +74,8 @@ public final class Interpreter
         visitor.register(UnaryExpressionNode.class,      this::unaryExpression);
         visitor.register(BinaryExpressionNode.class,     this::binaryExpression);
         visitor.register(AssignmentNode.class,           this::assignment);
+        visitor.register(MatrixLiteralNode.class,        this::matrixLiteral);
+        visitor.register(MatrixGeneratorNode.class,      this::matrixGenerator);
 
         // statement groups & declarations
         visitor.register(RootNode.class,                 this::root);
@@ -154,6 +156,28 @@ public final class Interpreter
 
     private Object[] arrayLiteral (ArrayLiteralNode node) {
         return map(node.components, new Object[0], visitor);
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    private Object[] matrixLiteral (MatrixLiteralNode node) {
+        return map(node.components, new Object[0], visitor);
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    private Object[] matrixGenerator (MatrixGeneratorNode node) {
+        int shape1 = (int) node.shape1.value;
+        int shape2 = (int) node.shape2.value;
+
+        Object[][] result = new Object[shape1][shape2];
+
+        for (int i = 0; i < shape1; i++) {
+            for (int j = 0; j < shape2; j++) {
+                result[i][j] = visitor.apply(node.filler);
+            }
+        }
+        return result;
     }
 
     // ---------------------------------------------------------------------------------------------
