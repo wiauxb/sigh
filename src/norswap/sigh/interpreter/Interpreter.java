@@ -5,10 +5,7 @@ import norswap.sigh.scopes.DeclarationKind;
 import norswap.sigh.scopes.RootScope;
 import norswap.sigh.scopes.Scope;
 import norswap.sigh.scopes.SyntheticDeclarationNode;
-import norswap.sigh.types.FloatType;
-import norswap.sigh.types.IntType;
-import norswap.sigh.types.StringType;
-import norswap.sigh.types.Type;
+import norswap.sigh.types.*;
 import norswap.uranium.Reactor;
 import norswap.utils.Util;
 import norswap.utils.exceptions.Exceptions;
@@ -74,6 +71,8 @@ public final class Interpreter
         visitor.register(UnaryExpressionNode.class,      this::unaryExpression);
         visitor.register(BinaryExpressionNode.class,     this::binaryExpression);
         visitor.register(AssignmentNode.class,           this::assignment);
+        visitor.register(MatrixLiteralNode.class,        this::matrixLiteral);
+        visitor.register(MatrixGeneratorNode.class,      this::matrixGenerator);
 
         // statement groups & declarations
         visitor.register(RootNode.class,                 this::root);
@@ -154,6 +153,28 @@ public final class Interpreter
 
     private Object[] arrayLiteral (ArrayLiteralNode node) {
         return map(node.components, new Object[0], visitor);
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    private Object[] matrixLiteral (MatrixLiteralNode node) {
+        return map(node.components, new Object[0], visitor);
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    private Object[] matrixGenerator (MatrixGeneratorNode node) {
+        int shape1 = (int) node.shape1.value;
+        int shape2 = (int) node.shape2.value;
+
+        Object[][] result = new Object[shape1][shape2];
+
+        for (int i = 0; i < shape1; i++) {
+            for (int j = 0; j < shape2; j++) {
+                result[i][j] = visitor.apply(node.filler);
+            }
+        }
+        return result;
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -388,9 +409,23 @@ public final class Interpreter
         if (stem == Null.INSTANCE)
             throw new PassthroughException(
                 new NullPointerException("accessing field of null object"));
-        return stem instanceof Map
-                ? Util.<Map<String, Object>>cast(stem).get(node.fieldName)
-                : (long) ((Object[]) stem).length; // only field on arrays
+        if (stem instanceof Map)
+            return Util.<Map<String, Object>>cast(stem).get(node.fieldName);
+        else if (stem instanceof Object[][]) {
+            Object[][] matrix = (Object[][]) stem;
+            Integer[] res = new Integer[2];
+            res[0] = matrix.length;
+            res[1] = matrix[0].length;
+            return res;
+        }
+        else {
+            return (long) ((Object[]) stem).length;
+        }
+
+
+//        return stem instanceof Map
+//                ? Util.<Map<String, Object>>cast(stem).get(node.fieldName)
+//                : (long) ((Object[]) stem).length; // only field on arrays
     }
 
     // ---------------------------------------------------------------------------------------------
