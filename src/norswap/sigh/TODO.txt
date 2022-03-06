@@ -1,6 +1,6 @@
 TODO:
  - ///AVANT MARDI\\\
- - UNITTEST pour Mat Decl
- - ajouter slicing
- - shape function -> matrix.shape
+ V UNITTEST pour Mat Decl
+ V ajouter slicing
+ V shape function -> matrix.shape
  - UNITTEST pour slicing et shape

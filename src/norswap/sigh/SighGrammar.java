@@ -160,6 +160,20 @@ public class SighGrammar extends Grammar
             $ -> new FieldAccessNode($.span(), $.$[0], $.$[1]))
         .suffix(seq(LSQUARE, lazy(() -> this.expression), RSQUARE),
             $ -> new ArrayAccessNode($.span(), $.$[0], $.$[1])) //TODO do general matrix + Array access
+        .suffix(seq(LSQUARE, COLON, lazy(() -> this.expression).opt(), RSQUARE),  // arr[:(y)]
+            $ -> {
+                if ($.$.length < 2)
+                    return new SlicingAccessNode($.span(), $.$[0]);
+                else
+                    return new SlicingAccessNode($.span(), $.$[0], null, $.$[1]);
+            })
+        .suffix(seq(LSQUARE, lazy(() -> this.expression), COLON, lazy(() -> this.expression).opt(), RSQUARE),  // arr[x:(y)]
+            $ -> {
+                if ($.$.length < 3)
+                    return new SlicingAccessNode($.span(), $.$[0], $.$[1]);
+                else
+                    return new SlicingAccessNode($.span(), $.$[0], $.$[1], $.$[2]);
+            })
         .suffix(function_args,
             $ -> new FunCallNode($.span(), $.$[0], $.$[1]));
 
@@ -211,7 +225,7 @@ public class SighGrammar extends Grammar
             $ -> new BinaryExpressionNode($.span(), $.$[0], $.$[1], $.$[2]));
 
     public rule assignment_expression = right_expression() // var a : Mat#Int = [1](3, 3)
-        .operand(or_expression) //FIXME : POURQUOI ?!
+        .operand(or_expression)
         .infix(EQUALS,
             $ -> new AssignmentNode($.span(), $.$[0], $.$[1]));
 
