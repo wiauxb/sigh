@@ -99,6 +99,8 @@ public class BytecodeCompiler
         visitor.register(UnaryExpressionNode.class,      this::unaryExpression);
         visitor.register(BinaryExpressionNode.class,     this::binaryExpression);
         visitor.register(AssignmentNode.class,           this::assignment);
+//        visitor.register(MatrixLiteralNode.class,         this::matrixLiteral);
+//        visitor.register(MatrixGeneratorNode.class,       this::matrixGenerator);
 
         // statement groups & declarations
         visitor.register(RootNode.class,                 this::root);
@@ -306,6 +308,52 @@ public class BytecodeCompiler
 
         return null;
     }
+
+    // ---------------------------------------------------------------------------------------------
+
+//    private Object matrixLiteral (MatrixLiteralNode node)
+//    {
+//        MatType type = reactor.get(node, "type");
+//        Type compType = type.componentType;
+//
+//        method.visitLdcInsn(node.components.size());
+//        int storeOpcode = AASTORE;
+//
+//        if (compType instanceof IntType) {
+//            method.visitIntInsn(NEWARRAY, T_LONG);
+//            storeOpcode = LASTORE;
+//        } else if (compType instanceof FloatType) {
+//            method.visitIntInsn(NEWARRAY, T_DOUBLE);
+//            storeOpcode = DASTORE;
+//        } else if (compType instanceof BoolType) {
+//            method.visitIntInsn(NEWARRAY, T_BOOLEAN);
+//            storeOpcode = IASTORE;
+//        } else if (compType instanceof StringType) {
+//            method.visitTypeInsn(ANEWARRAY, "java/lang/String");
+//        } else if (compType instanceof TypeType) {
+//            method.visitTypeInsn(ANEWARRAY, "norswap/sigh/types/TypeType");
+//        } else if (compType instanceof FunType) {
+//            throw new UnsupportedOperationException("TODO"); // TODO
+//        } else if (compType instanceof NullType) {
+//            method.visitTypeInsn(ANEWARRAY, "norswap/sigh/bytecode/Null");
+//        } else if (compType instanceof VoidType || compType instanceof ArrayType || compType instanceof MatType) {
+//            // Sigh does not have a syntax for multi-dimensional arrays, so use an array of
+//            // Object that we'll be able to cast to array themselves.
+//            method.visitTypeInsn(ANEWARRAY, "java/lang/Object");
+//        } else if (compType instanceof StructType) {
+//            method.visitTypeInsn(ANEWARRAY, structBinaryName((StructType) compType));
+//        }
+//
+//        int i = 0;
+//        for (ExpressionNode component: node.components) {
+//            method.visitInsn(DUP); // duplicate the array
+//            loadConstant(method, i++);
+//            run(component);
+//            method.visitInsn(storeOpcode);
+//        }
+//
+//        return null;
+//    }
 
     // ---------------------------------------------------------------------------------------------
 

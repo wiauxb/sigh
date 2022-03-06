@@ -52,6 +52,9 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
         successInput("return \"hello\"");
         successInput("return (42)");
         successInput("return [1, 2, 3]");
+        successInput("return [[1, 2, 3],[4, 5, 6]]");
+        successInput("return [0](5)");
+        successInput("return [0](6, 2)");
         successInput("return true");
         successInput("return false");
         successInput("return null");
@@ -205,7 +208,7 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
 
     // ---------------------------------------------------------------------------------------------
 
-    @Test public void testArrayStructAccess() {
+    @Test public void testArrayStructAccess() { //TODO wait for slicing
         successInput("return [1][0]");
         successInput("return [1.0][0]");
         successInput("return [1, 2][1]");
@@ -279,6 +282,10 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
         successInput("var array: Int[] = []");
         successInput("var array: String[] = []");
         successInput("fun use_array (array: Int[]) {} ; use_array([])");
+        //FIXME is this inference ?
+        successInput("var matrix: Mat#Int = [[1]]");
+        successInput("var matrix: Mat#String = [[\"Hello\"]]");
+
     }
 
     // ---------------------------------------------------------------------------------------------

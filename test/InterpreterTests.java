@@ -115,6 +115,13 @@ public final class InterpreterTests extends TestFixture {
         checkExpr("\"hello\"", "hello");
         checkExpr("(42)", 42L);
         checkExpr("[1, 2, 3]", new Object[]{1L, 2L, 3L});
+        checkExpr("[[1, 2, 3],[4, 5, 6]]", new Object[][]{
+                                                        new Object[]{1L, 2L, 3L},
+                                                        new Object[]{4L, 5L, 6L}});
+        checkExpr("[0](3)", new Object[][]{ new Object[]{0L, 0L, 0L}});
+        checkExpr("[0](2, 4)", new Object[][]{
+                                            new Object[]{0L, 0L, 0L, 0L},
+                                            new Object[]{0L, 0L, 0L, 0L}});
         checkExpr("true", true);
         checkExpr("false", false);
         checkExpr("null", Null.INSTANCE);
@@ -266,7 +273,7 @@ public final class InterpreterTests extends TestFixture {
     // ---------------------------------------------------------------------------------------------
 
     @Test
-    public void testArrayStructAccess () {
+    public void testArrayStructAccess () { //TODO wait for slicing
         checkExpr("[1][0]", 1L);
         checkExpr("[1.0][0]", 1d);
         checkExpr("[1, 2][1]", 2L);
@@ -331,6 +338,9 @@ public final class InterpreterTests extends TestFixture {
         check("var array: Int[] = []", null);
         check("var array: String[] = []", null);
         check("fun use_array (array: Int[]) {} ; use_array([])", null);
+        //FIXME is this inference ?
+        check("var matrix: Mat#Int = [[1]]", null);
+        check("var matrix: Mat#String = [[\"Hello\"]]", null);
     }
 
     // ---------------------------------------------------------------------------------------------

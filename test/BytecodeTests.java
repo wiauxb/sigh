@@ -98,6 +98,9 @@ public class BytecodeTests
         checkExpr("\"hello\"", "hello");
         checkExpr("(42)", "42");
         checkExpr("[1, 2, 3]", "[1, 2, 3]");
+//        checkExpr("[[1, 2, 3],[4, 5, 6]]", "[[1, 2, 3], [4, 5, 6]]");
+//        checkExpr("[0](5)", "[[0, 0, 0, 0, 0]]");
+//        checkExpr("[0](2, 4)", "[[0, 0, 0, 0], [0, 0, 0, 0]]");
         checkExpr("true", "true");
         checkExpr("false", "false");
         checkExpr("null", "null");
