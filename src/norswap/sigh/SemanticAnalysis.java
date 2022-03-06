@@ -470,6 +470,8 @@ public final class SemanticAnalysis
             Type type = r.get(0);
             if (type instanceof ArrayType)
                 r.set(0, ((ArrayType) type).componentType);
+            else if (type instanceof MatType)
+                r.set(0, new ArrayType(((MatType) type).componentType));
             else
                 r.error("Trying to index a non-array expression of type " + type, node);
         });
