@@ -273,10 +273,14 @@ public final class InterpreterTests extends TestFixture {
     // ---------------------------------------------------------------------------------------------
 
     @Test
-    public void testArrayStructAccess () { //TODO wait for slicing
+    public void testArrayStructAccess () {
         checkExpr("[1][0]", 1L);
         checkExpr("[1.0][0]", 1d);
         checkExpr("[1, 2][1]", 2L);
+
+        checkExpr("[[1]][0]", new Object[]{1L});
+        checkExpr("[[1.0]][0]", new Object[]{1d});
+        checkExpr("[[1, 2], [3, 4]][1]", new Object[]{3L, 4L});
 
         // TODO check that this fails (& maybe improve so that it generates a better message?)
         // or change to make it legal (introduce a top type, and make it a top type array if thre
@@ -317,6 +321,73 @@ public final class InterpreterTests extends TestFixture {
                 "var p: P = null;" +
                 "p.y = 42",
             NullPointerException.class);
+
+        check(
+                "var array: Int[] = [1, 2, 3, 4]"+
+                "var arr: Int[] = array[:]"+
+                "return arr",
+            new Object[] {1L, 2L, 3L, 4L}
+        );
+
+        check(
+            "var array: Int[] = [1, 2, 3, 4]"+
+                "var arr: Int[] = array[1:]"+
+                "return arr",
+            new Object[] {2L, 3L, 4L}
+        );
+
+        check(
+            "var array: Int[] = [1, 2, 3, 4]"+
+                "var arr: Int[] = array[:2]"+
+                "return arr",
+            new Object[] {1L, 2L}
+        );
+
+        check(
+            "var array: Int[] = [1, 2, 3, 4]"+
+                "var arr: Int[] = array[1:3]"+
+                "return arr",
+            new Object[] {2L, 3L}
+        );
+
+        check(
+            "var matrix: Mat#Int = [[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]]"+
+                "var mat: Mat#Int = matrix[:]"+
+                "return mat",
+            new Object[][] {new Object[]{1L, 2L, 3L},
+                            new Object[]{4L, 5L, 6L},
+                            new Object[]{7L, 8L, 9L},
+                            new Object[]{10L, 11L, 12L}}
+        );
+
+        check(
+            "var matrix: Mat#Int = [[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]]"+
+                "var mat: Mat#Int = matrix[2:]"+
+                "return mat",
+            new Object[][] {
+                new Object[]{7L, 8L, 9L},
+                new Object[]{10L, 11L, 12L}}
+        );
+
+        check(
+            "var matrix: Mat#Int = [[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]]"+
+                "var mat: Mat#Int = matrix[:2]"+
+                "return mat",
+            new Object[][] {
+                new Object[]{1L, 2L, 3L},
+                new Object[]{4L, 5L, 6L}}
+        );
+
+        check(
+            "var matrix: Mat#Int = [[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]]"+
+                "var mat: Mat#Int = matrix[1:3]"+
+                "return mat",
+            new Object[][] {
+                new Object[]{4L, 5L, 6L},
+                new Object[]{7L, 8L, 9L}}
+        );
+
+
     }
 
     // ---------------------------------------------------------------------------------------------

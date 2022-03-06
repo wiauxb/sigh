@@ -228,6 +228,9 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
         successInput("var x: Int[] = []; x[0] = 3; return x[0]");
         successInput("var x: Int[] = null; x[0] = 3");
 
+        successInput("var x: Mat#Int = [[1, 2], [3, 4]]; x[0] = [5, 6]");
+        successInput("var x: Mat#Int = [[1, 2], [3, 4]]; x[0][1] = 5; return x[0]");
+
         successInput(
             "struct P { var x: Int; var y: Int }" +
             "return $P(1, 2).y");
