@@ -413,6 +413,17 @@ public final class SemanticAnalysis
                         node.attr("type"));
                 return;
             }
+
+            // matrix shape function
+            if (type instanceof MatType) {
+                if (node.fieldName.equals("shape"))
+                    R.rule(node, "type")
+                        .by(rr -> rr.set(0, new ArrayType(IntType.INSTANCE)));
+                else
+                    r.errorFor("Trying to access an unknown field on a matrix", node,
+                        node.attr("type"));
+                return;
+            }
             
             if (!(type instanceof StructType)) {
                 r.errorFor("Trying to access a field on an expression of type " + type,

@@ -5,10 +5,7 @@ import norswap.sigh.scopes.DeclarationKind;
 import norswap.sigh.scopes.RootScope;
 import norswap.sigh.scopes.Scope;
 import norswap.sigh.scopes.SyntheticDeclarationNode;
-import norswap.sigh.types.FloatType;
-import norswap.sigh.types.IntType;
-import norswap.sigh.types.StringType;
-import norswap.sigh.types.Type;
+import norswap.sigh.types.*;
 import norswap.uranium.Reactor;
 import norswap.utils.Util;
 import norswap.utils.exceptions.Exceptions;
@@ -412,9 +409,23 @@ public final class Interpreter
         if (stem == Null.INSTANCE)
             throw new PassthroughException(
                 new NullPointerException("accessing field of null object"));
-        return stem instanceof Map
-                ? Util.<Map<String, Object>>cast(stem).get(node.fieldName)
-                : (long) ((Object[]) stem).length; // only field on arrays
+        if (stem instanceof Map)
+            return Util.<Map<String, Object>>cast(stem).get(node.fieldName);
+        else if (stem instanceof Object[][]) {
+            Object[][] matrix = (Object[][]) stem;
+            Integer[] res = new Integer[2];
+            res[0] = matrix.length;
+            res[1] = matrix[0].length;
+            return res;
+        }
+        else {
+            return (long) ((Object[]) stem).length;
+        }
+
+
+//        return stem instanceof Map
+//                ? Util.<Map<String, Object>>cast(stem).get(node.fieldName)
+//                : (long) ((Object[]) stem).length; // only field on arrays
     }
 
     // ---------------------------------------------------------------------------------------------
