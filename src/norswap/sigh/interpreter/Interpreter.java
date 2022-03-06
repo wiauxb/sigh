@@ -67,6 +67,7 @@ public final class Interpreter
         visitor.register(ParenthesizedNode.class,        this::parenthesized);
         visitor.register(FieldAccessNode.class,          this::fieldAccess);
         visitor.register(ArrayAccessNode.class,          this::arrayAccess);
+        visitor.register(SlicingAccessNode.class,        this::slicingAccess);
         visitor.register(FunCallNode.class,              this::funCall);
         visitor.register(UnaryExpressionNode.class,      this::unaryExpression);
         visitor.register(BinaryExpressionNode.class,     this::binaryExpression);
@@ -299,6 +300,26 @@ public final class Interpreter
             }
         }
 
+        if (node.left instanceof SlicingAccessNode) {
+            SlicingAccessNode slicingAccess = (SlicingAccessNode) node.left;
+
+            int startIndex = getIndex(slicingAccess.startIndex);
+            int endIndex = getEndIndex(slicingAccess.endIndex);
+
+            if (endIndex != -1 && startIndex > endIndex)
+                throw new InterpreterException(String.format("index %d should be smaller than %d", startIndex, endIndex), null);
+
+            Object[] array = getNonNullArray(slicingAccess.array);
+            if (endIndex == -1) endIndex = array.length;
+            try {
+                Object[] right = getNonNullArray(node.right);
+                System.arraycopy(right, 0, array, startIndex, endIndex - startIndex);
+                return array;
+            } catch (ArrayIndexOutOfBoundsException e) {
+                throw new PassthroughException(e);
+            }
+        }
+
         if (node.left instanceof FieldAccessNode) {
             FieldAccessNode fieldAccess = (FieldAccessNode) node.left;
             Object object = get(fieldAccess.stem);
@@ -315,6 +336,17 @@ public final class Interpreter
     }
 
     // ---------------------------------------------------------------------------------------------
+
+    private int getEndIndex (ExpressionNode node) {
+        long index = get(node);
+        if (index == -1)
+            return -1;
+        if (index < 0)
+            throw new ArrayIndexOutOfBoundsException("Negative index: " + index);
+        if (index >= Integer.MAX_VALUE - 1)
+            throw new ArrayIndexOutOfBoundsException("Index exceeds max array index (2ˆ31 - 2): " + index);
+        return (int) index;
+    }
 
     private int getIndex (ExpressionNode node)
     {
@@ -338,6 +370,15 @@ public final class Interpreter
 
     // ---------------------------------------------------------------------------------------------
 
+    private Object[][] getNonNullMatrix (ExpressionNode node) {
+        Object object = get(node);
+        if (object == Null.INSTANCE)
+            throw new PassthroughException(new NullPointerException("indexing null matrix"));
+        return (Object[][]) object;
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
     private Object unaryExpression (UnaryExpressionNode node)
     {
         // there is only NOT
@@ -355,6 +396,51 @@ public final class Interpreter
         } catch (ArrayIndexOutOfBoundsException e) {
             throw new PassthroughException(e);
         }
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    private Object slicingAccess (SlicingAccessNode node)
+    {
+
+        int startIndex = getIndex(node.startIndex);
+        int endIndex = getEndIndex(node.endIndex);
+
+        if (endIndex != -1 && startIndex > endIndex)
+            throw new InterpreterException(String.format("index %d should be smaller than %d", startIndex, endIndex), null);
+
+        Object arr = get(node.array);
+        if (arr == Null.INSTANCE)
+            throw new PassthroughException(new NullPointerException("indexing null array"));
+
+        if (arr instanceof Object[][]) {
+            Object[][] matrix = getNonNullMatrix(node.array);
+            if (endIndex == -1) endIndex = matrix.length;
+
+            try {
+                Object[][] res = new Object[endIndex - startIndex][matrix[0].length];
+                for (int i = startIndex; i < endIndex; i++) {
+                    res[i - startIndex] = matrix[i].clone();
+                }
+                return res;
+            } catch (ArrayIndexOutOfBoundsException e) {
+                throw new PassthroughException(e);
+            }
+        }
+        else if (arr instanceof Object[]){
+            Object[] array = getNonNullArray(node.array);
+            if (endIndex == -1) endIndex = array.length;
+
+            try {
+                Object[] res = new Object[endIndex - startIndex];
+                System.arraycopy(array, startIndex, res, 0, endIndex - startIndex);
+                return res;
+            } catch (ArrayIndexOutOfBoundsException e) {
+                throw new PassthroughException(e);
+            }
+        }
+        else
+            throw new InterpreterException("Tried to slice an invalid type (" + node.array.getClass()+")", null);
     }
 
     // ---------------------------------------------------------------------------------------------

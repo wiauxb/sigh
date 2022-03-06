@@ -119,6 +119,7 @@ public final class SemanticAnalysis
         walker.register(ParenthesizedNode.class,        PRE_VISIT,  analysis::parenthesized);
         walker.register(FieldAccessNode.class,          PRE_VISIT,  analysis::fieldAccess);
         walker.register(ArrayAccessNode.class,          PRE_VISIT,  analysis::arrayAccess);
+        walker.register(SlicingAccessNode.class,        PRE_VISIT,  analysis::slicingAccess);
         walker.register(FunCallNode.class,              PRE_VISIT,  analysis::funCall);
         walker.register(UnaryExpressionNode.class,      PRE_VISIT,  analysis::unaryExpression);
         walker.register(BinaryExpressionNode.class,     PRE_VISIT,  analysis::binaryExpression);
@@ -476,6 +477,38 @@ public final class SemanticAnalysis
 
     // ---------------------------------------------------------------------------------------------
 
+    private void slicingAccess (SlicingAccessNode node) {
+        R.rule()
+            .using(node.startIndex, "type")
+            .by(r -> {
+                Type type = r.get(0);
+                if (!(type instanceof IntType))
+                    r.error("Slicing an array at start using a non-Int-valued expression", node.startIndex);
+            });
+
+        R.rule()
+            .using(node.endIndex, "type")
+            .by(r -> {
+                Type type = r.get(0);
+                if (!(type instanceof IntType))
+                    r.error("Slicing an array at end using a non-Int-valued expression", node.endIndex);
+            });
+
+        R.rule(node, "type")
+            .using(node.array, "type")
+            .by(r -> {
+                Type type = r.get(0);
+                if (type instanceof ArrayType)
+                    r.set(0, new ArrayType(((ArrayType) type).componentType));
+                else if (type instanceof MatType)
+                    r.set(0, new MatType(((MatType) type).componentType));
+                else
+                    r.error("Trying to slice an invalid type : " + type, node);
+            });
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
     private void funCall (FunCallNode node)
     {
         this.inferenceContext = node;
@@ -661,7 +694,8 @@ public final class SemanticAnalysis
 
             if (node.left instanceof ReferenceNode
             ||  node.left instanceof FieldAccessNode
-            ||  node.left instanceof ArrayAccessNode) {
+            ||  node.left instanceof ArrayAccessNode
+            ||  node.left instanceof SlicingAccessNode) {
                 if (!isAssignableTo(right, left))
                     r.errorFor("Trying to assign a value to a non-compatible lvalue.", node);
             }
