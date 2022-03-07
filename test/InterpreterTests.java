@@ -392,6 +392,29 @@ public final class InterpreterTests extends TestFixture {
 
     // ---------------------------------------------------------------------------------------------
 
+    @Test public void testArrayMatrixSlicing(){
+
+        checkExpr("[1, 2, 3, 4, 5, 6][:]", new Object[]{1L, 2L, 3L, 4L, 5L, 6L});
+        checkExpr("[1, 2, 3, 4, 5, 6][:2]", new Object[]{1L, 2L});
+        checkExpr("[1, 2, 3, 4, 5, 6][1:]", new Object[]{2L, 3L, 4L, 5L, 6L});
+        checkExpr("[1, 2, 3, 4, 5, 6][1:2]", new Object[]{2L});
+
+        checkExpr("[[1, 2, 3], [4, 5, 6], [7, 8, 9]][:]", new Object[][] {
+                                                                new Object[]{1L, 2L, 3L},
+                                                                new Object[]{4L, 5L, 6L},
+                                                                new Object[]{7L, 8L, 9L}});
+        checkExpr("[[1, 2, 3], [4, 5, 6], [7, 8, 9]][:2]", new Object[][]{
+                                                                new Object[]{1L, 2L, 3L},
+                                                                new Object[]{4L, 5L, 6L}});
+        checkExpr("[[1, 2, 3], [4, 5, 6], [7, 8, 9]][1:]", new Object[][]{
+                                                                new Object[]{4L, 5L, 6L},
+                                                                new Object[]{7L, 8L, 9L}});
+        checkExpr("[[1, 2, 3], [4, 5, 6], [7, 8, 9]][1:2]", new Object[][]{
+                                                                new Object[]{4L, 5L, 6L}});
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
     @Test
     public void testIfWhile () {
         check("if (true) return 1 else return 2", 1L);

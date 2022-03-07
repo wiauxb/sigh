@@ -3,4 +3,4 @@ TODO:
  V UNITTEST pour Mat Decl
  V ajouter slicing
  V shape function -> matrix.shape
- - UNITTEST pour slicing et shape
+ V UNITTEST pour slicing et shape

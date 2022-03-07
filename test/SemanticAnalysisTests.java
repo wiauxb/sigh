@@ -213,6 +213,10 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
         successInput("return [1.0][0]");
         successInput("return [1, 2][1]");
 
+        successInput("return [[1]][0]");
+        successInput("return [[1.0]][0]");
+        successInput("return [[1, 2], [3, 4]][1]");
+
         failureInputWith("return [1][true]", "Indexing an array using a non-Int-valued expression");
 
         // TODO make this legal?
@@ -260,6 +264,21 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
             "struct P { var x: Int; var y: Int }" +
             "return $P(1, 2).z",
             "Trying to access missing field z on struct P");
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    @Test public void testArrayMatrixSlicing(){
+
+        successInput("return [1, 2, 3, 4, 5, 6][:]");
+        successInput("return [1, 2, 3, 4, 5, 6][:2]");
+        successInput("return [1, 2, 3, 4, 5, 6][1:]");
+        successInput("return [1, 2, 3, 4, 5, 6][1:2]");
+
+        successInput("return [[1, 2, 3], [4, 5, 6], [7, 8, 9]][:]");
+        successInput("return [[1, 2, 3], [4, 5, 6], [7, 8, 9]][:2]");
+        successInput("return [[1, 2, 3], [4, 5, 6], [7, 8, 9]][1:]");
+        successInput("return [[1, 2, 3], [4, 5, 6], [7, 8, 9]][1:2]");
     }
 
     // ---------------------------------------------------------------------------------------------
