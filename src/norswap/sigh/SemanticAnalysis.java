@@ -327,8 +327,14 @@ public final class SemanticAnalysis
             R.error(new SemanticError("Cannot create empty matrix", null, node));
         }
 
+        int shape2 = -1;
+        for (ArrayLiteralNode line : node.components) {
+            if (shape2 == -1)
+                shape2 = line.components.size();
+            else if (shape2 != line.components.size())
+                R.error(new SemanticError("Matrices must have constant line lengths", null, node));
+        }
 
-//        R.set(node, "type", new MatType());
 
         Attribute[] dependencies =
             node.components.stream().map(it -> it.attr("type")).toArray(Attribute[]::new);
