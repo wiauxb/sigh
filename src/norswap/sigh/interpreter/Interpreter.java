@@ -159,7 +159,7 @@ public final class Interpreter
     // ---------------------------------------------------------------------------------------------
 
     private Object[] matrixLiteral (MatrixLiteralNode node) {
-        return map(node.components, new Object[0], visitor);
+        return map(node.components, new Object[0][0], visitor);
     }
 
     // ---------------------------------------------------------------------------------------------
