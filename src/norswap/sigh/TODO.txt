@@ -4,3 +4,9 @@ TODO:
  V ajouter slicing
  V shape function -> matrix.shape
  V UNITTEST pour slicing et shape
+ - Comparaisons
+    -> Grammar OK
+    -> Semantic
+    -> Interpreter
+
+    /!\ MANQUE tous les sigles "!"

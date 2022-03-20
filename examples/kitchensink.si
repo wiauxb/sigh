@@ -89,3 +89,8 @@ var sliced4: Int[] = arr[1:2]
 //print("" + sliced2)
 //print("" + sliced3)
 print("" + sliced4)
+
+print("" + (matrix1 == matrix2))
+print("" + (matrix1 << matrix2))
+print("" + (matrix1 =? matrix2))
+print("" + (matrix1[0] <=> arr))

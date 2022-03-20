@@ -26,32 +26,42 @@ public class SighGrammar extends Grammar
         id_part = choice(alphanum, '_');
     }
 
-    public rule STAR            = word("*");
-    public rule SLASH           = word("/");
-    public rule PERCENT         = word("%");
-    public rule PLUS            = word("+");
-    public rule MINUS           = word("-");
-    public rule LBRACE          = word("{");
-    public rule RBRACE          = word("}");
-    public rule LPAREN          = word("(");
-    public rule RPAREN          = word(")");
-    public rule LSQUARE         = word("[");
-    public rule RSQUARE         = word("]");
-    public rule COLON           = word(":");
-    public rule EQUALS_EQUALS   = word("==");
-    public rule EQUALS          = word("=");
-    public rule BANG_EQUAL      = word("!=");
-    public rule LANGLE_EQUAL    = word("<=");
-    public rule RANGLE_EQUAL    = word(">=");
-    public rule LANGLE          = word("<");
-    public rule RANGLE          = word(">");
-    public rule AMP_AMP         = word("&&");
-    public rule BAR_BAR         = word("||");
-    public rule BANG            = word("!");
-    public rule DOT             = word(".");
-    public rule DOLLAR          = word("$");
-    public rule COMMA           = word(",");
-    public rule HASHTAG         = word("#");
+    public rule STAR                    = word("*");
+    public rule SLASH                   = word("/");
+    public rule PERCENT                 = word("%");
+    public rule PLUS                    = word("+");
+    public rule MINUS                   = word("-");
+    public rule LBRACE                  = word("{");
+    public rule RBRACE                  = word("}");
+    public rule LPAREN                  = word("(");
+    public rule RPAREN                  = word(")");
+    public rule LSQUARE                 = word("[");
+    public rule RSQUARE                 = word("]");
+    public rule COLON                   = word(":");
+    public rule EQUALS_EQUALS           = word("==");
+    public rule EQUALS_QMARK            = word("=?");
+    public rule LANGLE_EQUALS_RANGLE    = word("<=>");
+    public rule EQUALS                  = word("=");
+    public rule BANG_EQUAL              = word("!=");
+    public rule LANGLE_EQUAL            = word("<=");
+    public rule LANGLE_EQUAL_QMARK      = word("<=?");
+    public rule LANGLE_LANGLE_EQUAL     = word("<<=");
+    public rule RANGLE_EQUAL            = word(">=");
+    public rule RANGLE_EQUAL_QMARK      = word(">=?");
+    public rule RANGLE_RANGLE_EQUAL     = word(">>=");
+    public rule LANGLE                  = word("<");
+    public rule LANGLE_LANGLE           = word("<<");
+    public rule LANGLE_QMARK            = word("<?");
+    public rule RANGLE                  = word(">");
+    public rule RANGLE_RANGLE           = word(">>");
+    public rule RANGLE_QMARK            = word(">?");
+    public rule AMP_AMP                 = word("&&");
+    public rule BAR_BAR                 = word("||");
+    public rule BANG                    = word("!");
+    public rule DOT                     = word(".");
+    public rule DOLLAR                  = word("$");
+    public rule COMMA                   = word(",");
+    public rule HASHTAG                 = word("#");
 
     public rule _var            = reserved("var");
     public rule _fun            = reserved("fun");
@@ -159,7 +169,7 @@ public class SighGrammar extends Grammar
         .suffix(seq(DOT, identifier),
             $ -> new FieldAccessNode($.span(), $.$[0], $.$[1]))
         .suffix(seq(LSQUARE, lazy(() -> this.expression), RSQUARE),
-            $ -> new ArrayAccessNode($.span(), $.$[0], $.$[1])) //TODO do general matrix + Array access
+            $ -> new ArrayAccessNode($.span(), $.$[0], $.$[1]))
         .suffix(seq(LSQUARE, COLON, lazy(() -> this.expression).opt(), RSQUARE),  // arr[:(y)]
             $ -> {
                 if ($.$.length < 2)
@@ -192,12 +202,24 @@ public class SighGrammar extends Grammar
         MINUS       .as_val(BinaryOperator.SUBTRACT));
 
     public rule cmp_op = choice(
+        EQUALS_QMARK            .as_val(BinaryOperator.M_ONE_EQUAL),
+        LANGLE_EQUALS_RANGLE    .as_val(BinaryOperator.M_ALL_EQUAL),
+        LANGLE_LANGLE           .as_val(BinaryOperator.M_ALL_LOWER),
+        LANGLE_LANGLE_EQUAL     .as_val(BinaryOperator.M_ALL_LOWER_EQUAL),
+        LANGLE_QMARK            .as_val(BinaryOperator.M_ONE_LOWER),
+        LANGLE_EQUAL_QMARK      .as_val(BinaryOperator.M_ONE_LOWER_EQUAL),
+        RANGLE_RANGLE           .as_val(BinaryOperator.M_ALL_GREATER),
+        RANGLE_RANGLE_EQUAL     .as_val(BinaryOperator.M_ALL_GREATER_EQUAL),
+        RANGLE_QMARK            .as_val(BinaryOperator.M_ONE_GREATER),
+        RANGLE_EQUAL_QMARK      .as_val(BinaryOperator.M_ONE_GREATER_EQUAL),
+
         EQUALS_EQUALS.as_val(BinaryOperator.EQUALITY),
         BANG_EQUAL  .as_val(BinaryOperator.NOT_EQUALS),
         LANGLE_EQUAL.as_val(BinaryOperator.LOWER_EQUAL),
         RANGLE_EQUAL.as_val(BinaryOperator.GREATER_EQUAL),
         LANGLE      .as_val(BinaryOperator.LOWER),
-        RANGLE      .as_val(BinaryOperator.GREATER));
+        RANGLE      .as_val(BinaryOperator.GREATER)
+);
 
     public rule mult_expr = left_expression()
         .operand(prefix_expression)
