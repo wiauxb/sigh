@@ -612,7 +612,10 @@ public final class SemanticAnalysis
     }
 
     private boolean isComparison (BinaryOperator op) {
-        return op == GREATER || op == GREATER_EQUAL || op == LOWER || op == LOWER_EQUAL;
+        return op == GREATER || op == GREATER_EQUAL || op == LOWER || op == LOWER_EQUAL ||
+                op == M_ONE_EQUAL || op == M_ALL_LOWER || op == M_ALL_LOWER_EQUAL || op == M_ONE_LOWER ||
+                op == M_ONE_LOWER_EQUAL || op == M_ALL_GREATER || op == M_ALL_GREATER_EQUAL || op == M_ONE_GREATER ||
+                op == M_ONE_GREATER_EQUAL;
     }
 
     private boolean isLogic (BinaryOperator op) {
@@ -620,7 +623,7 @@ public final class SemanticAnalysis
     }
 
     private boolean isEquality (BinaryOperator op) {
-        return op == EQUALITY || op == NOT_EQUALS;
+        return op == EQUALITY || op == NOT_EQUALS || op == M_ALL_EQUAL;
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -655,12 +658,19 @@ public final class SemanticAnalysis
     {
         r.set(0, BoolType.INSTANCE);
 
-        if (!(left instanceof IntType) && !(left instanceof FloatType))
+        if (!(left instanceof IntType) &&
+                !(left instanceof FloatType) &&
+                !(left instanceof MatType) &&
+                !(left instanceof ArrayType))
             r.errorFor("Attempting to perform arithmetic comparison on non-numeric type: " + left,
                 node.left);
-        if (!(right instanceof IntType) && !(right instanceof FloatType))
+        if (!(right instanceof IntType) &&
+                !(right instanceof FloatType) &&
+                !(right instanceof MatType) &&
+                !(right instanceof ArrayType))
             r.errorFor("Attempting to perform arithmetic comparison on non-numeric type: " + right,
                 node.right);
+
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -811,7 +821,17 @@ public final class SemanticAnalysis
         return a.isReference() && b.isReference()
             || a.equals(b)
             || a instanceof IntType && b instanceof FloatType
-            || a instanceof FloatType && b instanceof IntType;
+            || a instanceof FloatType && b instanceof IntType
+            || a instanceof MatType && b instanceof ArrayType
+            || a instanceof ArrayType && b instanceof MatType
+            || a instanceof MatType && b instanceof IntType
+            || a instanceof IntType && b instanceof MatType
+            || a instanceof MatType && b instanceof FloatType
+            || a instanceof FloatType && b instanceof MatType
+            || a instanceof ArrayType && b instanceof IntType
+            || a instanceof IntType && b instanceof ArrayType
+            || a instanceof ArrayType && b instanceof FloatType
+            || a instanceof FloatType && b instanceof ArrayType;
     }
 
     // ---------------------------------------------------------------------------------------------

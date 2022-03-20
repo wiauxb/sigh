@@ -204,12 +204,12 @@ public class SighGrammar extends Grammar
     public rule cmp_op = choice(
         EQUALS_QMARK            .as_val(BinaryOperator.M_ONE_EQUAL),
         LANGLE_EQUALS_RANGLE    .as_val(BinaryOperator.M_ALL_EQUAL),
-        LANGLE_LANGLE           .as_val(BinaryOperator.M_ALL_LOWER),
         LANGLE_LANGLE_EQUAL     .as_val(BinaryOperator.M_ALL_LOWER_EQUAL),
-        LANGLE_QMARK            .as_val(BinaryOperator.M_ONE_LOWER),
+        LANGLE_LANGLE           .as_val(BinaryOperator.M_ALL_LOWER),
         LANGLE_EQUAL_QMARK      .as_val(BinaryOperator.M_ONE_LOWER_EQUAL),
-        RANGLE_RANGLE           .as_val(BinaryOperator.M_ALL_GREATER),
+        LANGLE_QMARK            .as_val(BinaryOperator.M_ONE_LOWER),
         RANGLE_RANGLE_EQUAL     .as_val(BinaryOperator.M_ALL_GREATER_EQUAL),
+        RANGLE_RANGLE           .as_val(BinaryOperator.M_ALL_GREATER),
         RANGLE_QMARK            .as_val(BinaryOperator.M_ONE_GREATER),
         RANGLE_EQUAL_QMARK      .as_val(BinaryOperator.M_ONE_GREATER_EQUAL),
 

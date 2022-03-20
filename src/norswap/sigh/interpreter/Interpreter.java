@@ -14,7 +14,10 @@ import norswap.utils.visitors.ValuedVisitor;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
+import static java.lang.String.format;
+import static norswap.sigh.ast.BinaryOperator.*;
 import static norswap.utils.Util.cast;
 import static norswap.utils.Vanilla.coIterate;
 import static norswap.utils.Vanilla.map;
@@ -200,9 +203,18 @@ public final class Interpreter
 
         boolean floating = leftType instanceof FloatType || rightType instanceof FloatType;
         boolean numeric  = floating || leftType instanceof IntType;
+        boolean arraylike = leftType instanceof MatType || leftType instanceof ArrayType;
+
+        Type insideType = IntType.INSTANCE;
+        if (leftType instanceof MatType)
+            insideType = ((MatType) leftType).componentType;
+        else if (leftType instanceof ArrayType)
+            insideType = ((ArrayType) leftType).componentType;
 
         if (numeric)
             return numericOp(node, floating, (Number) left, (Number) right);
+        if (arraylike)
+            return arrayLikeOp(node, insideType, left, right);
 
         switch (node.operator) {
             case EQUALITY:
@@ -279,6 +291,166 @@ public final class Interpreter
 
     // ---------------------------------------------------------------------------------------------
 
+    private Object arrayLikeOp (BinaryExpressionNode node, Type insideType, Object left, Object right)
+    {
+
+        if (!(left instanceof Object[]) || !(right instanceof Object[]))
+            throw new Error("should not reach here");
+
+        switch (node.operator) {
+            case MULTIPLY:      return new Object(); //TODO: add basic operations to matrices
+            case DIVIDE:        return new Object(); //TODO: add basic operations to matrices
+            case REMAINDER:     return new Object(); //TODO: add basic operations to matrices
+            case ADD:           return new Object(); //TODO: add basic operations to matrices
+            case SUBTRACT:      return new Object(); //TODO: add basic operations to matrices
+
+            case GREATER:
+            case LOWER:
+            case GREATER_EQUAL:
+            case LOWER_EQUAL:
+            case EQUALITY:
+            case NOT_EQUALS:
+                throw new InterpreterException(format("%s is not a valid operator for array like variables.", node.operator.string), null);
+
+            case M_ALL_EQUAL:
+            case M_ALL_LOWER:
+            case M_ALL_LOWER_EQUAL:
+            case M_ALL_GREATER:
+            case M_ALL_GREATER_EQUAL:
+                return applyComparaisonForAll(node.operator, insideType, (Object[]) left, (Object[]) right);
+            case M_ONE_EQUAL:
+            case M_ONE_LOWER:
+            case M_ONE_LOWER_EQUAL:
+            case M_ONE_GREATER:
+            case M_ONE_GREATER_EQUAL:
+                return applyComparaisonForOne(node.operator, insideType, (Object[]) left, (Object[]) right);
+            default:
+                throw new Error("should not reach here");
+        }
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    private int[] getArrayLikeShape(Object[] array)
+    {
+        int[] res = new int[2];
+        if (array instanceof Object[][]) {
+            res[0] = array.length;
+            res[1] = ((Object[][]) array)[0].length;
+        }
+        else{
+            res[0] = 1;
+            res[1] = array.length;
+        }
+        return res;
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    private Object[][] arrayToMat(Object[] array){
+        return new Object[][]{array};
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    private Number getWithType(Object num, Type type){
+        if (type.equals(IntType.INSTANCE))
+            return (Long) num;
+        else if (type.equals(FloatType.INSTANCE))
+            return (Double) num;
+        else if (type.equals(StringType.INSTANCE))
+            throw new Error("String comparaison is not yet implemented");
+        else
+            throw new Error("should not reach here");
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    private Object applyComparaisonForOne(BinaryOperator operator, Type insideType, Object[] left, Object[] right)
+    {
+        int[] shape1 = getArrayLikeShape(left);
+        int[] shape2 = getArrayLikeShape(right);
+
+        if (!Arrays.equals(shape1, shape2))
+            throw new Error(format("Operand must be same sizes: %s != %s", Arrays.toString(shape1), Arrays.toString(shape2)));
+
+        Object[][] tleft = (left instanceof Object[][]) ? (Object[][]) left : arrayToMat(left);
+        Object[][] tright = (right instanceof Object[][]) ? (Object[][]) right : arrayToMat(right);
+
+        for (int i = 0; i < shape1[0]; i++) {
+            for (int j = 0; j < shape1[1]; j++) {
+                Number nleft = getWithType(tleft[i][j], insideType);
+                Number nright = getWithType(tright[i][j], insideType);
+                switch(operator) {
+                    case M_ONE_EQUAL:
+                        if (nleft.equals(nright)) return true;
+                        break;
+                    case M_ONE_LOWER:
+                        if (insideType.equals(IntType.INSTANCE) && nleft.longValue() < nright.longValue()) return true;
+                        else if (insideType.equals(FloatType.INSTANCE) && nleft.floatValue() < nright.floatValue()) return true;
+                        break;
+                    case M_ONE_LOWER_EQUAL:
+                        if (insideType.equals(IntType.INSTANCE) && nleft.longValue() <= nright.longValue()) return true;
+                        else if (insideType.equals(FloatType.INSTANCE) && nleft.floatValue() <= nright.floatValue()) return true;
+                        break;
+                    case M_ONE_GREATER:
+                        if (insideType.equals(IntType.INSTANCE) && nleft.longValue() > nright.longValue()) return true;
+                        else if (insideType.equals(FloatType.INSTANCE) && nleft.floatValue() > nright.floatValue()) return true;
+                        break;
+                    case M_ONE_GREATER_EQUAL:
+                        if (insideType.equals(IntType.INSTANCE) && nleft.longValue() >= nright.longValue()) return true;
+                        else if (insideType.equals(FloatType.INSTANCE) && nleft.floatValue() >= nright.floatValue()) return true;
+                        break;
+                }
+            }
+        }
+        return false;
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    private Object applyComparaisonForAll(BinaryOperator operator, Type insideType, Object[] left, Object[] right)
+    {
+        int[] shape1 = getArrayLikeShape(left);
+        int[] shape2 = getArrayLikeShape(right);
+
+        if (!Arrays.equals(shape1, shape2))
+            throw new Error(format("Operand must be same sizes: %s != %s", Arrays.toString(shape1), Arrays.toString(shape2)));
+
+        Object[][] tleft = (left instanceof Object[][]) ? (Object[][]) left : arrayToMat(left);
+        Object[][] tright = (right instanceof Object[][]) ? (Object[][]) right : arrayToMat(right);
+
+        for (int i = 0; i < shape1[0]; i++) {
+            for (int j = 0; j < shape1[1]; j++) {
+                Number nleft = getWithType(tleft[i][j], insideType);
+                Number nright = getWithType(tright[i][j], insideType);
+                switch(operator) {
+                    case M_ALL_EQUAL:
+                        if (!(nleft.equals(nright))) return false;
+                        break;
+                    case M_ALL_LOWER:
+                        if (insideType.equals(IntType.INSTANCE) && nleft.longValue() >= nright.longValue()) return false;
+                        else if (insideType.equals(FloatType.INSTANCE) && nleft.floatValue() >= nright.floatValue()) return false;
+                        break;
+                    case M_ALL_LOWER_EQUAL:
+                        if (insideType.equals(IntType.INSTANCE) && nleft.longValue() > nright.longValue()) return false;
+                        else if (insideType.equals(FloatType.INSTANCE) && nleft.floatValue() > nright.floatValue()) return false;
+                        break;
+                    case M_ALL_GREATER:
+                        if (insideType.equals(IntType.INSTANCE) && nleft.longValue() <= nright.longValue()) return false;
+                        else if (insideType.equals(FloatType.INSTANCE) && nleft.floatValue() <= nright.floatValue()) return false;
+                        break;
+                    case M_ALL_GREATER_EQUAL:
+                        if (insideType.equals(IntType.INSTANCE) && nleft.longValue() < nright.longValue()) return false;
+                        else if (insideType.equals(FloatType.INSTANCE) && nleft.floatValue() < nright.floatValue()) return false;
+                        break;
+                }
+            }
+        }
+        return true;
+    }
+    // ---------------------------------------------------------------------------------------------
+
     public Object assignment (AssignmentNode node)
     {
         if (node.left instanceof ReferenceNode) {
@@ -307,7 +479,7 @@ public final class Interpreter
             int endIndex = getEndIndex(slicingAccess.endIndex);
 
             if (endIndex != -1 && startIndex > endIndex)
-                throw new InterpreterException(String.format("index %d should be smaller than %d", startIndex, endIndex), null);
+                throw new InterpreterException(format("index %d should be smaller than %d", startIndex, endIndex), null);
 
             Object[] array = getNonNullArray(slicingAccess.array);
             if (endIndex == -1) endIndex = array.length;
@@ -407,7 +579,7 @@ public final class Interpreter
         int endIndex = getEndIndex(node.endIndex);
 
         if (endIndex != -1 && startIndex > endIndex)
-            throw new InterpreterException(String.format("index %d should be smaller than %d", startIndex, endIndex), null);
+            throw new InterpreterException(format("index %d should be smaller than %d", startIndex, endIndex), null);
 
         Object arr = get(node.array);
         if (arr == Null.INSTANCE)

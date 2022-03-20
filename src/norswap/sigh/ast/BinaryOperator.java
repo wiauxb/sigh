@@ -16,10 +16,10 @@ public enum BinaryOperator
     AND("&&"),
     OR("||"),
 
-    M_ONE_EQUAL("=?"),
-    M_ALL_EQUAL("<=>"),
-    M_ALL_LOWER("<<"),
-    M_ALL_LOWER_EQUAL("<<="),
+    M_ONE_EQUAL("=?"),      // comparison
+    M_ALL_EQUAL("<=>"),     // equality
+    M_ALL_LOWER("<<"),      // comparison
+    M_ALL_LOWER_EQUAL("<<="), // ...
     M_ONE_LOWER("<?"),
     M_ONE_LOWER_EQUAL("<=?"),
     M_ALL_GREATER(">>"),
