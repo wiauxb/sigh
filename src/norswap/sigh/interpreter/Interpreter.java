@@ -14,10 +14,8 @@ import norswap.utils.visitors.ValuedVisitor;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 import static java.lang.String.format;
-import static norswap.sigh.ast.BinaryOperator.*;
 import static norswap.utils.Util.cast;
 import static norswap.utils.Vanilla.coIterate;
 import static norswap.utils.Vanilla.map;
@@ -202,8 +200,9 @@ public final class Interpreter
             return convertToString(left) + convertToString(right);
 
         boolean floating = leftType instanceof FloatType || rightType instanceof FloatType;
-        boolean numeric  = floating || leftType instanceof IntType;
-        boolean arraylike = leftType instanceof MatType || leftType instanceof ArrayType;
+        boolean numeric  = floating || leftType instanceof IntType || rightType instanceof IntType ;
+        boolean arraylike = leftType instanceof MatType || leftType instanceof ArrayType
+            || rightType instanceof MatType || rightType instanceof ArrayType;
 
         Type insideType = IntType.INSTANCE;
         if (leftType instanceof MatType)
@@ -211,10 +210,12 @@ public final class Interpreter
         else if (leftType instanceof ArrayType)
             insideType = ((ArrayType) leftType).componentType;
 
-        if (numeric)
+        if (numeric && !arraylike)
             return numericOp(node, floating, (Number) left, (Number) right);
-        if (arraylike)
+        if (arraylike && !numeric)
             return arrayLikeOp(node, insideType, left, right);
+        if (numeric && arraylike)
+            return mixedOp(node, insideType, left, right);
 
         switch (node.operator) {
             case EQUALITY:
@@ -326,6 +327,39 @@ public final class Interpreter
                 return applyComparaisonForOne(node.operator, insideType, (Object[]) left, (Object[]) right);
             default:
                 throw new Error("should not reach here");
+        }
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    private Object mixedOp (BinaryExpressionNode node, Type insideType, Object left, Object right)
+    {
+
+        if (left instanceof Long || left instanceof Double) {
+            if (!(right instanceof Object[]))
+                throw new Error("should not reach here");
+            //left = Num et rght = Mat
+            int[] shape = getArrayLikeShape((Object[]) right);
+            Object[][] new_mat = (left instanceof Long) ? new Long[shape[0]][shape[1]] : new Double[shape[0]][shape[1]];
+            for (int i = 0; i < shape[0]; i++) {
+                for (int j = 0; j < shape[1]; j++) {
+                    new_mat[i][j] = left;
+                }
+            }
+           return arrayLikeOp(node, insideType, new_mat, right);
+        }
+        else {
+            if (!(left instanceof Object[]))
+                throw new Error("should not reach here");
+            // left = mat et right = Num
+            int[] shape = getArrayLikeShape((Object[]) left);
+            Object[][] new_mat = (right instanceof Long) ? new Long[shape[0]][shape[1]] : new Double[shape[0]][shape[1]];
+            for (int i = 0; i < shape[0]; i++) {
+                for (int j = 0; j < shape[1]; j++) {
+                    new_mat[i][j] = right;
+                }
+            }
+            return arrayLikeOp(node, insideType, left, new_mat);
         }
     }
 
