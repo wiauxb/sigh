@@ -204,11 +204,15 @@ public final class Interpreter
         boolean arraylike = leftType instanceof MatType || leftType instanceof ArrayType
             || rightType instanceof MatType || rightType instanceof ArrayType;
 
-        Type insideType = IntType.INSTANCE;
+        Type[] insideType = new Type[]{IntType.INSTANCE, IntType.INSTANCE};
         if (leftType instanceof MatType)
-            insideType = ((MatType) leftType).componentType;
+            insideType[0] = ((MatType) leftType).componentType;
         else if (leftType instanceof ArrayType)
-            insideType = ((ArrayType) leftType).componentType;
+            insideType[0] = ((ArrayType) leftType).componentType;
+        if (rightType instanceof MatType)
+            insideType[1] = ((MatType) rightType).componentType;
+        else if (rightType instanceof ArrayType)
+            insideType[1] = ((ArrayType) rightType).componentType;
 
         if (numeric && !arraylike)
             return numericOp(node, floating, (Number) left, (Number) right);
@@ -292,18 +296,19 @@ public final class Interpreter
 
     // ---------------------------------------------------------------------------------------------
 
-    private Object arrayLikeOp (BinaryExpressionNode node, Type insideType, Object left, Object right)
+    private Object arrayLikeOp (BinaryExpressionNode node, Type[] insideTypes, Object left, Object right)
     {
 
         if (!(left instanceof Object[]) || !(right instanceof Object[]))
             throw new Error("should not reach here");
 
         switch (node.operator) {
-            case MULTIPLY:      return new Object(); //TODO: add basic operations to matrices
-            case DIVIDE:        return new Object(); //TODO: add basic operations to matrices
-            case REMAINDER:     return new Object(); //TODO: add basic operations to matrices
-            case ADD:           return new Object(); //TODO: add basic operations to matrices
-            case SUBTRACT:      return new Object(); //TODO: add basic operations to matrices
+            case MULTIPLY:
+            case DIVIDE:
+            case REMAINDER:
+            case ADD:
+            case SUBTRACT:
+                return applyOperationForAll(node.operator, insideTypes, (Object[]) left, (Object[]) right);
 
             case GREATER:
             case LOWER:
@@ -318,13 +323,13 @@ public final class Interpreter
             case M_ALL_LOWER_EQUAL:
             case M_ALL_GREATER:
             case M_ALL_GREATER_EQUAL:
-                return applyComparaisonForAll(node.operator, insideType, (Object[]) left, (Object[]) right);
+                return applyComparaisonForAll(node.operator, insideTypes[0], (Object[]) left, (Object[]) right);
             case M_ONE_EQUAL:
             case M_ONE_LOWER:
             case M_ONE_LOWER_EQUAL:
             case M_ONE_GREATER:
             case M_ONE_GREATER_EQUAL:
-                return applyComparaisonForOne(node.operator, insideType, (Object[]) left, (Object[]) right);
+                return applyComparaisonForOne(node.operator, insideTypes[0], (Object[]) left, (Object[]) right);
             default:
                 throw new Error("should not reach here");
         }
@@ -332,7 +337,7 @@ public final class Interpreter
 
     // ---------------------------------------------------------------------------------------------
 
-    private Object mixedOp (BinaryExpressionNode node, Type insideType, Object left, Object right)
+    private Object mixedOp (BinaryExpressionNode node, Type[] insideType, Object left, Object right)
     {
 
         if (left instanceof Long || left instanceof Double) {
@@ -396,6 +401,77 @@ public final class Interpreter
             throw new Error("String comparaison is not yet implemented");
         else
             throw new Error("should not reach here");
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    private Object applyOperationForAll(BinaryOperator operator, Type[] insideTypes, Object[] left, Object[] right){
+
+        int[] shape1 = getArrayLikeShape(left);
+        int[] shape2 = getArrayLikeShape(right);
+
+        if (!Arrays.equals(shape1, shape2))
+            throw new Error(format("Operand must be same sizes: %s != %s", Arrays.toString(shape1), Arrays.toString(shape2)));
+
+        Object[][] tleft = (left instanceof Object[][]) ? (Object[][]) left : arrayToMat(left);
+        Object[][] tright = (right instanceof Object[][]) ? (Object[][]) right : arrayToMat(right);
+
+        Object[][] rep = new Object[shape1[0]][shape1[1]];
+
+        for (int i = 0; i < shape1[0]; i++) {
+            for (int j = 0; j < shape1[1]; j++) {
+
+                long ileft, iright;
+                double fleft, fright;
+
+                if (tleft[i][j] instanceof Double) {
+                    fleft  = (Double) tleft[i][j];
+                    ileft = 0;
+                } else {
+                    ileft  = (Long) tleft[i][j];
+                    fleft = 0;
+                }
+
+                if (tright[i][j] instanceof Double) {
+                    fright  = (Double) tright[i][j];
+                    iright = 0;
+                } else {
+                    iright  = (Long) tright[i][j];
+                    fright = 0;
+                }
+
+                switch (operator) {
+                    case MULTIPLY:
+                        rep[i][j] = (insideTypes[0] instanceof IntType) ?
+                            ileft * ((insideTypes[1] instanceof IntType) ? iright : fright) :
+                            fleft * ((insideTypes[1] instanceof IntType) ? iright : fright);
+                        break;
+                    case DIVIDE:
+                        rep[i][j] = (insideTypes[0] instanceof IntType) ?
+                            ileft / ((insideTypes[1] instanceof IntType) ? iright : fright) :
+                            fleft / ((insideTypes[1] instanceof IntType) ? iright : fright);
+                        break;
+                    case REMAINDER:
+                        rep[i][j] = (insideTypes[0] instanceof IntType) ?
+                            ileft % ((insideTypes[1] instanceof IntType) ? iright : fright) :
+                            fleft % ((insideTypes[1] instanceof IntType) ? iright : fright);
+                        break;
+                    case ADD:
+                        rep[i][j] = (insideTypes[0] instanceof IntType) ?
+                            ileft + ((insideTypes[1] instanceof IntType) ? iright : fright) :
+                            fleft + ((insideTypes[1] instanceof IntType) ? iright : fright);
+                        break;
+                    case SUBTRACT:
+                        rep[i][j] = (insideTypes[0] instanceof IntType) ?
+                            ileft - ((insideTypes[1] instanceof IntType) ? iright : fright) :
+                            fleft - ((insideTypes[1] instanceof IntType) ? iright : fright);
+                        break;
+                    default:
+                        throw new Error("should not reach here");
+                }
+            }
+        }
+        return rep;
     }
 
     // ---------------------------------------------------------------------------------------------

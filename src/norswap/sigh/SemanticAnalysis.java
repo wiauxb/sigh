@@ -635,13 +635,59 @@ public final class SemanticAnalysis
                 r.set(0, IntType.INSTANCE);
             else if (right instanceof FloatType)
                 r.set(0, FloatType.INSTANCE);
+            else if (right instanceof ArrayType)
+                if (((ArrayType) right).componentType instanceof IntType)
+                    r.set(0, new ArrayType(IntType.INSTANCE));
+                else if (((ArrayType) right).componentType instanceof FloatType)
+                    r.set(0, new ArrayType((FloatType.INSTANCE)));
+                else
+                    r.error(arithmeticError(node, "Int", right), node);
+            else if (right instanceof MatType)
+                if (((MatType) right).componentType instanceof IntType)
+                    r.set(0, new MatType(IntType.INSTANCE));
+                else if (((MatType) right).componentType instanceof FloatType)
+                    r.set(0, new MatType(FloatType.INSTANCE));
+                else
+                    r.error(arithmeticError(node, "Int", right), node);
             else
                 r.error(arithmeticError(node, "Int", right), node);
         else if (left instanceof FloatType)
             if (right instanceof IntType || right instanceof FloatType)
                 r.set(0, FloatType.INSTANCE);
+            else if (right instanceof ArrayType)
+                if (((ArrayType) right).componentType instanceof IntType || ((ArrayType) right).componentType instanceof FloatType)
+                    r.set(0, new ArrayType(FloatType.INSTANCE));
+                else
+                    r.error(arithmeticError(node, "Float", right), node);
+            else if (right instanceof MatType)
+                if (((MatType) right).componentType instanceof IntType || ((MatType) right).componentType instanceof FloatType)
+                    r.set(0, new MatType(FloatType.INSTANCE));
+                else
+                    r.error(arithmeticError(node, "Float", right), node);
             else
                 r.error(arithmeticError(node, "Float", right), node);
+        else if (left instanceof MatType)
+            if (right instanceof MatType)
+                ;
+            else if (right instanceof ArrayType)
+                ;
+            else if (right instanceof IntType)
+                ;
+            else if (right instanceof FloatType)
+                ;
+            else
+                ;
+        else if (left instanceof ArrayType)
+            if (right instanceof ArrayType)
+                ;
+            else if (right instanceof MatType)
+                ;
+            else if (right instanceof IntType)
+                ;
+            else if (right instanceof FloatType)
+                ;
+            else
+                ;
         else
             r.error(arithmeticError(node, left, right), node);
     }

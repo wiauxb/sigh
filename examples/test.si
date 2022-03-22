@@ -43,3 +43,8 @@ print("" + (0 <=> [0](2, 2)))
 print("" + ([0](2, 2) <=> 0))
 print("" + (matrix5 << 0))
 print("" + (matrix5 <=? 0))
+
+print("-------------------")
+print("" + matrix5)
+print("" + (1 + matrix5))
+print("-------------------")
