@@ -204,7 +204,7 @@ public final class Interpreter
         boolean arraylike = leftType instanceof MatType || leftType instanceof ArrayType
             || rightType instanceof MatType || rightType instanceof ArrayType;
 
-        Type[] insideType = new Type[]{IntType.INSTANCE, IntType.INSTANCE};
+        Type[] insideType = new Type[]{leftType, rightType};
         if (leftType instanceof MatType)
             insideType[0] = ((MatType) leftType).componentType;
         else if (leftType instanceof ArrayType)
@@ -442,29 +442,64 @@ public final class Interpreter
 
                 switch (operator) {
                     case MULTIPLY:
-                        rep[i][j] = (insideTypes[0] instanceof IntType) ?
-                            ileft * ((insideTypes[1] instanceof IntType) ? iright : fright) :
-                            fleft * ((insideTypes[1] instanceof IntType) ? iright : fright);
+                        if (insideTypes[0] instanceof IntType)
+                            if (insideTypes[1] instanceof IntType)
+                                rep[i][j] = ileft * iright;
+                            else
+                                rep[i][j] = ileft * fright;
+                        else
+                            if (insideTypes[1] instanceof IntType)
+                                rep[i][j] = fleft * iright;
+                            else
+                                rep[i][j] = fleft * fright;
                         break;
                     case DIVIDE:
-                        rep[i][j] = (insideTypes[0] instanceof IntType) ?
-                            ileft / ((insideTypes[1] instanceof IntType) ? iright : fright) :
-                            fleft / ((insideTypes[1] instanceof IntType) ? iright : fright);
+                        if (insideTypes[0] instanceof IntType)
+                            if (insideTypes[1] instanceof IntType)
+                                rep[i][j] = ileft / iright;
+                            else
+                                rep[i][j] = ileft / fright;
+                        else
+                            if (insideTypes[1] instanceof IntType)
+                                rep[i][j] = fleft / iright;
+                            else
+                                rep[i][j] = fleft / fright;
                         break;
                     case REMAINDER:
-                        rep[i][j] = (insideTypes[0] instanceof IntType) ?
-                            ileft % ((insideTypes[1] instanceof IntType) ? iright : fright) :
-                            fleft % ((insideTypes[1] instanceof IntType) ? iright : fright);
+                        if (insideTypes[0] instanceof IntType)
+                            if (insideTypes[1] instanceof IntType)
+                                rep[i][j] = ileft % iright;
+                            else
+                                rep[i][j] = ileft % fright;
+                        else
+                            if (insideTypes[1] instanceof IntType)
+                                rep[i][j] = fleft % iright;
+                            else
+                                rep[i][j] = fleft % fright;
                         break;
                     case ADD:
-                        rep[i][j] = (insideTypes[0] instanceof IntType) ?
-                            ileft + ((insideTypes[1] instanceof IntType) ? iright : fright) :
-                            fleft + ((insideTypes[1] instanceof IntType) ? iright : fright);
+                        if (insideTypes[0] instanceof IntType)
+                            if (insideTypes[1] instanceof IntType)
+                                rep[i][j] = ileft + iright;
+                            else
+                                rep[i][j] = ileft + fright;
+                        else
+                            if (insideTypes[1] instanceof IntType)
+                                rep[i][j] = fleft + iright;
+                            else
+                                rep[i][j] = fleft + fright;
                         break;
                     case SUBTRACT:
-                        rep[i][j] = (insideTypes[0] instanceof IntType) ?
-                            ileft - ((insideTypes[1] instanceof IntType) ? iright : fright) :
-                            fleft - ((insideTypes[1] instanceof IntType) ? iright : fright);
+                        if (insideTypes[0] instanceof IntType)
+                            if (insideTypes[1] instanceof IntType)
+                                rep[i][j] = ileft - iright;
+                            else
+                                rep[i][j] = ileft - fright;
+                        else
+                            if (insideTypes[1] instanceof IntType)
+                                rep[i][j] = fleft - iright;
+                            else
+                                rep[i][j] = fleft - fright;
                         break;
                     default:
                         throw new Error("should not reach here");
