@@ -1,5 +1,5 @@
-var matrix1: Mat#Float = [1.0](2, 3)
-var matrix2: Mat#Float = [1.0](2, 3)
+var matrix1: Mat#Float = [1.0](2, 2)
+var matrix2: Mat#Float = [1.0](2, 2)
 
 print("" + matrix1)
 print("" + matrix2)
@@ -50,3 +50,4 @@ print("" + (matrix5 % 3))
 print("" + (matrix1 @ matrix4))
 print("" + (1 @ matrix4))
 print("-------------------")
+print("" + ([2, 3] @ [[4], [5]]))
