@@ -303,6 +303,7 @@ public final class Interpreter
             throw new Error("should not reach here");
 
         switch (node.operator) {
+            case DOT_PRODUCT:
             case MULTIPLY:
             case DIVIDE:
             case REMAINDER:
@@ -410,16 +411,19 @@ public final class Interpreter
         int[] shape1 = getArrayLikeShape(left);
         int[] shape2 = getArrayLikeShape(right);
 
-        if (!Arrays.equals(shape1, shape2))
+        if (!Arrays.equals(shape1, shape2) && operator != BinaryOperator.DOT_PRODUCT)
             throw new Error(format("Operand must be same sizes: %s != %s", Arrays.toString(shape1), Arrays.toString(shape2)));
+        else if (operator == BinaryOperator.DOT_PRODUCT && shape1[1] != shape2[0])
+            throw new Error(format("Invalid shape for dot product: %s and %s", Arrays.toString(shape1), Arrays.toString(shape2)));
 
         Object[][] tleft = (left instanceof Object[][]) ? (Object[][]) left : arrayToMat(left);
         Object[][] tright = (right instanceof Object[][]) ? (Object[][]) right : arrayToMat(right);
 
-        Object[][] rep = new Object[shape1[0]][shape1[1]];
+
+        Object[][] rep = new Object[shape1[0]][shape2[1]];
 
         for (int i = 0; i < shape1[0]; i++) {
-            for (int j = 0; j < shape1[1]; j++) {
+            for (int j = 0; j < shape2[1]; j++) {
 
                 long ileft, iright;
                 double fleft, fright;
@@ -500,6 +504,24 @@ public final class Interpreter
                                 rep[i][j] = fleft - iright;
                             else
                                 rep[i][j] = fleft - fright;
+                        break;
+                    case DOT_PRODUCT:
+                        double res = 0.;
+                        for (int k = 0; k < shape1[1]; k++) {
+                            if (insideTypes[0] instanceof IntType)
+                                if (insideTypes[1] instanceof IntType)
+                                    res += ((Long) tleft[i][k]) * ((Long) tright[k][j]);
+                                else
+                                    res += ((Long) tleft[i][k]) * ((Double) tright[k][j]);
+                            else
+                                if (insideTypes[1] instanceof IntType)
+                                    res += ((Double) tleft[i][k]) * ((Long) tright[k][j]);
+                                else
+                                    res += ((Double) tleft[i][k]) * ((Double) tright[k][j]);
+                        }
+                        if (insideTypes[0] instanceof IntType &&
+                            insideTypes[1] instanceof IntType) rep[i][j] = (long) res;
+                        else rep[i][j] = res;
                         break;
                     default:
                         throw new Error("should not reach here");

@@ -7,6 +7,7 @@ public enum BinaryOperator
     REMAINDER("%"),
     ADD("+"),
     SUBTRACT("-"),
+    DOT_PRODUCT("@"),
     EQUALITY("=="),
     NOT_EQUALS("!="),
     GREATER(">"),

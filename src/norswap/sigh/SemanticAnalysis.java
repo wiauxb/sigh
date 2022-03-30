@@ -608,7 +608,7 @@ public final class SemanticAnalysis
     // ---------------------------------------------------------------------------------------------
 
     private boolean isArithmetic (BinaryOperator op) {
-        return op == ADD || op == MULTIPLY || op == SUBTRACT || op == DIVIDE || op == REMAINDER;
+        return op == ADD || op == MULTIPLY || op == SUBTRACT || op == DIVIDE || op == REMAINDER || op == DOT_PRODUCT;
     }
 
     private boolean isComparison (BinaryOperator op) {
