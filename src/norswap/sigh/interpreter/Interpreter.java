@@ -11,8 +11,10 @@ import norswap.utils.Util;
 import norswap.utils.exceptions.Exceptions;
 import norswap.utils.exceptions.NoStackException;
 import norswap.utils.visitors.ValuedVisitor;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static java.lang.String.format;
@@ -388,6 +390,7 @@ public final class Interpreter
     // ---------------------------------------------------------------------------------------------
 
     private Object[][] arrayToMat(Object[] array){
+        if (array instanceof Object[][]) return (Object[][]) array;
         return new Object[][]{array};
     }
 
@@ -870,11 +873,36 @@ public final class Interpreter
         if (decl instanceof Constructor)
             return buildStruct(((Constructor) decl).declaration, args);
 
+        FunDeclarationNode funDecl = (FunDeclarationNode) decl;
+        TypeNode[] args_types = map(funDecl.parameters, new TypeNode[0], (param) -> param.type);
+
+        boolean vectorized = false;
+        int[] shape = new int[2];
+
+        for (int i = 0; i < args.length; i++) {
+            if (isVectorized(args[i], args_types[i])){
+                vectorized = true;
+                shape = getArrayLikeShape((Object[]) args[i]);
+            }
+        }
+
+        return (vectorized) ? vectorizedFunExec(args, shape, funDecl) : FunExec(args, funDecl);
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    private boolean isVectorized (Object parameter, TypeNode type){
+        if (parameter instanceof Object[][] && type instanceof SimpleTypeNode) return true;
+        else return parameter instanceof Object[] && type instanceof SimpleTypeNode;
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    private Object FunExec (Object[] args, FunDeclarationNode funDecl){
         ScopeStorage oldStorage = storage;
-        Scope scope = reactor.get(decl, "scope");
+        Scope scope = reactor.get(funDecl, "scope");
         storage = new ScopeStorage(scope, storage);
 
-        FunDeclarationNode funDecl = (FunDeclarationNode) decl;
         coIterate(args, funDecl.parameters,
                 (arg, param) -> storage.set(scope, param.name, arg));
 
@@ -886,6 +914,60 @@ public final class Interpreter
             storage = oldStorage;
         }
         return null;
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    private Object vectorizeArg(Object arg, int[] shape){
+
+            if (arg instanceof Object[]){
+                if(!Arrays.equals(getArrayLikeShape((Object[]) arg), shape))
+                    throw new RuntimeException(
+                        format("Arguments of vectorized function should be of same shape: %s != %s",
+                            Arrays.toString(getArrayLikeShape((Object[]) arg)),
+                            Arrays.toString(shape)));
+                return arrayToMat((Object[]) arg);
+            }
+            else {
+                Object[][] new_arg = new Object[shape[0]][shape[1]];
+                for (int i = 0; i < shape[0]; i++) {
+                    for (int j = 0; j < shape[1]; j++) {
+                        new_arg[i][j] = arg;
+                    }
+                }
+                return new_arg;
+            }
+    }
+
+    private Object vectorizedFunExec (Object[] args, int[] shape, FunDeclarationNode funDecl){
+
+        args = map(args, new Object[0], (arg) -> vectorizeArg(arg, shape));
+
+        Object[][] result = new Object[shape[0]][shape[1]];
+
+        Scope scope = reactor.get(funDecl, "scope");
+
+        for (int i = 0; i < shape[0]; i++) {
+            for (int j = 0; j < shape[1]; j++) {
+
+                ScopeStorage oldStorage = storage;
+                storage = new ScopeStorage(scope, storage);
+
+                int finalI = i;
+                int finalJ = j;
+                coIterate(map(args, new Object[0], (arg) -> ((Object[][]) arg)[finalI][finalJ]), funDecl.parameters,
+                    (arg, param) -> storage.set(scope, param.name, arg));
+
+                try {
+                    get(funDecl.block);
+                } catch (Return r) {
+                    result[i][j] = r.value;
+                } finally {
+                    storage = oldStorage;
+                }
+            }
+        }
+        return result;
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -964,22 +1046,6 @@ public final class Interpreter
                 return rootStorage.get(scope, node.name);
             } else {
                 Object ref = storage.get(scope, node.name);
-                if (ref instanceof Object[][]){
-                    if(reactor.get(node, "type") instanceof IntType)
-                        reactor.set(node,"type", new MatType(IntType.INSTANCE));
-                    else if(reactor.get(node, "type") instanceof FloatType )
-                        reactor.set(node,"type", new MatType(FloatType.INSTANCE));
-                    else if (reactor.get(node, "type") instanceof StringType)
-                        reactor.set(node,"type", new MatType(StringType.INSTANCE));
-                }
-                else if (ref instanceof Object[]){
-                    if(reactor.get(node, "type") instanceof IntType)
-                        reactor.set(node,"type", new ArrayType(IntType.INSTANCE));
-                    else if(reactor.get(node, "type") instanceof FloatType )
-                        reactor.set(node,"type", new ArrayType(FloatType.INSTANCE));
-                    else if (reactor.get(node, "type") instanceof StringType)
-                        reactor.set(node,"type", new ArrayType(StringType.INSTANCE));
-                }
                 return ref;
             }
         }
