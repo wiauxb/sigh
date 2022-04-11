@@ -539,7 +539,6 @@ public final class SemanticAnalysis
             }
 
             FunType funType = cast(maybeFunType);
-            r.set(0, funType.returnType);
 
             Type[] params = funType.paramTypes;
             List<ExpressionNode> args = node.arguments;
@@ -550,16 +549,24 @@ public final class SemanticAnalysis
                     node);
 
             int checkedArgs = Math.min(params.length, args.size());
+            boolean isVectorized = false;
 
             for (int i = 0; i < checkedArgs; ++i) {
                 Type argType = r.get(i + 1);
                 Type paramType = funType.paramTypes[i];
-                if (!isAssignableTo(argType, paramType))
+                boolean isValidArrayLike = isArrayLikeAndNeedToCast(argType, paramType);
+                if (isValidArrayLike) isVectorized = true;
+                if (!isAssignableTo(argType, paramType) && !isValidArrayLike)
                     r.errorFor(format(
                             "incompatible argument provided for argument %d: expected %s but got %s",
                             i, paramType, argType),
                         node.arguments.get(i));
             }
+
+            if (isVectorized)
+                r.set(0, new MatType(funType.returnType));
+            else
+                r.set(0, funType.returnType);
         });
     }
 
@@ -900,6 +907,22 @@ public final class SemanticAnalysis
         if (!(decl instanceof SyntheticDeclarationNode)) return false;
         SyntheticDeclarationNode synthetic = cast(decl);
         return synthetic.kind() == DeclarationKind.TYPE;
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    private static boolean isArrayLikeAndNeedToCast(Type a, Type b){
+
+        if (a instanceof ArrayType)
+            if (!(b instanceof ArrayType || b instanceof MatType)){
+                return isAssignableTo(((ArrayType)a).componentType, b);
+            }
+        if (a instanceof MatType)
+            if (!(b instanceof ArrayType || b instanceof MatType)){
+                return isAssignableTo(((MatType)a).componentType, b);
+            }
+
+        return false;
     }
 
     // ---------------------------------------------------------------------------------------------

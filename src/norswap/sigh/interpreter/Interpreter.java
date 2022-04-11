@@ -183,9 +183,6 @@ public final class Interpreter
 
     private Object binaryExpression (BinaryExpressionNode node)
     {
-        Type leftType  = reactor.get(node.left, "type");
-        Type rightType = reactor.get(node.right, "type");
-
         // Cases where both operands should not be evaluated.
         switch (node.operator) {
             case OR:  return booleanOp(node, false);
@@ -194,6 +191,9 @@ public final class Interpreter
 
         Object left  = get(node.left);
         Object right = get(node.right);
+
+        Type leftType  = reactor.get(node.left, "type");
+        Type rightType = reactor.get(node.right, "type");
 
         if (node.operator == BinaryOperator.ADD
                 && (leftType instanceof StringType || rightType instanceof StringType))
@@ -433,7 +433,7 @@ public final class Interpreter
                     ileft = 0;
                 } else {
                     ileft  = (Long) tleft[i][j];
-                    fleft = 0;
+                    fleft =  ((Long) tleft[i][j]).doubleValue();
                 }
 
                 if (tright[i][j] instanceof Double) {
@@ -441,7 +441,7 @@ public final class Interpreter
                     iright = 0;
                 } else {
                     iright  = (Long) tright[i][j];
-                    fright = 0;
+                    fright = ((Long) tright[i][j]).doubleValue();
                 }
 
                 switch (operator) {
@@ -954,12 +954,35 @@ public final class Interpreter
         DeclarationNode decl = reactor.get(node, "decl");
 
         if (decl instanceof VarDeclarationNode
-        || decl instanceof ParameterNode
         || decl instanceof SyntheticDeclarationNode
                 && ((SyntheticDeclarationNode) decl).kind() == DeclarationKind.VARIABLE)
             return scope == rootScope
                 ? rootStorage.get(scope, node.name)
                 : storage.get(scope, node.name);
+        else if (decl instanceof ParameterNode){
+            if (scope == rootScope) {
+                return rootStorage.get(scope, node.name);
+            } else {
+                Object ref = storage.get(scope, node.name);
+                if (ref instanceof Object[][]){
+                    if(reactor.get(node, "type") instanceof IntType)
+                        reactor.set(node,"type", new MatType(IntType.INSTANCE));
+                    else if(reactor.get(node, "type") instanceof FloatType )
+                        reactor.set(node,"type", new MatType(FloatType.INSTANCE));
+                    else if (reactor.get(node, "type") instanceof StringType)
+                        reactor.set(node,"type", new MatType(StringType.INSTANCE));
+                }
+                else if (ref instanceof Object[]){
+                    if(reactor.get(node, "type") instanceof IntType)
+                        reactor.set(node,"type", new ArrayType(IntType.INSTANCE));
+                    else if(reactor.get(node, "type") instanceof FloatType )
+                        reactor.set(node,"type", new ArrayType(FloatType.INSTANCE));
+                    else if (reactor.get(node, "type") instanceof StringType)
+                        reactor.set(node,"type", new ArrayType(StringType.INSTANCE));
+                }
+                return ref;
+            }
+        }
 
         return decl; // structure or function
     }
