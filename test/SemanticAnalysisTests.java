@@ -287,14 +287,14 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
         successInput("return [1.0] <=> [1]");
         successInput("return [1.0] <=> [2]");
 
-        //        successInput("return [1] !<=> [1]");
-        //        successInput("return [1] !<=> [2]");
-        //        successInput("return [1.0] !<=> [1.0]");
-        //        successInput("return [1.0] !<=> [2.0]");
-        //        successInput("return [1] !<=> [1.0]");
-        //        successInput("return [1] !<=> [2.0]");
-        //        successInput("return [1.0] !<=> [1]");
-        //        successInput("return [1.0] !<=> [2]");
+        successInput("return [1] !<=> [1]");
+        successInput("return [1] !<=> [2]");
+        successInput("return [1.0] !<=> [1.0]");
+        successInput("return [1.0] !<=> [2.0]");
+        successInput("return [1] !<=> [1.0]");
+        successInput("return [1] !<=> [2.0]");
+        successInput("return [1.0] !<=> [1]");
+        successInput("return [1.0] !<=> [2]");
 
         successInput("return [1] =? [1]");
         successInput("return [1] =? [2]");
@@ -305,14 +305,14 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
         successInput("return [1.0] =? [1]");
         successInput("return [1.0] =? [2]");
 
-        //        successInput("return [1] !=? [1]");
-        //        successInput("return [1] !=? [2]");
-        //        successInput("return [1.0] !=? [1.0]");
-        //        successInput("return [1.0] !=? [2.0]");
-        //        successInput("return [1] !=? [1.0]");
-        //        successInput("return [1] !=? [2.0]");
-        //        successInput("return [1.0] !=? [1]");
-        //        successInput("return [1.0] !=? [2]");
+        successInput("return [1] !=? [1]");
+        successInput("return [1] !=? [2]");
+        successInput("return [1.0] !=? [1.0]");
+        successInput("return [1.0] !=? [2.0]");
+        successInput("return [1] !=? [1.0]");
+        successInput("return [1] !=? [2.0]");
+        successInput("return [1.0] !=? [1]");
+        successInput("return [1.0] !=? [2]");
 
         successInput("return [1] << [1]");
         successInput("return [1] << [2]");
@@ -400,14 +400,14 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
         successInput("return [[1.0]] <=> [[1]]");
         successInput("return [[1.0]] <=> [[2]]");
 
-        //        successInput("return [[1]] !<=> [[1]]");
-        //        successInput("return [[1]] !<=> [[2]]");
-        //        successInput("return [[1.0]] !<=> [[1.0]]");
-        //        successInput("return [[1.0]] !<=> [[2.0]]");
-        //        successInput("return [[1]] !<=> [[1.0]]");
-        //        successInput("return [[1]] !<=> [[2.0]]");
-        //        successInput("return [[1.0]] !<=> [[1]]");
-        //        successInput("return [[1.0]] !<=> [[2]]");
+        successInput("return [[1]] !<=> [[1]]");
+        successInput("return [[1]] !<=> [[2]]");
+        successInput("return [[1.0]] !<=> [[1.0]]");
+        successInput("return [[1.0]] !<=> [[2.0]]");
+        successInput("return [[1]] !<=> [[1.0]]");
+        successInput("return [[1]] !<=> [[2.0]]");
+        successInput("return [[1.0]] !<=> [[1]]");
+        successInput("return [[1.0]] !<=> [[2]]");
 
         successInput("return [[1]] =? [[1]]");
         successInput("return [[1]] =? [[2]]");
@@ -418,14 +418,14 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
         successInput("return [[1.0]] =? [[1]]");
         successInput("return [[1.0]] =? [[2]]");
 
-        //        successInput("return [[1]] !=? [[1]]");
-        //        successInput("return [[1]] !=? [[2]]");
-        //        successInput("return [[1.0]] !=? [[1.0]]");
-        //        successInput("return [[1.0]] !=? [[2.0]]");
-        //        successInput("return [[1]] !=? [[1.0]]");
-        //        successInput("return [[1]] !=? [[2.0]]");
-        //        successInput("return [[1.0]] !=? [[1]]");
-        //        successInput("return [[1.0]] !=? [[2]]");
+        successInput("return [[1]] !=? [[1]]");
+        successInput("return [[1]] !=? [[2]]");
+        successInput("return [[1.0]] !=? [[1.0]]");
+        successInput("return [[1.0]] !=? [[2.0]]");
+        successInput("return [[1]] !=? [[1.0]]");
+        successInput("return [[1]] !=? [[2.0]]");
+        successInput("return [[1.0]] !=? [[1]]");
+        successInput("return [[1.0]] !=? [[2]]");
 
         successInput("return [[1]] << [[1]]");
         successInput("return [[1]] << [[2]]");
@@ -513,14 +513,14 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
         successInput("return [1.0] <=> [[1]]");
         successInput("return [1.0] <=> [[2]]");
 
-        //        successInput("return [1] !<=> [[1]]");
-        //        successInput("return [1] !<=> [[2]]");
-        //        successInput("return [1.0] !<=> [[1.0]]");
-        //        successInput("return [1.0] !<=> [[2.0]]");
-        //        successInput("return [1] !<=> [[1.0]]");
-        //        successInput("return [1] !<=> [[2.0]]");
-        //        successInput("return [1.0] !<=> [[1]]");
-        //        successInput("return [1.0] !<=> [[2]]");
+        successInput("return [1] !<=> [[1]]");
+        successInput("return [1] !<=> [[2]]");
+        successInput("return [1.0] !<=> [[1.0]]");
+        successInput("return [1.0] !<=> [[2.0]]");
+        successInput("return [1] !<=> [[1.0]]");
+        successInput("return [1] !<=> [[2.0]]");
+        successInput("return [1.0] !<=> [[1]]");
+        successInput("return [1.0] !<=> [[2]]");
 
         successInput("return [1] =? [[1]]");
         successInput("return [1] =? [[2]]");
@@ -531,14 +531,14 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
         successInput("return [1.0] =? [[1]]");
         successInput("return [1.0] =? [[2]]");
 
-        //        successInput("return [1] !=? [[1]]");
-        //        successInput("return [1] !=? [[2]]");
-        //        successInput("return [1.0] !=? [[1.0]]");
-        //        successInput("return [1.0] !=? [[2.0]]");
-        //        successInput("return [1] !=? [[1.0]]");
-        //        successInput("return [1] !=? [[2.0]]");
-        //        successInput("return [1.0] !=? [[1]]");
-        //        successInput("return [1.0] !=? [[2]]");
+        successInput("return [1] !=? [[1]]");
+        successInput("return [1] !=? [[2]]");
+        successInput("return [1.0] !=? [[1.0]]");
+        successInput("return [1.0] !=? [[2.0]]");
+        successInput("return [1] !=? [[1.0]]");
+        successInput("return [1] !=? [[2.0]]");
+        successInput("return [1.0] !=? [[1]]");
+        successInput("return [1.0] !=? [[2]]");
 
         successInput("return [1] << [[1]]");
         successInput("return [1] << [[2]]");
@@ -683,17 +683,6 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
         successInput(
             "fun add (a: Int, b: Int): Int { return a + b } " +
                 "return add(4, 7)");
-
-        successInput(
-            "var mat1: Mat#Int = [[1, 2],[3, 4]]" +
-                "var mat2: Mat#Int = [[5, 6],[7, 3]]" +
-                "fun add (a: Int, b: Int): Int { return a + b } " +
-                "return add(mat1, mat2)");
-
-        successInput(
-            "var mat1: Mat#Int = [[1, 2],[3, 4]]" +
-                "fun add (a: Int, b: Int): Int { return a + b } " +
-                "return add(mat1, 7)");
 
         successInput(
             "struct Point { var x: Int; var y: Int }" +
@@ -844,6 +833,30 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
 
     @Test public void testvectorizedFunction()
     {
+
+        successInput(
+            "var mat1: Mat#Int = [[1, 2],[3, 4]]" +
+                "var mat2: Mat#Int = [[5, 6],[7, 3]]" +
+                "fun add (a: Int, b: Int): Int { return a + b } " +
+                "return add(mat1, mat2)");
+
+        successInput(
+            "var mat1: Mat#Int = [[1, 2],[3, 4]]" +
+                "fun add (a: Int, b: Int): Int { return a + b } " +
+                "return add(mat1, 7)");
+
+        successInput("fun bigTester (a : Int, b: Int, c: Float): Float {" +
+            "    if (a > b && a > c)" +
+            "        return a" +
+            "    else if (b > a && b > c)" +
+            "        return b" +
+            "    else" +
+            "        return c" +
+            "}" +
+            "var mat1: Mat#Int = [[6, 7, 8], [0, 0, 0], [-1, -2, -3]]" +
+            "var mat2: Mat#Int = [[0, 0, 0], [3, 4, 5], [-1, -2, -3]]" +
+            "var mat3: Mat#Int = [[1, 2, 3], [2, 3, 4], [1, 2, 3]]" +
+            "print(\"\" + bigTester(mat1, mat2, mat3))");
     }
 
     // ---------------------------------------------------------------------------------------------

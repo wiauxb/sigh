@@ -510,8 +510,12 @@ public final class InterpreterTests extends TestFixture {
 
         checkExpr("[[1], [2]] =? [[1], [3]]", true);
         checkExpr("[[1], [2]] =? [[3], [4]]", false);
+        checkExpr("[[1], [2]] !=? [[3], [4]]", true);
+        checkExpr("[[1], [2]] !=? [[1], [2]]", false);
         checkExpr("[[1], [2]] <=> [[1], [2]]", true);
         checkExpr("[[1], [2]] <=> [[1], [3]]", false);
+        checkExpr("[[1], [2]] !<=> [[4], [3]]", true);
+        checkExpr("[[1], [2]] !<=> [[1], [2]]", false);
         checkExpr("[[1], [2]] <=? [[1], [1]]", true);
         checkExpr("[[3], [2]] <=? [[1], [1]]", false);
         checkExpr("[[1], [2]] <<= [[2], [4]]", true);
@@ -537,8 +541,12 @@ public final class InterpreterTests extends TestFixture {
 
         checkExpr("[1, 2] =? [1, 3]", true);
         checkExpr("[1, 2] =? [3, 4]", false);
+        checkExpr("[1, 2] !=? [3, 4]", true);
+        checkExpr("[1, 2] !=? [1, 2]", false);
         checkExpr("[1, 2] <=> [1, 2]", true);
         checkExpr("[1, 2] <=> [1, 3]", false);
+        checkExpr("[1, 2] !<=> [4, 3]", true);
+        checkExpr("[1, 2] !<=> [1, 2]", false);
         checkExpr("[1, 2] <=? [1, 1]", true);
         checkExpr("[3, 2] <=? [1, 1]", false);
         checkExpr("[1, 2] <<= [2, 4]", true);
@@ -561,6 +569,21 @@ public final class InterpreterTests extends TestFixture {
     // ---------------------------------------------------------------------------------------------
 
     @Test public void testVectorizedFunction() {
+        rule = grammar.root;
 
-    }
+        check("fun bigTester (a : Int, b: Int, c: Float): Float {" +
+            "    if (a > b && a > c)" +
+            "        return a" +
+            "    else if (b > a && b > c)" +
+            "        return b" +
+            "    else" +
+            "        return c" +
+            "}" +
+            "var mat1: Mat#Int = [[6, 7, 8], [0, 0, 0], [-1, -2, -3]]" +
+            "var mat2: Mat#Int = [[0, 0, 0], [3, 4, 5], [-1, -2, -3]]" +
+            "var mat3: Mat#Int = [[1, 2, 3], [2, 3, 4], [1, 2, 3]]" +
+            "return bigTester(mat1, mat2, mat3)", new Object[][]{new Object[]{6L, 7L, 8L},
+                                                                 new Object[]{3L, 4L, 5L},
+                                                                 new Object[]{1L, 2L, 3L}});
+    }//[[6, 7, 8], [3, 4, 5], [1, 2, 3]]
 }

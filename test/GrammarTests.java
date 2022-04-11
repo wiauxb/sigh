@@ -255,9 +255,19 @@ public class GrammarTests extends AutumnTestFixture {
             M_ONE_EQUAL,
             new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2))));
 
+        successExpect("[1](2, 2) !=? [1](2, 2)", new BinaryExpressionNode(null,
+            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2)),
+            M_ONE_NOT_EQUAL,
+            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2))));
+
         successExpect("[1](2, 2) <=> [1](2, 2)", new BinaryExpressionNode(null,
             new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2)),
             M_ALL_EQUAL,
+            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2))));
+
+        successExpect("[1](2, 2) !<=> [1](2, 2)", new BinaryExpressionNode(null,
+            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2)),
+            M_ALL_NOT_EQUAL,
             new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2))));
 
         successExpect("[1](2, 2) <=? [1](2, 2)", new BinaryExpressionNode(null,
@@ -307,9 +317,19 @@ public class GrammarTests extends AutumnTestFixture {
             M_ONE_EQUAL,
             matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4)))))));
 
+        successExpect("[[1, 2], [3, 4]] !=? [[1, 2], [3, 4]]", new BinaryExpressionNode(null,
+            matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4))))),
+            M_ONE_NOT_EQUAL,
+            matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4)))))));
+
         successExpect("[[1, 2], [3, 4]] <=> [[1, 2], [3, 4]]", new BinaryExpressionNode(null,
             matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4))))),
             M_ALL_EQUAL,
+            matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4)))))));
+
+        successExpect("[[1, 2], [3, 4]] !<=> [[1, 2], [3, 4]]", new BinaryExpressionNode(null,
+            matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4))))),
+            M_ALL_NOT_EQUAL,
             matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4)))))));
 
         successExpect("[[1, 2], [3, 4]] <=? [[1, 2], [3, 4]]", new BinaryExpressionNode(null,
