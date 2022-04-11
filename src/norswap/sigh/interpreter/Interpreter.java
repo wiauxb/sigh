@@ -183,18 +183,17 @@ public final class Interpreter
 
     private Object binaryExpression (BinaryExpressionNode node)
     {
+        // Cases where both operands should not be evaluated.
+        switch (node.operator) {
+            case OR:  return booleanOp(node, false);
+            case AND: return booleanOp(node, true);
+        }
 
         Object left  = get(node.left);
         Object right = get(node.right);
 
         Type leftType  = reactor.get(node.left, "type");
         Type rightType = reactor.get(node.right, "type");
-
-        // Cases where both operands should not be evaluated.
-        switch (node.operator) {
-            case OR:  return booleanOp(node, false);
-            case AND: return booleanOp(node, true);
-        }
 
         if (node.operator == BinaryOperator.ADD
                 && (leftType instanceof StringType || rightType instanceof StringType))

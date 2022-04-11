@@ -23,3 +23,7 @@ print("" + x)
 //var n : Mat#Int = tester(m)
 //print("" + n)
 
+//---------------------------
+
+print("" + (true || print("x") == "y"))
+
