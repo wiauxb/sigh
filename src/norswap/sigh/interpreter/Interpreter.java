@@ -322,12 +322,14 @@ public final class Interpreter
                 throw new InterpreterException(format("%s is not a valid operator for array like variables.", node.operator.string), null);
 
             case M_ALL_EQUAL:
+            case M_ALL_NOT_EQUAL:
             case M_ALL_LOWER:
             case M_ALL_LOWER_EQUAL:
             case M_ALL_GREATER:
             case M_ALL_GREATER_EQUAL:
                 return applyComparaisonForAll(node.operator, insideTypes[0], (Object[]) left, (Object[]) right);
             case M_ONE_EQUAL:
+            case M_ONE_NOT_EQUAL:
             case M_ONE_LOWER:
             case M_ONE_LOWER_EQUAL:
             case M_ONE_GREATER:
@@ -555,6 +557,9 @@ public final class Interpreter
                     case M_ONE_EQUAL:
                         if (nleft.equals(nright)) return true;
                         break;
+                    case M_ONE_NOT_EQUAL:
+                        if (!(nleft.equals(nright))) return true;
+                        break;
                     case M_ONE_LOWER:
                         if (insideType.equals(IntType.INSTANCE) && nleft.longValue() < nright.longValue()) return true;
                         else if (insideType.equals(FloatType.INSTANCE) && nleft.floatValue() < nright.floatValue()) return true;
@@ -597,6 +602,9 @@ public final class Interpreter
                 switch(operator) {
                     case M_ALL_EQUAL:
                         if (!(nleft.equals(nright))) return false;
+                        break;
+                    case M_ALL_NOT_EQUAL:
+                        if (nleft.equals(nright)) return false;
                         break;
                     case M_ALL_LOWER:
                         if (insideType.equals(IntType.INSTANCE) && nleft.longValue() >= nright.longValue()) return false;

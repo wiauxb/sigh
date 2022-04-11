@@ -40,7 +40,9 @@ public class SighGrammar extends Grammar
     public rule COLON                   = word(":");
     public rule EQUALS_EQUALS           = word("==");
     public rule EQUALS_QMARK            = word("=?");
+    public rule BANG_EQUALS_QMARK       = word("!=?");
     public rule LANGLE_EQUALS_RANGLE    = word("<=>");
+    public rule BANG_LANGLE_EQUALS_RANGLE= word("!<=>");
     public rule EQUALS                  = word("=");
     public rule BANG_EQUAL              = word("!=");
     public rule LANGLE_EQUAL            = word("<=");
@@ -205,7 +207,9 @@ public class SighGrammar extends Grammar
 
     public rule cmp_op = choice(
         EQUALS_QMARK            .as_val(BinaryOperator.M_ONE_EQUAL),
+        BANG_EQUALS_QMARK       .as_val(BinaryOperator.M_ONE_NOT_EQUAL),
         LANGLE_EQUALS_RANGLE    .as_val(BinaryOperator.M_ALL_EQUAL),
+        BANG_LANGLE_EQUALS_RANGLE    .as_val(BinaryOperator.M_ALL_NOT_EQUAL),
         LANGLE_LANGLE_EQUAL     .as_val(BinaryOperator.M_ALL_LOWER_EQUAL),
         LANGLE_LANGLE           .as_val(BinaryOperator.M_ALL_LOWER),
         LANGLE_EQUAL_QMARK      .as_val(BinaryOperator.M_ONE_LOWER_EQUAL),

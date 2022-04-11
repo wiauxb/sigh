@@ -90,9 +90,9 @@ var sliced4: Int[] = arr[1:2]
 //print("" + sliced3)
 print("" + sliced4)
 
-print("" + (matrix1 == matrix2))
-print("" + (matrix1 << matrix2))
-print("" + (matrix1 =? matrix2))
+//print("" + (matrix1 == matrix2))
+//print("" + (matrix1 << matrix2))
+//print("" + (matrix1 =? matrix2))
 print("" + (matrix1[0] <=> arr))
 
 //--------------------------------------
@@ -104,6 +104,7 @@ print("" + matrix1)
 print("" + matrix2)
 
 print("" + (matrix1 <=> matrix2))
+print("" + (matrix1 !<=> matrix2))
 print("" + (matrix1 <<  matrix2))
 print("" + (matrix1 >>  matrix2))
 print("" + (matrix1 <<= matrix2))
@@ -123,7 +124,9 @@ var matrix5: Mat#Int = [[0, 6], [4, 4]]
 print("" + matrix3)
 
 print("" + (matrix3 <=> matrix4))
+print("dif " + (matrix3 !<=> matrix4))
 print("" + (matrix3 =?  matrix4))
+print("dif " + (matrix3 !=?  matrix4))
 print("" + (matrix3 <<  matrix4))
 print("" + (matrix4 >>  matrix3))
 print("" + (matrix3 <<= matrix4))

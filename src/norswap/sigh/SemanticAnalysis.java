@@ -620,7 +620,7 @@ public final class SemanticAnalysis
 
     private boolean isComparison (BinaryOperator op) {
         return op == GREATER || op == GREATER_EQUAL || op == LOWER || op == LOWER_EQUAL ||
-                op == M_ONE_EQUAL || op == M_ALL_LOWER || op == M_ALL_LOWER_EQUAL || op == M_ONE_LOWER ||
+            op == M_ONE_EQUAL ||op == M_ONE_NOT_EQUAL || op == M_ALL_LOWER || op == M_ALL_LOWER_EQUAL || op == M_ONE_LOWER ||
                 op == M_ONE_LOWER_EQUAL || op == M_ALL_GREATER || op == M_ALL_GREATER_EQUAL || op == M_ONE_GREATER ||
                 op == M_ONE_GREATER_EQUAL;
     }
@@ -630,7 +630,7 @@ public final class SemanticAnalysis
     }
 
     private boolean isEquality (BinaryOperator op) {
-        return op == EQUALITY || op == NOT_EQUALS || op == M_ALL_EQUAL;
+        return op == EQUALITY || op == NOT_EQUALS || op == M_ALL_EQUAL|| op == M_ALL_NOT_EQUAL;
     }
 
     // ---------------------------------------------------------------------------------------------
