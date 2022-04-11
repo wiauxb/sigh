@@ -25,13 +25,13 @@ public class MatrixLiteralNode extends ExpressionNode
 
         for (ExpressionNode it: components)
         {
-            if (i > 0) b.append("\n ");
+            if (i > 0) b.append("; ");
             String contents = it.contents();
             budget -= 2 + contents.length();
             if (i == components.size() - 1) {
                 if (budget < 0) break;
             } else {
-                if (budget - "\n ...".length() < 0) break;
+                if (budget - "; ...".length() < 0) break;
             }
             b.append(contents);
             ++i;
