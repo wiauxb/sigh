@@ -508,11 +508,53 @@ public final class InterpreterTests extends TestFixture {
 
     @Test public void testMatrixOperator() {
 
+        checkExpr("[[1], [2]] =? [[1], [3]]", true);
+        checkExpr("[[1], [2]] =? [[3], [4]]", false);
+        checkExpr("[[1], [2]] <=> [[1], [2]]", true);
+        checkExpr("[[1], [2]] <=> [[1], [3]]", false);
+        checkExpr("[[1], [2]] <=? [[1], [1]]", true);
+        checkExpr("[[3], [2]] <=? [[1], [1]]", false);
+        checkExpr("[[1], [2]] <<= [[2], [4]]", true);
+        checkExpr("[[5], [6]] <<= [[1], [2]]", false);
+        checkExpr("[[5], [1]] >=? [[1], [5]]", true);
+        checkExpr("[[1], [2]] >=? [[5], [6]]", false);
+        checkExpr("[[1], [2]] >>= [[0], [2]]", true);
+        checkExpr("[[1], [2]] >>= [[2], [3]]", false);
+        checkExpr("[[1], [2]] << [[2], [3]]", true);
+        checkExpr("[[2], [3]] << [[1], [2]]", false);
+        checkExpr("[[1], [2]] <? [[2], [1]]", true);
+        checkExpr("[[1], [2]] <? [[1], [2]]", false);
+        checkExpr("[[1], [2]] >> [[0], [1]]", true);
+        checkExpr("[[1], [2]] >> [[1], [3]]", false);
+        checkExpr("[[1], [2]] >? [[0], [3]]", true);
+        checkExpr("[[1], [2]] >? [[2], [2]]", false);
+
     }
 
     // ---------------------------------------------------------------------------------------------
 
     @Test public void testArrayOperator() {
+
+        checkExpr("[1, 2] =? [1, 3]", true);
+        checkExpr("[1, 2] =? [3, 4]", false);
+        checkExpr("[1, 2] <=> [1, 2]", true);
+        checkExpr("[1, 2] <=> [1, 3]", false);
+        checkExpr("[1, 2] <=? [1, 1]", true);
+        checkExpr("[3, 2] <=? [1, 1]", false);
+        checkExpr("[1, 2] <<= [2, 4]", true);
+        checkExpr("[5, 6] <<= [1, 2]", false);
+        checkExpr("[5, 1] >=? [1, 5]", true);
+        checkExpr("[1, 2] >=? [5, 6]", false);
+        checkExpr("[1, 2] >>= [0, 2]", true);
+        checkExpr("[1, 2] >>= [2, 3]", false);
+        checkExpr("[1, 2] << [2, 3]", true);
+        checkExpr("[2, 3] << [1, 2]", false);
+        checkExpr("[1, 2] <? [2, 1]", true);
+        checkExpr("[1, 2] <? [1, 2]", false);
+        checkExpr("[1, 2] >> [0, 1]", true);
+        checkExpr("[1, 2] >> [1, 3]", false);
+        checkExpr("[1, 2] >? [0, 3]", true);
+        checkExpr("[1, 2] >? [2, 2]", false);
 
     }
 

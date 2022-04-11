@@ -682,7 +682,18 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
     @Test public void testCalls() {
         successInput(
             "fun add (a: Int, b: Int): Int { return a + b } " +
-            "return add(4, 7)");
+                "return add(4, 7)");
+
+        successInput(
+            "var mat1: Mat#Int = [[1, 2],[3, 4]]" +
+                "var mat2: Mat#Int = [[5, 6],[7, 3]]" +
+                "fun add (a: Int, b: Int): Int { return a + b } " +
+                "return add(mat1, mat2)");
+
+        successInput(
+            "var mat1: Mat#Int = [[1, 2],[3, 4]]" +
+                "fun add (a: Int, b: Int): Int { return a + b } " +
+                "return add(mat1, 7)");
 
         successInput(
             "struct Point { var x: Int; var y: Int }" +
@@ -695,7 +706,7 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
 
     // ---------------------------------------------------------------------------------------------
 
-    @Test public void testArrayStructAccess() { //TODO wait for slicing
+    @Test public void testArrayStructAccess() {
         successInput("return [1][0]");
         successInput("return [1.0][0]");
         successInput("return [1, 2][1]");
@@ -704,13 +715,26 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
         successInput("return [[1.0]][0]");
         successInput("return [[1, 2], [3, 4]][1]");
 
+        successInput("return [1, 2, 3][0:1]");
+        successInput("return [1.0, 2.0, 3.0][:1]");
+        successInput("return [1, 2][:1]");
+
+        successInput("return [[1, 2, 3]][0][0:1]");
+        successInput("return [[1.0, 2.0, 3.0]][0][:1]");
+        successInput("return [[1, 2]][0][:1]");
+
         failureInputWith("return [1][true]", "Indexing an array using a non-Int-valued expression");
+        failureInputWith("return [1][:true]", "Slicing an array at end using a non-Int-valued expression");
+        failureInputWith("return [[1]][true]", "Indexing an array using a non-Int-valued expression");
+        failureInputWith("return [[1]][:true]", "Slicing an array at end using a non-Int-valued expression");
 
         // TODO make this legal?
         // successInput("[].length", 0L);
 
         successInput("return [1].length");
         successInput("return [1, 2].length");
+        successInput("return [[1, 2], [2, 3]].shape");
+        successInput("return [[1, 2]].shape");
 
         successInput("var array: Int[] = null; return array[0]");
         successInput("var array: Int[] = null; return array.length");
@@ -792,8 +816,8 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
         successInput("var array: String[] = []");
         successInput("fun use_array (array: Int[]) {} ; use_array([])");
         //FIXME is this inference ?
-        successInput("var matrix: Mat#Int = [[1]]");
-        successInput("var matrix: Mat#String = [[\"Hello\"]]");
+//        successInput("var matrix: Mat#Int = [[1]]");
+//        successInput("var matrix: Mat#String = [[\"Hello\"]]");
 
     }
 
@@ -814,6 +838,12 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
         //   not the whole function declaration
         failureInputWith("fun f(): Int { if (true) return 1 } ; return f()",
             "Missing return in function");
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    @Test public void testvectorizedFunction()
+    {
     }
 
     // ---------------------------------------------------------------------------------------------
