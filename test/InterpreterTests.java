@@ -7,6 +7,7 @@ import norswap.sigh.SemanticAnalysis;
 import norswap.sigh.SighGrammar;
 import norswap.sigh.ast.SighNode;
 import norswap.sigh.interpreter.Interpreter;
+import norswap.sigh.interpreter.InterpreterException;
 import norswap.sigh.interpreter.Null;
 import norswap.uranium.Reactor;
 import norswap.uranium.SemanticError;
@@ -194,7 +195,7 @@ public final class InterpreterTests extends TestFixture {
         checkExpr("false == false", true);
         checkExpr("true == false", false);
         checkExpr("1 == 1.0", true);
-        checkExpr("[1] == [1]", false);
+        checkThrows("return [1] == [1]", InterpreterException.class);
 
         checkExpr("1 != 1", false);
         checkExpr("1 != 2", true);
@@ -206,7 +207,7 @@ public final class InterpreterTests extends TestFixture {
         checkExpr("1 != 1.0", false);
 
         checkExpr("\"hi\" != \"hi2\"", true);
-        checkExpr("[1] != [1]", true);
+        checkThrows("return [1] != [1]", InterpreterException.class);
 
          // test short circuit
         checkExpr("true || print(\"x\") == \"y\"", true, "");
@@ -455,4 +456,111 @@ public final class InterpreterTests extends TestFixture {
     // ---------------------------------------------------------------------------------------------
 
     // NOTE(norswap): Not incredibly complete, but should cover the basics.
+
+    // ---------------------------------------------------------------------------------------------
+
+    @Test public void testMatrixArithmetic() {
+
+        checkExpr("[[1]] + [[2]]", new Object[][]{new Object[]{3L}});
+        checkExpr("[[1]] - [[2]]", new Object[][]{new Object[]{-1L}});
+        checkExpr("[[1]] / [[2]]", new Object[][]{new Object[]{0L}});
+        checkExpr("[[1]] * [[2]]", new Object[][]{new Object[]{2L}});
+        checkExpr("[[1]] @ [[2]]", new Object[][]{new Object[]{2L}});
+
+        checkExpr("[[1.0]] + [[2.0]]", new Object[][]{new Object[]{3.0d}});
+        checkExpr("[[1.0]] - [[2.0]]", new Object[][]{new Object[]{-1.0d}});
+        checkExpr("[[1.0]] / [[2.0]]", new Object[][]{new Object[]{0.5d}});
+        checkExpr("[[1.0]] * [[2.0]]", new Object[][]{new Object[]{2.0d}});
+        checkExpr("[[1.0]] @ [[2.0]]", new Object[][]{new Object[]{2.0d}});
+
+        checkExpr("[[1]] + [[2.0]]", new Object[][]{new Object[]{3.0d}});
+        checkExpr("[[1]] - [[2.0]]", new Object[][]{new Object[]{-1.0d}});
+        checkExpr("[[1]] / [[2.0]]", new Object[][]{new Object[]{0.5d}});
+        checkExpr("[[1]] * [[2.0]]", new Object[][]{new Object[]{2.0d}});
+        checkExpr("[[1]] @ [[2.0]]", new Object[][]{new Object[]{2.0d}});
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    @Test public void testArrayArithmetic() {
+
+        checkExpr("[1] + [2]", new Object[][]{new Object[]{3L}});
+        checkExpr("[1] - [2]", new Object[][]{new Object[]{-1L}});
+        checkExpr("[1] / [2]", new Object[][]{new Object[]{0L}});
+        checkExpr("[1] * [2]", new Object[][]{new Object[]{2L}});
+        checkExpr("[1] @ [2]", new Object[][]{new Object[]{2L}});
+
+        checkExpr("[1.0] + [2.0]", new Object[][]{new Object[]{3.0d}});
+        checkExpr("[1.0] - [2.0]", new Object[][]{new Object[]{-1.0d}});
+        checkExpr("[1.0] / [2.0]", new Object[][]{new Object[]{0.5d}});
+        checkExpr("[1.0] * [2.0]", new Object[][]{new Object[]{2.0d}});
+        checkExpr("[1.0] @ [2.0]", new Object[][]{new Object[]{2.0d}});
+
+        checkExpr("[1] + [2.0]", new Object[][]{new Object[]{3.0d}});
+        checkExpr("[1] - [2.0]", new Object[][]{new Object[]{-1.0d}});
+        checkExpr("[1] / [2.0]", new Object[][]{new Object[]{0.5d}});
+        checkExpr("[1] * [2.0]", new Object[][]{new Object[]{2.0d}});
+        checkExpr("[1] @ [2.0]", new Object[][]{new Object[]{2.0d}});
+
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    @Test public void testMatrixOperator() {
+
+        checkExpr("[[1], [2]] =? [[1], [3]]", true);
+        checkExpr("[[1], [2]] =? [[3], [4]]", false);
+        checkExpr("[[1], [2]] <=> [[1], [2]]", true);
+        checkExpr("[[1], [2]] <=> [[1], [3]]", false);
+        checkExpr("[[1], [2]] <=? [[1], [1]]", true);
+        checkExpr("[[3], [2]] <=? [[1], [1]]", false);
+        checkExpr("[[1], [2]] <<= [[2], [4]]", true);
+        checkExpr("[[5], [6]] <<= [[1], [2]]", false);
+        checkExpr("[[5], [1]] >=? [[1], [5]]", true);
+        checkExpr("[[1], [2]] >=? [[5], [6]]", false);
+        checkExpr("[[1], [2]] >>= [[0], [2]]", true);
+        checkExpr("[[1], [2]] >>= [[2], [3]]", false);
+        checkExpr("[[1], [2]] << [[2], [3]]", true);
+        checkExpr("[[2], [3]] << [[1], [2]]", false);
+        checkExpr("[[1], [2]] <? [[2], [1]]", true);
+        checkExpr("[[1], [2]] <? [[1], [2]]", false);
+        checkExpr("[[1], [2]] >> [[0], [1]]", true);
+        checkExpr("[[1], [2]] >> [[1], [3]]", false);
+        checkExpr("[[1], [2]] >? [[0], [3]]", true);
+        checkExpr("[[1], [2]] >? [[2], [2]]", false);
+
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    @Test public void testArrayOperator() {
+
+        checkExpr("[1, 2] =? [1, 3]", true);
+        checkExpr("[1, 2] =? [3, 4]", false);
+        checkExpr("[1, 2] <=> [1, 2]", true);
+        checkExpr("[1, 2] <=> [1, 3]", false);
+        checkExpr("[1, 2] <=? [1, 1]", true);
+        checkExpr("[3, 2] <=? [1, 1]", false);
+        checkExpr("[1, 2] <<= [2, 4]", true);
+        checkExpr("[5, 6] <<= [1, 2]", false);
+        checkExpr("[5, 1] >=? [1, 5]", true);
+        checkExpr("[1, 2] >=? [5, 6]", false);
+        checkExpr("[1, 2] >>= [0, 2]", true);
+        checkExpr("[1, 2] >>= [2, 3]", false);
+        checkExpr("[1, 2] << [2, 3]", true);
+        checkExpr("[2, 3] << [1, 2]", false);
+        checkExpr("[1, 2] <? [2, 1]", true);
+        checkExpr("[1, 2] <? [1, 2]", false);
+        checkExpr("[1, 2] >> [0, 1]", true);
+        checkExpr("[1, 2] >> [1, 3]", false);
+        checkExpr("[1, 2] >? [0, 3]", true);
+        checkExpr("[1, 2] >? [2, 2]", false);
+
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    @Test public void testVectorizedFunction() {
+
+    }
 }

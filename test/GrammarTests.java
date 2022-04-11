@@ -1,7 +1,12 @@
 import norswap.autumn.AutumnTestFixture;
 import norswap.sigh.SighGrammar;
 import norswap.sigh.ast.*;
+import norswap.sigh.types.IntType;
+import norswap.sigh.types.MatType;
 import org.testng.annotations.Test;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static java.util.Arrays.asList;
 import static norswap.sigh.ast.BinaryOperator.*;
@@ -22,6 +27,14 @@ public class GrammarTests extends AutumnTestFixture {
         return new FloatLiteralNode(null, d);
     }
 
+    private static MatrixLiteralNode matlit(List<ArrayLiteralNode> m) {
+        return new MatrixLiteralNode(null, m);
+    }
+
+    private static ArrayLiteralNode arraylit(List<Object> l) {
+        return new ArrayLiteralNode(null, l);
+    }
+
     // ---------------------------------------------------------------------------------------------
 
     @Test
@@ -33,6 +46,9 @@ public class GrammarTests extends AutumnTestFixture {
         successExpect("\"hello\"", new StringLiteralNode(null, "hello"));
         successExpect("(42)", new ParenthesizedNode(null, intlit(42)));
         successExpect("[1, 2, 3]", new ArrayLiteralNode(null, asList(intlit(1), intlit(2), intlit(3))));
+        successExpect("[[1, 2, 3],[4, 5, 6]]", matlit(asList(arraylit(asList(intlit(1), intlit(2), intlit(3))), arraylit(asList(intlit(4), intlit(5), intlit(6))))));
+        successExpect("[0](2)", new MatrixGeneratorNode(null, intlit(0), intlit(2)));
+        successExpect("[0](2, 2)", new MatrixGeneratorNode(null, intlit(0), intlit(2), intlit(2)));
         successExpect("true", new ReferenceNode(null, "true"));
         successExpect("false", new ReferenceNode(null, "false"));
         successExpect("null", new ReferenceNode(null, "null"));
@@ -43,6 +59,7 @@ public class GrammarTests extends AutumnTestFixture {
 
     @Test
     public void testNumericBinary () {
+        rule = grammar.expression;
         successExpect("1 + 2", new BinaryExpressionNode(null, intlit(1), ADD, intlit(2)));
         successExpect("2 - 1", new BinaryExpressionNode(null, intlit(2), SUBTRACT,  intlit(1)));
         successExpect("2 * 3", new BinaryExpressionNode(null, intlit(2), MULTIPLY, intlit(3)));
@@ -138,4 +155,358 @@ public class GrammarTests extends AutumnTestFixture {
     }
 
     // ---------------------------------------------------------------------------------------------
+
+    @Test public void testMatrixCreation() {
+        rule = grammar.statement;
+
+        successExpect("var m : Mat#Int = [[1, 2], [3, 4]]", new VarDeclarationNode(null,
+            "m", new MatrixTypeNode(null, new SimpleTypeNode(null, "Int")),
+            matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4)))))));
+
+        successExpect("var n : Mat#Int = [1](2, 2)", new VarDeclarationNode(null,
+            "n", new MatrixTypeNode(null, new SimpleTypeNode(null, "Int")),
+            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2))));
+
+        successExpect("return [[1, 2], [3, 4]].shape", new ReturnNode(null, new FieldAccessNode(null,
+            matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4))))),
+            "shape")));
+
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    @Test public void testMatrixShape() {
+        rule = grammar.statement;
+
+        successExpect("return [[1, 2], [3, 4]].shape", new ReturnNode(null, new FieldAccessNode(null,
+            matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4))))),
+            "shape")));
+
+        successExpect("return [1](2, 2).shape", new ReturnNode(null, new FieldAccessNode(null,
+            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2)),
+            "shape")));
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    @Test public void testIndexing() {
+        rule = grammar.expression;
+
+        successExpect("[1](2, 2)[1]", new ArrayAccessNode(null,
+            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2)),
+            intlit(1)));
+
+        successExpect("[[1, 2], [3, 4]][1]", new ArrayAccessNode(null,
+            matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4))))),
+            intlit(1)));
+
+        // array access already tested above
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    @Test public void testSlicing() {
+        rule = grammar.expression;
+
+        successExpect("[1](3, 3)[:1]", new SlicingAccessNode(null,
+            new MatrixGeneratorNode(null, intlit(1), intlit(3), intlit(3)),
+            intlit(0), intlit(1)));
+
+        successExpect("[1](3, 3)[1:]", new SlicingAccessNode(null,
+            new MatrixGeneratorNode(null, intlit(1), intlit(3), intlit(3)),
+            intlit(1)));
+
+        successExpect("[1](3, 3)[1:2]", new SlicingAccessNode(null,
+            new MatrixGeneratorNode(null, intlit(1), intlit(3), intlit(3)),
+            intlit(1), intlit(2)));
+
+        successExpect("[[1, 2], [3, 4]][:1]", new SlicingAccessNode(null,
+            matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4))))),
+            intlit(0), intlit(1)));
+
+        successExpect("[[1, 2], [3, 4]][1:]", new SlicingAccessNode(null,
+            matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4))))),
+            intlit(1)));
+
+        successExpect("[[1, 2], [3, 4]][1:2]", new SlicingAccessNode(null,
+            matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4))))),
+            intlit(1), intlit(2)));
+
+        successExpect("[1, 2, 3][:1]", new SlicingAccessNode(null,
+            arraylit(asList(intlit(1), intlit(2), intlit(3))),
+            intlit(0), intlit(1)));
+
+        successExpect("[1, 2, 3][1:]", new SlicingAccessNode(null,
+            arraylit(asList(intlit(1), intlit(2), intlit(3))),
+            intlit(1)));
+
+        successExpect("[1, 2, 3][1:2]", new SlicingAccessNode(null,
+            arraylit(asList(intlit(1), intlit(2), intlit(3))),
+            intlit(1), intlit(2)));
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    @Test public void testMatrixOperator() {
+        rule = grammar.expression;
+
+        successExpect("[1](2, 2) =? [1](2, 2)", new BinaryExpressionNode(null,
+            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2)),
+            M_ONE_EQUAL,
+            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2))));
+
+        successExpect("[1](2, 2) <=> [1](2, 2)", new BinaryExpressionNode(null,
+            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2)),
+            M_ALL_EQUAL,
+            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2))));
+
+        successExpect("[1](2, 2) <=? [1](2, 2)", new BinaryExpressionNode(null,
+            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2)),
+            M_ONE_LOWER_EQUAL,
+            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2))));
+
+        successExpect("[1](2, 2) <<= [1](2, 2)", new BinaryExpressionNode(null,
+            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2)),
+            M_ALL_LOWER_EQUAL,
+            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2))));
+
+        successExpect("[1](2, 2) >=? [1](2, 2)", new BinaryExpressionNode(null,
+            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2)),
+            M_ONE_GREATER_EQUAL,
+            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2))));
+
+        successExpect("[1](2, 2) >>= [1](2, 2)", new BinaryExpressionNode(null,
+            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2)),
+            M_ALL_GREATER_EQUAL,
+            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2))));
+
+        successExpect("[1](2, 2) << [1](2, 2)", new BinaryExpressionNode(null,
+            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2)),
+            M_ALL_LOWER,
+            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2))));
+
+        successExpect("[1](2, 2) <? [1](2, 2)", new BinaryExpressionNode(null,
+            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2)),
+            M_ONE_LOWER,
+            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2))));
+
+        successExpect("[1](2, 2) >> [1](2, 2)", new BinaryExpressionNode(null,
+            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2)),
+            M_ALL_GREATER,
+            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2))));
+
+        successExpect("[1](2, 2) >? [1](2, 2)", new BinaryExpressionNode(null,
+            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2)),
+            M_ONE_GREATER,
+            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2))));
+
+        // --- without generator ---
+
+        successExpect("[[1, 2], [3, 4]] =? [[1, 2], [3, 4]]", new BinaryExpressionNode(null,
+            matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4))))),
+            M_ONE_EQUAL,
+            matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4)))))));
+
+        successExpect("[[1, 2], [3, 4]] <=> [[1, 2], [3, 4]]", new BinaryExpressionNode(null,
+            matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4))))),
+            M_ALL_EQUAL,
+            matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4)))))));
+
+        successExpect("[[1, 2], [3, 4]] <=? [[1, 2], [3, 4]]", new BinaryExpressionNode(null,
+            matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4))))),
+            M_ONE_LOWER_EQUAL,
+            matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4)))))));
+
+        successExpect("[[1, 2], [3, 4]] <<= [[1, 2], [3, 4]]", new BinaryExpressionNode(null,
+            matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4))))),
+            M_ALL_LOWER_EQUAL,
+            matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4)))))));
+
+        successExpect("[[1, 2], [3, 4]] >=? [[1, 2], [3, 4]]", new BinaryExpressionNode(null,
+            matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4))))),
+            M_ONE_GREATER_EQUAL,
+            matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4)))))));
+
+        successExpect("[[1, 2], [3, 4]] >>= [[1, 2], [3, 4]]", new BinaryExpressionNode(null,
+            matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4))))),
+            M_ALL_GREATER_EQUAL,
+            matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4)))))));
+
+        successExpect("[[1, 2], [3, 4]] << [[1, 2], [3, 4]]", new BinaryExpressionNode(null,
+            matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4))))),
+            M_ALL_LOWER,
+            matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4)))))));
+
+        successExpect("[[1, 2], [3, 4]] <? [[1, 2], [3, 4]]", new BinaryExpressionNode(null,
+            matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4))))),
+            M_ONE_LOWER,
+            matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4)))))));
+
+        successExpect("[[1, 2], [3, 4]] >> [[1, 2], [3, 4]]", new BinaryExpressionNode(null,
+            matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4))))),
+            M_ALL_GREATER,
+            matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4)))))));
+
+        successExpect("[[1, 2], [3, 4]] >? [[1, 2], [3, 4]]", new BinaryExpressionNode(null,
+            matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4))))),
+            M_ONE_GREATER,
+            matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4)))))));
+
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    @Test public void testArrayOperator() {
+        rule = grammar.expression;
+
+        successExpect("[1, 2, 3] =? [4, 5, 6]", new BinaryExpressionNode(null,
+            arraylit(asList(intlit(1), intlit(2), intlit(3))),
+            M_ONE_EQUAL,
+            arraylit(asList(intlit(4), intlit(5), intlit(6)))));
+
+        successExpect("[1, 2, 3] <=> [4, 5, 6]", new BinaryExpressionNode(null,
+            arraylit(asList(intlit(1), intlit(2), intlit(3))),
+            M_ALL_EQUAL,
+            arraylit(asList(intlit(4), intlit(5), intlit(6)))));
+
+        successExpect("[1, 2, 3] <=? [4, 5, 6]", new BinaryExpressionNode(null,
+            arraylit(asList(intlit(1), intlit(2), intlit(3))),
+            M_ONE_LOWER_EQUAL,
+            arraylit(asList(intlit(4), intlit(5), intlit(6)))));
+
+        successExpect("[1, 2, 3] <<= [4, 5, 6]", new BinaryExpressionNode(null,
+            arraylit(asList(intlit(1), intlit(2), intlit(3))),
+            M_ALL_LOWER_EQUAL,
+            arraylit(asList(intlit(4), intlit(5), intlit(6)))));
+
+        successExpect("[1, 2, 3] >=? [4, 5, 6]", new BinaryExpressionNode(null,
+            arraylit(asList(intlit(1), intlit(2), intlit(3))),
+            M_ONE_GREATER_EQUAL,
+            arraylit(asList(intlit(4), intlit(5), intlit(6)))));
+
+        successExpect("[1, 2, 3] >>= [4, 5, 6]", new BinaryExpressionNode(null,
+            arraylit(asList(intlit(1), intlit(2), intlit(3))),
+            M_ALL_GREATER_EQUAL,
+            arraylit(asList(intlit(4), intlit(5), intlit(6)))));
+
+        successExpect("[1, 2, 3] << [4, 5, 6]", new BinaryExpressionNode(null,
+            arraylit(asList(intlit(1), intlit(2), intlit(3))),
+            M_ALL_LOWER,
+            arraylit(asList(intlit(4), intlit(5), intlit(6)))));
+
+        successExpect("[1, 2, 3] <? [4, 5, 6]", new BinaryExpressionNode(null,
+            arraylit(asList(intlit(1), intlit(2), intlit(3))),
+            M_ONE_LOWER,
+            arraylit(asList(intlit(4), intlit(5), intlit(6)))));
+
+        successExpect("[1, 2, 3] >> [4, 5, 6]", new BinaryExpressionNode(null,
+            arraylit(asList(intlit(1), intlit(2), intlit(3))),
+            M_ALL_GREATER,
+            arraylit(asList(intlit(4), intlit(5), intlit(6)))));
+
+        successExpect("[1, 2, 3] >? [4, 5, 6]", new BinaryExpressionNode(null,
+            arraylit(asList(intlit(1), intlit(2), intlit(3))),
+            M_ONE_GREATER,
+            arraylit(asList(intlit(4), intlit(5), intlit(6)))));
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    @Test public void testMatrixArithmetic() {
+        rule = grammar.expression;
+
+        successExpect("[1](2, 2) + [1](2, 2)", new BinaryExpressionNode(null,
+            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2)),
+            ADD,
+            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2))));
+
+        successExpect("[1](2, 2) - [1](2, 2)", new BinaryExpressionNode(null,
+            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2)),
+            SUBTRACT,
+            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2))));
+
+        successExpect("[1](2, 2) / [1](2, 2)", new BinaryExpressionNode(null,
+            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2)),
+            DIVIDE,
+            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2))));
+
+        successExpect("[1](2, 2) * [1](2, 2)", new BinaryExpressionNode(null,
+            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2)),
+            MULTIPLY,
+            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2))));
+
+        successExpect("[1](2, 2) % [1](2, 2)", new BinaryExpressionNode(null,
+            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2)),
+            REMAINDER,
+            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2))));
+
+        successExpect("[1](2, 2) @ [1](2, 2)", new BinaryExpressionNode(null,
+            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2)),
+            DOT_PRODUCT,
+            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2))));
+
+        // --- without generator ---
+
+        successExpect("[[1, 2], [3, 4]] + [[1, 2], [3, 4]]", new BinaryExpressionNode(null,
+            matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4))))),
+            ADD,
+            matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4)))))));
+
+        successExpect("[[1, 2], [3, 4]] - [[1, 2], [3, 4]]", new BinaryExpressionNode(null,
+            matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4))))),
+            SUBTRACT,
+            matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4)))))));
+
+        successExpect("[[1, 2], [3, 4]] / [[1, 2], [3, 4]]", new BinaryExpressionNode(null,
+            matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4))))),
+            DIVIDE,
+            matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4)))))));
+
+        successExpect("[[1, 2], [3, 4]] * [[1, 2], [3, 4]]", new BinaryExpressionNode(null,
+            matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4))))),
+            MULTIPLY,
+            matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4)))))));
+
+        successExpect("[[1, 2], [3, 4]] % [[1, 2], [3, 4]]", new BinaryExpressionNode(null,
+            matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4))))),
+            REMAINDER,
+            matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4)))))));
+
+        successExpect("[[1, 2], [3, 4]] @ [[1, 2], [3, 4]]", new BinaryExpressionNode(null,
+            matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4))))),
+            DOT_PRODUCT,
+            matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4)))))));
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    @Test public void testArrayArithmetic() {
+        rule = grammar.expression;
+
+        successExpect("[1, 2, 3] + [4, 5, 6]", new BinaryExpressionNode(null,
+            arraylit(asList(intlit(1), intlit(2), intlit(3))),
+            ADD,
+            arraylit(asList(intlit(4), intlit(5), intlit(6)))));
+
+        successExpect("[1, 2, 3] - [4, 5, 6]", new BinaryExpressionNode(null,
+            arraylit(asList(intlit(1), intlit(2), intlit(3))),
+            SUBTRACT,
+            arraylit(asList(intlit(4), intlit(5), intlit(6)))));
+
+        successExpect("[1, 2, 3] / [4, 5, 6]", new BinaryExpressionNode(null,
+            arraylit(asList(intlit(1), intlit(2), intlit(3))),
+            DIVIDE,
+            arraylit(asList(intlit(4), intlit(5), intlit(6)))));
+
+        successExpect("[1, 2, 3] * [4, 5, 6]", new BinaryExpressionNode(null,
+            arraylit(asList(intlit(1), intlit(2), intlit(3))),
+            MULTIPLY,
+            arraylit(asList(intlit(4), intlit(5), intlit(6)))));
+
+        successExpect("[1, 2, 3] % [4, 5, 6]", new BinaryExpressionNode(null,
+            arraylit(asList(intlit(1), intlit(2), intlit(3))),
+            REMAINDER,
+            arraylit(asList(intlit(4), intlit(5), intlit(6)))));
+    }
+
 }

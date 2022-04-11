@@ -40,3 +40,7 @@ var mat3: Mat#Int = [[1, 2, 3], [2, 3, 4], [1, 2, 3]]
 print("" + bigTester(mat1, mat2, mat3))
 
 
+print("" + [1](2, 2).shape)
+
+print("" + [1] @ [2])
+
