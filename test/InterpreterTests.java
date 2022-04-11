@@ -456,4 +456,69 @@ public final class InterpreterTests extends TestFixture {
     // ---------------------------------------------------------------------------------------------
 
     // NOTE(norswap): Not incredibly complete, but should cover the basics.
+
+    // ---------------------------------------------------------------------------------------------
+
+    @Test public void testMatrixArithmetic() {
+
+        checkExpr("[[1]] + [[2]]", new Object[][]{new Object[]{3L}});
+        checkExpr("[[1]] - [[2]]", new Object[][]{new Object[]{-1L}});
+        checkExpr("[[1]] / [[2]]", new Object[][]{new Object[]{0L}});
+        checkExpr("[[1]] * [[2]]", new Object[][]{new Object[]{2L}});
+        checkExpr("[[1]] @ [[2]]", new Object[][]{new Object[]{2L}});
+
+        checkExpr("[[1.0]] + [[2.0]]", new Object[][]{new Object[]{3.0d}});
+        checkExpr("[[1.0]] - [[2.0]]", new Object[][]{new Object[]{-1.0d}});
+        checkExpr("[[1.0]] / [[2.0]]", new Object[][]{new Object[]{0.5d}});
+        checkExpr("[[1.0]] * [[2.0]]", new Object[][]{new Object[]{2.0d}});
+        checkExpr("[[1.0]] @ [[2.0]]", new Object[][]{new Object[]{2.0d}});
+
+        checkExpr("[[1]] + [[2.0]]", new Object[][]{new Object[]{3.0d}});
+        checkExpr("[[1]] - [[2.0]]", new Object[][]{new Object[]{-1.0d}});
+        checkExpr("[[1]] / [[2.0]]", new Object[][]{new Object[]{0.5d}});
+        checkExpr("[[1]] * [[2.0]]", new Object[][]{new Object[]{2.0d}});
+        checkExpr("[[1]] @ [[2.0]]", new Object[][]{new Object[]{2.0d}});
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    @Test public void testArrayArithmetic() {
+
+        checkExpr("[1] + [2]", new Object[][]{new Object[]{3L}});
+        checkExpr("[1] - [2]", new Object[][]{new Object[]{-1L}});
+        checkExpr("[1] / [2]", new Object[][]{new Object[]{0L}});
+        checkExpr("[1] * [2]", new Object[][]{new Object[]{2L}});
+        checkExpr("[1] @ [2]", new Object[][]{new Object[]{2L}});
+
+        checkExpr("[1.0] + [2.0]", new Object[][]{new Object[]{3.0d}});
+        checkExpr("[1.0] - [2.0]", new Object[][]{new Object[]{-1.0d}});
+        checkExpr("[1.0] / [2.0]", new Object[][]{new Object[]{0.5d}});
+        checkExpr("[1.0] * [2.0]", new Object[][]{new Object[]{2.0d}});
+        checkExpr("[1.0] @ [2.0]", new Object[][]{new Object[]{2.0d}});
+
+        checkExpr("[1] + [2.0]", new Object[][]{new Object[]{3.0d}});
+        checkExpr("[1] - [2.0]", new Object[][]{new Object[]{-1.0d}});
+        checkExpr("[1] / [2.0]", new Object[][]{new Object[]{0.5d}});
+        checkExpr("[1] * [2.0]", new Object[][]{new Object[]{2.0d}});
+        checkExpr("[1] @ [2.0]", new Object[][]{new Object[]{2.0d}});
+
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    @Test public void testMatrixOperator() {
+
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    @Test public void testArrayOperator() {
+
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    @Test public void testVectorizedFunction() {
+
+    }
 }

@@ -98,10 +98,130 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
         successInput("return 2.0 % 3");
         successInput("return 3.0 % 2");
 
+        successInput("return 2 + [1]");
+        successInput("return [1] + 2");
+
         failureInputWith("return 2 + true", "Trying to add Int with Bool");
         failureInputWith("return true + 2", "Trying to add Bool with Int");
-        failureInputWith("return 2 + [1]", "Trying to add Int with Int[]");
-        failureInputWith("return [1] + 2", "Trying to add Int[] with Int");
+//        failureInputWith("return 2 + [1]", "Trying to add Int with Int[]");
+//        failureInputWith("return [1] + 2", "Trying to add Int[] with Int");
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    @Test public void testArrayBinary() {
+        successInput("return [1] + [2]");
+        successInput("return [2] - [1]");
+        successInput("return [2] * [3]");
+        successInput("return [2] / [3]");
+        successInput("return [3] / [2]");
+        successInput("return [2] % [3]");
+        successInput("return [3] % [2]");
+
+        successInput("return [1.0] + [2.0]");
+        successInput("return [2.0] - [1.0]");
+        successInput("return [2.0] * [3.0]");
+        successInput("return [2.0] / [3.0]");
+        successInput("return [3.0] / [2.0]");
+        successInput("return [2.0] % [3.0]");
+        successInput("return [3.0] % [2.0]");
+
+        successInput("return [1] + [2.0]");
+        successInput("return [2] - [1.0]");
+        successInput("return [2] * [3.0]");
+        successInput("return [2] / [3.0]");
+        successInput("return [3] / [2.0]");
+        successInput("return [2] % [3.0]");
+        successInput("return [3] % [2.0]");
+
+        successInput("return [1.0] + [2]");
+        successInput("return [2.0] - [1]");
+        successInput("return [2.0] * [3]");
+        successInput("return [2.0] / [3]");
+        successInput("return [3.0] / [2]");
+        successInput("return [2.0] % [3]");
+        successInput("return [3.0] % [2]");
+
+        successInput("return 2 + [1]");
+        successInput("return [1] + 2");
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    @Test public void testMatrixBinary() {
+        successInput("return [[1]] + [[2]]");
+        successInput("return [[2]] - [[1]]");
+        successInput("return [[2]] * [[3]]");
+        successInput("return [[2]] / [[3]]");
+        successInput("return [[3]] / [[2]]");
+        successInput("return [[2]] % [[3]]");
+        successInput("return [[3]] % [[2]]");
+
+        successInput("return [[1.0]] + [[2.0]]");
+        successInput("return [[2.0]] - [[1.0]]");
+        successInput("return [[2.0]] * [[3.0]]");
+        successInput("return [[2.0]] / [[3.0]]");
+        successInput("return [[3.0]] / [[2.0]]");
+        successInput("return [[2.0]] % [[3.0]]");
+        successInput("return [[3.0]] % [[2.0]]");
+
+        successInput("return [[1]] + [[2.0]]");
+        successInput("return [[2]] - [[1.0]]");
+        successInput("return [[2]] * [[3.0]]");
+        successInput("return [[2]] / [[3.0]]");
+        successInput("return [[3]] / [[2.0]]");
+        successInput("return [[2]] % [[3.0]]");
+        successInput("return [[3]] % [[2.0]]");
+
+        successInput("return [[1.0]] + [[2]]");
+        successInput("return [[2.0]] - [[1]]");
+        successInput("return [[2.0]] * [[3]]");
+        successInput("return [[2.0]] / [[3]]");
+        successInput("return [[3.0]] / [[2]]");
+        successInput("return [[2.0]] % [[3]]");
+        successInput("return [[3.0]] % [[2]]");
+
+        successInput("return 2 + [[1]]");
+        successInput("return [[1]] + 2");
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    @Test public void testArrayMatrixBinary() {
+        successInput("return [1] + [[2]]");
+        successInput("return [2] - [[1]]");
+        successInput("return [2] * [[3]]");
+        successInput("return [2] / [[3]]");
+        successInput("return [3] / [[2]]");
+        successInput("return [2] % [[3]]");
+        successInput("return [3] % [[2]]");
+
+        successInput("return [1.0] + [[2.0]]");
+        successInput("return [2.0] - [[1.0]]");
+        successInput("return [2.0] * [[3.0]]");
+        successInput("return [2.0] / [[3.0]]");
+        successInput("return [3.0] / [[2.0]]");
+        successInput("return [2.0] % [[3.0]]");
+        successInput("return [3.0] % [[2.0]]");
+
+        successInput("return [1] + [[2.0]]");
+        successInput("return [2] - [[1.0]]");
+        successInput("return [2] * [[3.0]]");
+        successInput("return [2] / [[3.0]]");
+        successInput("return [3] / [[2.0]]");
+        successInput("return [2] % [[3.0]]");
+        successInput("return [3] % [[2.0]]");
+
+        successInput("return [1.0] + [[2]]");
+        successInput("return [2.0] - [[1]]");
+        successInput("return [2.0] * [[3]]");
+        successInput("return [2.0] / [[3]]");
+        successInput("return [3.0] / [[2]]");
+        successInput("return [2.0] % [[3]]");
+        successInput("return [3.0] % [[2]]");
+
+        successInput("return [2] + [[1]]");
+        successInput("return [[1]] + [2]");
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -156,6 +276,345 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
 
     // ---------------------------------------------------------------------------------------------
 
+    @Test public void testComparaisonArray(){
+
+        successInput("return [1] <=> [1]");
+        successInput("return [1] <=> [2]");
+        successInput("return [1.0] <=> [1.0]");
+        successInput("return [1.0] <=> [2.0]");
+        successInput("return [1] <=> [1.0]");
+        successInput("return [1] <=> [2.0]");
+        successInput("return [1.0] <=> [1]");
+        successInput("return [1.0] <=> [2]");
+
+        //        successInput("return [1] !<=> [1]");
+        //        successInput("return [1] !<=> [2]");
+        //        successInput("return [1.0] !<=> [1.0]");
+        //        successInput("return [1.0] !<=> [2.0]");
+        //        successInput("return [1] !<=> [1.0]");
+        //        successInput("return [1] !<=> [2.0]");
+        //        successInput("return [1.0] !<=> [1]");
+        //        successInput("return [1.0] !<=> [2]");
+
+        successInput("return [1] =? [1]");
+        successInput("return [1] =? [2]");
+        successInput("return [1.0] =? [1.0]");
+        successInput("return [1.0] =? [2.0]");
+        successInput("return [1] =? [1.0]");
+        successInput("return [1] =? [2.0]");
+        successInput("return [1.0] =? [1]");
+        successInput("return [1.0] =? [2]");
+
+        //        successInput("return [1] !=? [1]");
+        //        successInput("return [1] !=? [2]");
+        //        successInput("return [1.0] !=? [1.0]");
+        //        successInput("return [1.0] !=? [2.0]");
+        //        successInput("return [1] !=? [1.0]");
+        //        successInput("return [1] !=? [2.0]");
+        //        successInput("return [1.0] !=? [1]");
+        //        successInput("return [1.0] !=? [2]");
+
+        successInput("return [1] << [1]");
+        successInput("return [1] << [2]");
+        successInput("return [1.0] << [1.0]");
+        successInput("return [1.0] << [2.0]");
+        successInput("return [1] << [1.0]");
+        successInput("return [1] << [2.0]");
+        successInput("return [1.0] << [1]");
+        successInput("return [1.0] << [2]");
+
+        successInput("return [1] <? [1]");
+        successInput("return [1] <? [2]");
+        successInput("return [1.0] <? [1.0]");
+        successInput("return [1.0] <? [2.0]");
+        successInput("return [1] <? [1.0]");
+        successInput("return [1] <? [2.0]");
+        successInput("return [1.0] <? [1]");
+        successInput("return [1.0] <? [2]");
+
+        successInput("return [1] >> [1]");
+        successInput("return [1] >> [2]");
+        successInput("return [1.0] >> [1.0]");
+        successInput("return [1.0] >> [2.0]");
+        successInput("return [1] >> [1.0]");
+        successInput("return [1] >> [2.0]");
+        successInput("return [1.0] >> [1]");
+        successInput("return [1.0] >> [2]");
+
+        successInput("return [1] >? [1]");
+        successInput("return [1] >? [2]");
+        successInput("return [1.0] >? [1.0]");
+        successInput("return [1.0] >? [2.0]");
+        successInput("return [1] >? [1.0]");
+        successInput("return [1] >? [2.0]");
+        successInput("return [1.0] >? [1]");
+        successInput("return [1.0] >? [2]");
+
+        successInput("return [1] <<= [1]");
+        successInput("return [1] <<= [2]");
+        successInput("return [1.0] <<= [1.0]");
+        successInput("return [1.0] <<= [2.0]");
+        successInput("return [1] <<= [1.0]");
+        successInput("return [1] <<= [2.0]");
+        successInput("return [1.0] <<= [1]");
+        successInput("return [1.0] <<= [2]");
+
+        successInput("return [1] <=? [1]");
+        successInput("return [1] <=? [2]");
+        successInput("return [1.0] <=? [1.0]");
+        successInput("return [1.0] <=? [2.0]");
+        successInput("return [1] <=? [1.0]");
+        successInput("return [1] <=? [2.0]");
+        successInput("return [1.0] <=? [1]");
+        successInput("return [1.0] <=? [2]");
+
+        successInput("return [1] >>= [1]");
+        successInput("return [1] >>= [2]");
+        successInput("return [1.0] >>= [1.0]");
+        successInput("return [1.0] >>= [2.0]");
+        successInput("return [1] >>= [1.0]");
+        successInput("return [1] >>= [2.0]");
+        successInput("return [1.0] >>= [1]");
+        successInput("return [1.0] >>= [2]");
+
+        successInput("return [1] >=? [1]");
+        successInput("return [1] >=? [2]");
+        successInput("return [1.0] >=? [1.0]");
+        successInput("return [1.0] >=? [2.0]");
+        successInput("return [1] >=? [1.0]");
+        successInput("return [1] >=? [2.0]");
+        successInput("return [1.0] >=? [1]");
+        successInput("return [1.0] >=? [2]");
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    @Test public void testComparaisonMatrix(){
+
+        successInput("return [[1]] <=> [[1]]");
+        successInput("return [[1]] <=> [[2]]");
+        successInput("return [[1.0]] <=> [[1.0]]");
+        successInput("return [[1.0]] <=> [[2.0]]");
+        successInput("return [[1]] <=> [[1.0]]");
+        successInput("return [[1]] <=> [[2.0]]");
+        successInput("return [[1.0]] <=> [[1]]");
+        successInput("return [[1.0]] <=> [[2]]");
+
+        //        successInput("return [[1]] !<=> [[1]]");
+        //        successInput("return [[1]] !<=> [[2]]");
+        //        successInput("return [[1.0]] !<=> [[1.0]]");
+        //        successInput("return [[1.0]] !<=> [[2.0]]");
+        //        successInput("return [[1]] !<=> [[1.0]]");
+        //        successInput("return [[1]] !<=> [[2.0]]");
+        //        successInput("return [[1.0]] !<=> [[1]]");
+        //        successInput("return [[1.0]] !<=> [[2]]");
+
+        successInput("return [[1]] =? [[1]]");
+        successInput("return [[1]] =? [[2]]");
+        successInput("return [[1.0]] =? [[1.0]]");
+        successInput("return [[1.0]] =? [[2.0]]");
+        successInput("return [[1]] =? [[1.0]]");
+        successInput("return [[1]] =? [[2.0]]");
+        successInput("return [[1.0]] =? [[1]]");
+        successInput("return [[1.0]] =? [[2]]");
+
+        //        successInput("return [[1]] !=? [[1]]");
+        //        successInput("return [[1]] !=? [[2]]");
+        //        successInput("return [[1.0]] !=? [[1.0]]");
+        //        successInput("return [[1.0]] !=? [[2.0]]");
+        //        successInput("return [[1]] !=? [[1.0]]");
+        //        successInput("return [[1]] !=? [[2.0]]");
+        //        successInput("return [[1.0]] !=? [[1]]");
+        //        successInput("return [[1.0]] !=? [[2]]");
+
+        successInput("return [[1]] << [[1]]");
+        successInput("return [[1]] << [[2]]");
+        successInput("return [[1.0]] << [[1.0]]");
+        successInput("return [[1.0]] << [[2.0]]");
+        successInput("return [[1]] << [[1.0]]");
+        successInput("return [[1]] << [[2.0]]");
+        successInput("return [[1.0]] << [[1]]");
+        successInput("return [[1.0]] << [[2]]");
+
+        successInput("return [[1]] <? [[1]]");
+        successInput("return [[1]] <? [[2]]");
+        successInput("return [[1.0]] <? [[1.0]]");
+        successInput("return [[1.0]] <? [[2.0]]");
+        successInput("return [[1]] <? [[1.0]]");
+        successInput("return [[1]] <? [[2.0]]");
+        successInput("return [[1.0]] <? [[1]]");
+        successInput("return [[1.0]] <? [[2]]");
+
+        successInput("return [[1]] >> [[1]]");
+        successInput("return [[1]] >> [[2]]");
+        successInput("return [[1.0]] >> [[1.0]]");
+        successInput("return [[1.0]] >> [[2.0]]");
+        successInput("return [[1]] >> [[1.0]]");
+        successInput("return [[1]] >> [[2.0]]");
+        successInput("return [[1.0]] >> [[1]]");
+        successInput("return [[1.0]] >> [[2]]");
+
+        successInput("return [[1]] >? [[1]]");
+        successInput("return [[1]] >? [[2]]");
+        successInput("return [[1.0]] >? [[1.0]]");
+        successInput("return [[1.0]] >? [[2.0]]");
+        successInput("return [[1]] >? [[1.0]]");
+        successInput("return [[1]] >? [[2.0]]");
+        successInput("return [[1.0]] >? [[1]]");
+        successInput("return [[1.0]] >? [[2]]");
+
+        successInput("return [[1]] <<= [[1]]");
+        successInput("return [[1]] <<= [[2]]");
+        successInput("return [[1.0]] <<= [[1.0]]");
+        successInput("return [[1.0]] <<= [[2.0]]");
+        successInput("return [[1]] <<= [[1.0]]");
+        successInput("return [[1]] <<= [[2.0]]");
+        successInput("return [[1.0]] <<= [[1]]");
+        successInput("return [[1.0]] <<= [[2]]");
+
+        successInput("return [[1]] <=? [[1]]");
+        successInput("return [[1]] <=? [[2]]");
+        successInput("return [[1.0]] <=? [[1.0]]");
+        successInput("return [[1.0]] <=? [[2.0]]");
+        successInput("return [[1]] <=? [[1.0]]");
+        successInput("return [[1]] <=? [[2.0]]");
+        successInput("return [[1.0]] <=? [[1]]");
+        successInput("return [[1.0]] <=? [[2]]");
+
+        successInput("return [[1]] >>= [[1]]");
+        successInput("return [[1]] >>= [[2]]");
+        successInput("return [[1.0]] >>= [[1.0]]");
+        successInput("return [[1.0]] >>= [[2.0]]");
+        successInput("return [[1]] >>= [[1.0]]");
+        successInput("return [[1]] >>= [[2.0]]");
+        successInput("return [[1.0]] >>= [[1]]");
+        successInput("return [[1.0]] >>= [[2]]");
+
+        successInput("return [[1]] >=? [[1]]");
+        successInput("return [[1]] >=? [[2]]");
+        successInput("return [[1.0]] >=? [[1.0]]");
+        successInput("return [[1.0]] >=? [[2.0]]");
+        successInput("return [[1]] >=? [[1.0]]");
+        successInput("return [[1]] >=? [[2.0]]");
+        successInput("return [[1.0]] >=? [[1]]");
+        successInput("return [[1.0]] >=? [[2]]");
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    @Test public void testComparaisonArrayMatrix(){
+
+        successInput("return [1] <=> [[1]]");
+        successInput("return [1] <=> [[2]]");
+        successInput("return [1.0] <=> [[1.0]]");
+        successInput("return [1.0] <=> [[2.0]]");
+        successInput("return [1] <=> [[1.0]]");
+        successInput("return [1] <=> [[2.0]]");
+        successInput("return [1.0] <=> [[1]]");
+        successInput("return [1.0] <=> [[2]]");
+
+        //        successInput("return [1] !<=> [[1]]");
+        //        successInput("return [1] !<=> [[2]]");
+        //        successInput("return [1.0] !<=> [[1.0]]");
+        //        successInput("return [1.0] !<=> [[2.0]]");
+        //        successInput("return [1] !<=> [[1.0]]");
+        //        successInput("return [1] !<=> [[2.0]]");
+        //        successInput("return [1.0] !<=> [[1]]");
+        //        successInput("return [1.0] !<=> [[2]]");
+
+        successInput("return [1] =? [[1]]");
+        successInput("return [1] =? [[2]]");
+        successInput("return [1.0] =? [[1.0]]");
+        successInput("return [1.0] =? [[2.0]]");
+        successInput("return [1] =? [[1.0]]");
+        successInput("return [1] =? [[2.0]]");
+        successInput("return [1.0] =? [[1]]");
+        successInput("return [1.0] =? [[2]]");
+
+        //        successInput("return [1] !=? [[1]]");
+        //        successInput("return [1] !=? [[2]]");
+        //        successInput("return [1.0] !=? [[1.0]]");
+        //        successInput("return [1.0] !=? [[2.0]]");
+        //        successInput("return [1] !=? [[1.0]]");
+        //        successInput("return [1] !=? [[2.0]]");
+        //        successInput("return [1.0] !=? [[1]]");
+        //        successInput("return [1.0] !=? [[2]]");
+
+        successInput("return [1] << [[1]]");
+        successInput("return [1] << [[2]]");
+        successInput("return [1.0] << [[1.0]]");
+        successInput("return [1.0] << [[2.0]]");
+        successInput("return [1] << [[1.0]]");
+        successInput("return [1] << [[2.0]]");
+        successInput("return [1.0] << [[1]]");
+        successInput("return [1.0] << [[2]]");
+
+        successInput("return [1] <? [[1]]");
+        successInput("return [1] <? [[2]]");
+        successInput("return [1.0] <? [[1.0]]");
+        successInput("return [1.0] <? [[2.0]]");
+        successInput("return [1] <? [[1.0]]");
+        successInput("return [1] <? [[2.0]]");
+        successInput("return [1.0] <? [[1]]");
+        successInput("return [1.0] <? [[2]]");
+
+        successInput("return [1] >> [[1]]");
+        successInput("return [1] >> [[2]]");
+        successInput("return [1.0] >> [[1.0]]");
+        successInput("return [1.0] >> [[2.0]]");
+        successInput("return [1] >> [[1.0]]");
+        successInput("return [1] >> [[2.0]]");
+        successInput("return [1.0] >> [[1]]");
+        successInput("return [1.0] >> [[2]]");
+
+        successInput("return [1] >? [[1]]");
+        successInput("return [1] >? [[2]]");
+        successInput("return [1.0] >? [[1.0]]");
+        successInput("return [1.0] >? [[2.0]]");
+        successInput("return [1] >? [[1.0]]");
+        successInput("return [1] >? [[2.0]]");
+        successInput("return [1.0] >? [[1]]");
+        successInput("return [1.0] >? [[2]]");
+
+        successInput("return [1] <<= [[1]]");
+        successInput("return [1] <<= [[2]]");
+        successInput("return [1.0] <<= [[1.0]]");
+        successInput("return [1.0] <<= [[2.0]]");
+        successInput("return [1] <<= [[1.0]]");
+        successInput("return [1] <<= [[2.0]]");
+        successInput("return [1.0] <<= [[1]]");
+        successInput("return [1.0] <<= [[2]]");
+
+        successInput("return [1] <=? [[1]]");
+        successInput("return [1] <=? [[2]]");
+        successInput("return [1.0] <=? [[1.0]]");
+        successInput("return [1.0] <=? [[2.0]]");
+        successInput("return [1] <=? [[1.0]]");
+        successInput("return [1] <=? [[2.0]]");
+        successInput("return [1.0] <=? [[1]]");
+        successInput("return [1.0] <=? [[2]]");
+
+        successInput("return [1] >>= [[1]]");
+        successInput("return [1] >>= [[2]]");
+        successInput("return [1.0] >>= [[1.0]]");
+        successInput("return [1.0] >>= [[2.0]]");
+        successInput("return [1] >>= [[1.0]]");
+        successInput("return [1] >>= [[2.0]]");
+        successInput("return [1.0] >>= [[1]]");
+        successInput("return [1.0] >>= [[2]]");
+
+        successInput("return [1] >=? [[1]]");
+        successInput("return [1] >=? [[2]]");
+        successInput("return [1.0] >=? [[1.0]]");
+        successInput("return [1.0] >=? [[2.0]]");
+        successInput("return [1] >=? [[1.0]]");
+        successInput("return [1] >=? [[2.0]]");
+        successInput("return [1.0] >=? [[1]]");
+        successInput("return [1.0] >=? [[2]]");
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
     @Test public void testVarDecl() {
         successInput("var x: Int = 1; return x");
         successInput("var x: Float = 2.0; return x");
@@ -163,12 +622,40 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
         successInput("var x: Int = 0; return x = 3");
         successInput("var x: String = \"0\"; return x = \"S\"");
 
+        successInput("var x: Int[] = [1]; return x");
+        successInput("var x: Float[] = [1.0]; return x");
+        successInput("var x: String[] = [\"a\"]; return x");
+
+        successInput("var x: Int[] = [1]; return x[0]= 2");
+        successInput("var x: Float[] = [1.0]; return x[0] = 2.0");
+        successInput("var x: String[] = [\"a\"]; return x[0] = \"S\"");
+
+        successInput("var x: Mat#Int = [[1]]; return x");
+        successInput("var x: Mat#Float = [[1.0]]; return x");
+        successInput("var x: Mat#String = [[\"a\"]]; return x");
+
+        successInput("var x: Mat#Int = [[1]]; return x[0][0] = 2");
+        successInput("var x: Mat#Float = [[1.0]]; return x[0][0] = 2.0");
+        successInput("var x: Mat#String = [[\"a\"]]; return x[0][0] = \"S\"");
+
+        successInput("var x: Mat#Int = [1](2, 2); return x");
+        successInput("var x: Mat#Float = [1.0](2, 2); return x");
+        successInput("var x: Mat#String = [\"a\"](2, 2); return x");
+
+        successInput("var x: Mat#Int = [1](2, 2); return x[0][0] = 2");
+        successInput("var x: Mat#Float = [1.0](2, 2); return x[0][0] = 2.0");
+        successInput("var x: Mat#String = [\"a\"](2, 2); return x[0][0] = \"S\"");
+
         failureInputWith("var x: Int = true", "expected Int but got Bool");
         failureInputWith("return x + 1", "Could not resolve: x");
         failureInputWith("return x + 1; var x: Int = 2", "Variable used before declaration: x");
 
+        failureInputWith("var x: Int[] = [2.0]", "");
+        failureInputWith("var x: String[] = [2]", "");
+
         // implicit conversions
         successInput("var x: Float = 1 ; x = 2");
+        successInput("var x: Float[] = [2]");
     }
 
     // ---------------------------------------------------------------------------------------------
