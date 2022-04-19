@@ -611,6 +611,8 @@ public final class SemanticAnalysis
                 binaryLogic(r, node, left, right);
             else if (isEquality(node.operator))
                 binaryEquality(r, node, left, right);
+            else if (isArrayLikeEquality(node.operator))
+                binaryArrayLikeEquality(r, node, left, right);
         });
     }
 
@@ -635,7 +637,11 @@ public final class SemanticAnalysis
     }
 
     private boolean isEquality (BinaryOperator op) {
-        return op == EQUALITY || op == NOT_EQUALS || op == M_ALL_EQUAL|| op == M_ALL_NOT_EQUAL;
+        return op == EQUALITY || op == NOT_EQUALS;
+    }
+
+    private boolean isArrayLikeEquality (BinaryOperator op) {
+        return op == M_ALL_EQUAL|| op == M_ALL_NOT_EQUAL;
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -829,6 +835,17 @@ public final class SemanticAnalysis
 
     // ---------------------------------------------------------------------------------------------
 
+    private void binaryArrayLikeEquality (Rule r, BinaryExpressionNode node, Type left, Type right)
+    {
+        r.set(0, BoolType.INSTANCE);
+
+        if (!isArrayLikeComparableTo(left, right))
+            r.errorFor(format("Trying to compare incomparable types %s and %s", left, right),
+                node);
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
     private void binaryLogic (Rule r, BinaryExpressionNode node, Type left, Type right)
     {
         r.set(0, BoolType.INSTANCE);
@@ -977,20 +994,51 @@ public final class SemanticAnalysis
         if (a instanceof VoidType || b instanceof VoidType)
             return false;
 
-        return a.isReference() && b.isReference()
+        return (!a.isArrayLike() && !b.isArrayLike()) &&
+            (a.isReference() && b.isReference()
             || a.equals(b)
             || a instanceof IntType && b instanceof FloatType
-            || a instanceof FloatType && b instanceof IntType
-            || a instanceof MatType && b instanceof ArrayType
-            || a instanceof ArrayType && b instanceof MatType
-            || a instanceof MatType && b instanceof IntType
-            || a instanceof IntType && b instanceof MatType
-            || a instanceof MatType && b instanceof FloatType
-            || a instanceof FloatType && b instanceof MatType
-            || a instanceof ArrayType && b instanceof IntType
-            || a instanceof IntType && b instanceof ArrayType
-            || a instanceof ArrayType && b instanceof FloatType
-            || a instanceof FloatType && b instanceof ArrayType;
+            || a instanceof FloatType && b instanceof IntType);
+        //            || a instanceof MatType && b instanceof ArrayType
+        //            || a instanceof ArrayType && b instanceof MatType
+        //            || a instanceof MatType && b instanceof IntType
+        //            || a instanceof IntType && b instanceof MatType
+        //            || a instanceof MatType && b instanceof FloatType
+        //            || a instanceof FloatType && b instanceof MatType
+        //            || a instanceof ArrayType && b instanceof IntType
+        //            || a instanceof IntType && b instanceof ArrayType
+        //            || a instanceof ArrayType && b instanceof FloatType
+        //            || a instanceof FloatType && b instanceof ArrayType;
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    /**
+     * Indicate whether the two types are comparable.
+     */
+    private static boolean isArrayLikeComparableTo (Type a, Type b)
+    {
+        if (a instanceof VoidType || b instanceof VoidType)
+            return false;
+
+        return (a.isArrayLike() && b.isArrayLike())
+            || (a.isArrayLike() || b.isArrayLike()) &&
+            (  a instanceof IntType || b instanceof IntType
+            || a instanceof FloatType || b instanceof FloatType
+            || a instanceof StringType || b instanceof StringType
+            );
+//            a instanceof MatType && b instanceof MatType
+//            || a instanceof ArrayType && b instanceof ArrayType
+//            || a instanceof MatType && b instanceof ArrayType
+//            || a instanceof ArrayType && b instanceof MatType
+//            || a instanceof MatType && b instanceof IntType
+//            || a instanceof IntType && b instanceof MatType
+//            || a instanceof MatType && b instanceof FloatType
+//            || a instanceof FloatType && b instanceof MatType
+//            || a instanceof ArrayType && b instanceof IntType
+//            || a instanceof IntType && b instanceof ArrayType
+//            || a instanceof ArrayType && b instanceof FloatType
+//            || a instanceof FloatType && b instanceof ArrayType;
     }
 
     // ---------------------------------------------------------------------------------------------

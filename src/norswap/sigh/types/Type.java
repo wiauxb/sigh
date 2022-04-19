@@ -23,6 +23,13 @@ public abstract class Type
         return !isPrimitive();
     }
 
+    /**
+     * Whether this is a Matrix or ArrayType.
+     */
+    public boolean isArrayLike() {
+        return false;
+    }
+
     @Override public String toString() {
         return name();
     }

@@ -19,4 +19,9 @@ public final class ArrayType extends Type
     @Override public int hashCode () {
         return componentType.hashCode();
     }
+
+    @Override
+    public boolean isArrayLike () {
+        return true;
+    }
 }

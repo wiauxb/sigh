@@ -1,48 +1,4 @@
 
-fun tester (a : Int) : Int {
-    return a * 2
-}
-
-fun bigTester (a : Int, b: Int, c: Float): Float {
-    if (a > b && a > c)
-        return a
-    else if (b > a && b > c)
-        return b
-    else
-        return c
-}
-
-fun tester2 (arr : Int[]) : Int[] {
-    var res : Int[] = [arr[0] + arr[1], arr[0] * arr[1]]
-    return res
-}
-
-var t : Int = 3
-t = tester(t)
-print("" + t)
-
-var v : Int[] = [1, 2, 3]
-var w : Mat#Int = tester(v)
-print("" + w)
-
-var x : Int[] = tester2(v)
-print("" + x)
-
-var m : Mat#Int = [1](2, 2)
-var n : Mat#Int = tester(m)
-print("" + n)
-
-
-var mat1: Mat#Int = [[6, 7, 8], [0, 0, 0], [-1, -2, -3]]
-var mat2: Mat#Int = [[0, 0, 0], [3, 4, 5], [-1, -2, -3]]
-var mat3: Mat#Int = [[1, 2, 3], [2, 3, 4], [1, 2, 3]]
-
-print("" + bigTester(mat1, mat2, mat3))
-
-
-print("" + [1](2, 2).shape)
-
-print("" + [1] @ [2])
 
 print("-------------------------")
 
@@ -55,3 +11,5 @@ var m : Int[] = [1, 2, 3]
 //print("" + m[-5:])
 
 //print("" + m[:100])
+
+return [1] != [1]
