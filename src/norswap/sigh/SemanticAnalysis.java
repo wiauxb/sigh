@@ -605,6 +605,8 @@ public final class SemanticAnalysis
                 binaryArithmetic(r, node, left, right);
             else if (isComparison(node.operator))
                 binaryComparison(r, node, left, right);
+            else if (isArrayLikeComparison(node.operator))
+                arrayLikeComparison(r, node, left, right);
             else if (isLogic(node.operator))
                 binaryLogic(r, node, left, right);
             else if (isEquality(node.operator))
@@ -619,10 +621,13 @@ public final class SemanticAnalysis
     }
 
     private boolean isComparison (BinaryOperator op) {
-        return op == GREATER || op == GREATER_EQUAL || op == LOWER || op == LOWER_EQUAL ||
-            op == M_ONE_EQUAL ||op == M_ONE_NOT_EQUAL || op == M_ALL_LOWER || op == M_ALL_LOWER_EQUAL || op == M_ONE_LOWER ||
-                op == M_ONE_LOWER_EQUAL || op == M_ALL_GREATER || op == M_ALL_GREATER_EQUAL || op == M_ONE_GREATER ||
-                op == M_ONE_GREATER_EQUAL;
+        return op == GREATER || op == GREATER_EQUAL || op == LOWER || op == LOWER_EQUAL;
+    }
+
+    private boolean isArrayLikeComparison (BinaryOperator op) {
+        return op == M_ONE_EQUAL ||op == M_ONE_NOT_EQUAL || op == M_ALL_LOWER || op == M_ALL_LOWER_EQUAL || op == M_ONE_LOWER ||
+            op == M_ONE_LOWER_EQUAL || op == M_ALL_GREATER || op == M_ALL_GREATER_EQUAL || op == M_ONE_GREATER ||
+            op == M_ONE_GREATER_EQUAL;
     }
 
     private boolean isLogic (BinaryOperator op) {
@@ -784,16 +789,29 @@ public final class SemanticAnalysis
         r.set(0, BoolType.INSTANCE);
 
         if (!(left instanceof IntType) &&
-                !(left instanceof FloatType) &&
-                !(left instanceof MatType) &&
-                !(left instanceof ArrayType))
+            !(left instanceof FloatType))
             r.errorFor("Attempting to perform arithmetic comparison on non-numeric type: " + left,
                 node.left);
         if (!(right instanceof IntType) &&
-                !(right instanceof FloatType) &&
-                !(right instanceof MatType) &&
-                !(right instanceof ArrayType))
+            !(right instanceof FloatType))
             r.errorFor("Attempting to perform arithmetic comparison on non-numeric type: " + right,
+                node.right);
+
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    private void arrayLikeComparison (Rule r, BinaryExpressionNode node, Type left, Type right)
+    {
+        r.set(0, BoolType.INSTANCE);
+
+        if (!(left instanceof MatType) &&
+            !(left instanceof ArrayType))
+            r.errorFor("Attempting to perform arithmetic comparison on non-arraylike type: " + left,
+                node.left);
+        if (!(right instanceof MatType) &&
+            !(right instanceof ArrayType))
+            r.errorFor("Attempting to perform arithmetic comparison on non-arraylike type: " + right,
                 node.right);
 
     }

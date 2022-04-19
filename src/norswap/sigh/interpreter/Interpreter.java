@@ -765,6 +765,8 @@ public final class Interpreter
 
         if (arr instanceof Object[][]) {
             Object[][] matrix = getNonNullMatrix(node.array);
+            if (endIndex > matrix.length)
+                throw new InterpreterException(format("index %d should be smaller than number of line in the matrix : %d", endIndex, matrix.length), null);
             if (endIndex == -1) endIndex = matrix.length;
 
             try {
@@ -779,6 +781,8 @@ public final class Interpreter
         }
         else if (arr instanceof Object[]){
             Object[] array = getNonNullArray(node.array);
+            if (endIndex > array.length)
+                throw new InterpreterException(format("index %d should be smaller than the array length : %d", endIndex, array.length), null);
             if (endIndex == -1) endIndex = array.length;
 
             try {
