@@ -195,7 +195,6 @@ public final class InterpreterTests extends TestFixture {
         checkExpr("false == false", true);
         checkExpr("true == false", false);
         checkExpr("1 == 1.0", true);
-        checkThrows("return [1] == [1]", InterpreterException.class);
 
         checkExpr("1 != 1", false);
         checkExpr("1 != 2", true);
@@ -207,7 +206,6 @@ public final class InterpreterTests extends TestFixture {
         checkExpr("1 != 1.0", false);
 
         checkExpr("\"hi\" != \"hi2\"", true);
-        checkThrows("return [1] != [1]", InterpreterException.class);
 
          // test short circuit
         checkExpr("true || print(\"x\") == \"y\"", true, "");

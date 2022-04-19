@@ -256,7 +256,7 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
         failureInputWith("return 2 == false", "Trying to compare incomparable types Int and Bool");
 
         successInput("return \"hi\" == \"hi\"");
-        successInput("return [1] == [1]");
+        failureInputWith("return [1] == [1]", "Trying to compare incomparable types Int[] and Int[]");
 
         successInput("return 1 != 1");
         successInput("return 1 != 2");
@@ -271,7 +271,7 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
         failureInputWith("return 2 != false", "Trying to compare incomparable types Int and Bool");
 
         successInput("return \"hi\" != \"hi\"");
-        successInput("return [1] != [1]");
+        failureInputWith("return [1] != [1]", "Trying to compare incomparable types Int[] and Int[]");
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -498,6 +498,11 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
         successInput("return [[1]] >=? [[2.0]]");
         successInput("return [[1.0]] >=? [[1]]");
         successInput("return [[1.0]] >=? [[2]]");
+
+        failureInputWith("return [[1, 2, 3]] == [[1, 2, 3]]", "");
+        failureInputWith("return [[1, 2, 3]] < [[1, 2, 3]]", "");
+        failureInputWith("return [[1, 2, 3]] > [[1, 2, 3]]", "");
+        failureInputWith("return [[1, 2, 3]] != [[1, 2, 3]]", "");
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -611,6 +616,12 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
         successInput("return [1] >=? [[2.0]]");
         successInput("return [1.0] >=? [[1]]");
         successInput("return [1.0] >=? [[2]]");
+
+        failureInputWith("return [[1, 2, 3]] == [[1, 2, 3]]", "");
+        failureInputWith("return [[1, 2, 3]] < [[1, 2, 3]]", "");
+        failureInputWith("return [[1, 2, 3]] > [[1, 2, 3]]", "");
+        failureInputWith("return [[1, 2, 3]] != [[1, 2, 3]]", "");
+        failureInputWith("return [[1, 2, 3]] == [[1, 2, 3]]", "");
     }
 
     // ---------------------------------------------------------------------------------------------
