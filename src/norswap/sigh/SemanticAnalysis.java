@@ -384,10 +384,14 @@ public final class SemanticAnalysis
 
     private void matrixGenerator (MatrixGeneratorNode node)
     {
-        if (node.shape1.value <= 0 || node.shape2.value <= 0){
-            R.error(new SemanticError(format("Invalid shape argument when initializing a matrix : [%d, %d]",
-                                                node.shape1.value, node.shape2.value), null, node));
-        }
+        R.rule()
+            .using(node.shape1.attr("type"),
+                        node.shape2.attr("type"))
+            .by(r -> {
+                if (!(r.get(0) instanceof IntType && r.get(1) instanceof IntType))
+                    r.error("Invalid shape type", node);
+            }
+            );
 
         R.rule(node, "type")
             .using(node.filler.attr("type"))
