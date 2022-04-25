@@ -3,9 +3,6 @@ package norswap.sigh;
 import norswap.autumn.Grammar;
 import norswap.sigh.ast.*;
 
-import java.util.Arrays;
-
-import static norswap.sigh.ast.SymbolicValue.MATCH_ELEM;
 import static norswap.sigh.ast.UnaryOperator.NOT;
 
 @SuppressWarnings("Convert2MethodRef")
@@ -145,19 +142,14 @@ public class SighGrammar extends Grammar
         seq(LSQUARE, matrix_expressions, RSQUARE) //[[], [], []]
             .push($ -> new MatrixLiteralNode($.span(), $.$[0]));
 
-    public rule filler = choice(
-        floating,
-        integer,
-        string
-    );
-
-    public rule matrix_generator = seq(LSQUARE, filler, RSQUARE, LPAREN, integer, seq(COMMA, integer).opt(), RPAREN)
+    public rule matrix_generator = lazy(() ->
+        seq(LSQUARE, this.expression, RSQUARE, LPAREN, integer, seq(COMMA, integer).opt(), RPAREN)
         .push($ -> {
             if ($.$.length < 3)
                 return new MatrixGeneratorNode($.span(), $.$[0], $.$[1]);
             else
                 return new MatrixGeneratorNode($.span(), $.$[0], $.$[1], $.$[2]);
-        });
+        }));
 
     public rule basic_expression = choice(
         constructor,
