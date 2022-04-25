@@ -19,8 +19,8 @@ public final class Test
 {
     public static void main (String[] args) {
 //         String file = "fizzbuzz.si";
-        String file = "kitchensink.si";
-//        String file = "test.si";
+//        String file = "kitchensink.si";
+        String file = "test.si";
         String path = Paths.get("examples/", file).toAbsolutePath().toString();
         String src = IO.slurp(path);
         SighGrammar grammar = new SighGrammar();
@@ -32,22 +32,22 @@ public final class Test
         if (!result.fullMatch)
             return;
 
-//        SighNode tree = cast(result.topValue());
-//        Reactor reactor = new Reactor();
-//        Walker<SighNode> walker = SemanticAnalysis.createWalker(reactor);
-//        walker.walk(tree);
-//
-////        System.out.println(
-////            AttributeTreeFormatter.formatWalkFields(tree, reactor, SighNode.class));
-//
-//        reactor.run();
-//
-//        if (!reactor.errors().isEmpty()) {
-//            System.out.println(reactor.reportErrors(it ->
-//                it.toString() + " (" + ((SighNode) it).span.startString(lineMap) + ")"));
-//            return;
-//        }
-//
+        SighNode tree = cast(result.topValue());
+        Reactor reactor = new Reactor();
+        Walker<SighNode> walker = SemanticAnalysis.createWalker(reactor);
+        walker.walk(tree);
+
+//        System.out.println(
+//            AttributeTreeFormatter.formatWalkFields(tree, reactor, SighNode.class));
+
+        reactor.run();
+
+        if (!reactor.errors().isEmpty()) {
+            System.out.println(reactor.reportErrors(it ->
+                it.toString() + " (" + ((SighNode) it).span.startString(lineMap) + ")"));
+            return;
+        }
+
 //        Interpreter interpreter = new Interpreter(reactor);
 //        interpreter.interpret(tree);
 //        System.out.println("success");

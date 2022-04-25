@@ -8,9 +8,9 @@ import static norswap.utils.Util.cast;
 
 public class CaseNode extends StatementNode{
 
-    ExpressionNode element;
-    List<CaseBodyNode> body;
-    BlockNode defaultBlock;
+    public ExpressionNode element;
+    public List<CaseBodyNode> body;
+    public BlockNode defaultBlock;
 
     @SuppressWarnings("unchecked")
     public CaseNode (Span span, Object element, Object body, Object defaultBlock) {
@@ -29,7 +29,7 @@ public class CaseNode extends StatementNode{
         for (CaseBodyNode caseBodyNode : this.body) {
             s.append(caseBodyNode.contents()).append(",\n");
         }
-        s.append(this.defaultBlock.contents());
+        s.append("default : ").append(this.defaultBlock.contents());
         s.append("\n}");
         return s.toString();
     }

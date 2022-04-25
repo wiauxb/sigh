@@ -1,46 +1,51 @@
+var n : Int = 2
 
-fun tester (a : Int) : Int {
-    return a * 2
+case n {
+    4 : {},
+    6 : {},
+    8 : {},
+    default : {}
+
 }
 
-fun bigTester (a : Int, b: Int, c: Float): Float {
-    if (a > b && a > c)
-        return a
-    else if (b > a && b > c)
-        return b
-    else
-        return c
+var arr : Int[] = [1, 2, 3]
+
+case arr {
+    [] : {},
+    [1, _] : {},
+    [_, 5] : {},
+    [_, 8, _] : {}
+}
+var mat : Mat#Int = [1+1](2, 2)
+
+case mat {
+    [_](3, 3) : {},
+    [[1, _],[2, 2]] : {},
+    [[_]] : {}//,
+//    [[1, _], _] = {}
 }
 
-fun tester2 (arr : Int[]) : Int[] {
-    var res : Int[] = [arr[0] + arr[1], arr[0] * arr[1]]
-    return res
+var a : Int[] = [1, 2, 3]
+case a {
+    [1, 2, 3, 4, 5] : {print("aaaaa")},
+    [1, _] : {print("bbbbb")},
+    [1, 2, _] : {print("cccc")}//,
+    //3 : {print("3")}
 }
 
-var t : Int = 3
-t = tester(t)
-print("" + t)
 
-var v : Int[] = [1, 2, 3]
-var w : Mat#Int = tester(v)
-print("" + w)
+var b : Int = 5
 
-var x : Int[] = tester2(v)
-print("" + x)
-
-var m : Mat#Int = [1](2, 2)
-var n : Mat#Int = tester(m)
-print("" + n)
+case b {
+    2 : {print("2")},
+    _ : {print("all ?")}
+}
 
 
-var mat1: Mat#Int = [[6, 7, 8], [0, 0, 0], [-1, -2, -3]]
-var mat2: Mat#Int = [[0, 0, 0], [3, 4, 5], [-1, -2, -3]]
-var mat3: Mat#Int = [[1, 2, 3], [2, 3, 4], [1, 2, 3]]
+var c : Mat#Int = [0](2, 2)
 
-print("" + bigTester(mat1, mat2, mat3))
-
-
-print("" + [1](2, 2).shape)
-
-print("" + [1] @ [2])
-
+case c {
+    [1](2, 2) : {print("nope")},
+    [_](3, 3) : {print("?")},
+    default : {print("default")}
+}

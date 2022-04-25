@@ -65,7 +65,7 @@ public class SighGrammar extends Grammar
     public rule COMMA                   = word(",");
     public rule HASHTAG                 = word("#");
     public rule AT                      = word("@");
-    public rule UNDERSCORE              = word("_");
+//    public rule UNDERSCORE              = word("_");
 
     public rule _var            = reserved("var");
     public rule _fun            = reserved("fun");
@@ -334,16 +334,12 @@ public class SighGrammar extends Grammar
         .push($ -> new IfNode($.span(), $.$[0], $.$[1], $.$[2]));
 
     public rule case_body =
-        seq(LSQUARE, choice(UNDERSCORE.as_val(MATCH_ELEM), expression).sep(0, COMMA).as_list(null), RSQUARE, COLON, statement)
+        seq(expression, COLON, statement) //LSQUARE, choice(UNDERSCORE.as_val(MATCH_ELEM), expression).sep(0, COMMA).as_list(null), RSQUARE
             .push($ -> new CaseBodyNode($.span(), $.$[0], $.$[1]));
 
     public rule case_stmt =
         seq(_case, expression, LBRACE, case_body.sep(1, COMMA).as_list(CaseBodyNode.class), seq(COMMA, _default, COLON, statement).or_push_null(), RBRACE)
-            .push($ -> {
-                CaseNode node = new CaseNode($.span(), $.$[0], $.$[1], $.$[2]);
-                System.out.println(node.contents());
-                return node;
-            });
+            .push($ -> new CaseNode($.span(), $.$[0], $.$[1], $.$[2]));
 
     public rule while_stmt =
         seq(_while, expression, statement)
