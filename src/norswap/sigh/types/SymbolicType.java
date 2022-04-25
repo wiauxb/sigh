@@ -15,6 +15,6 @@ public final class SymbolicType extends Type
 
     @Override
     public boolean equals (Object obj) {
-        return obj instanceof Type && ((Type) obj).isPrimitive();
+        return obj instanceof Type ;//&& ((Type) obj).isPrimitive();
     }
 }

@@ -13,7 +13,10 @@ public final class MatType extends Type
     }
 
     @Override public boolean equals (Object o) {
-        return this == o || o instanceof MatType && componentType.equals(((MatType)o).componentType);
+        return this == o ||
+            o instanceof MatType && componentType.equals(((MatType)o).componentType)
+            || o instanceof ArrayType && ((ArrayType) o).componentType instanceof ArrayType &&
+            componentType.equals(((ArrayType)(((ArrayType) o).componentType)).componentType);
     }
 
     @Override public int hashCode () {

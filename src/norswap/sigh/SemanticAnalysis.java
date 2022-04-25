@@ -939,7 +939,7 @@ public final class SemanticAnalysis
      * Indicates whether a value of type {@code a} can be assigned to a location (variable,
      * parameter, ...) of type {@code b}.
      */
-    private static boolean isAssignableTo (Type a, Type b) //TODO gère SymbolicType
+    private static boolean isAssignableTo (Type a, Type b)
     {
 
         if (a instanceof SymbolicType)
@@ -1188,13 +1188,13 @@ public final class SemanticAnalysis
 
     // ---------------------------------------------------------------------------------------------
 
-    private void caseBody(CaseBodyNode node){
-        R.rule(node, "type")
-            .using(node.pattern, "type")
-            .by(Rule::copyFirst);
+//    private void caseBody(CaseBodyNode node){
+//        R.rule(node, "type")
+//            .using(node.pattern, "type")
+//            .by(Rule::copyFirst);
 //        Type type = R.get(node.pattern, "type");
 //        R.set(node, "type", type);
-    }
+//    }
 
     // ---------------------------------------------------------------------------------------------
 
