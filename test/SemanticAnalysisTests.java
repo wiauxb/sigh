@@ -860,4 +860,46 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
     }
 
     // ---------------------------------------------------------------------------------------------
+
+    @Test public void testCaseStatement() {
+
+        successInput("case \"aaa\" {" +
+            "\"b\" : {}," +
+            "\"a_a\" : {}," +
+            "default : {}" +
+            "}");
+
+        successInput("case [1](2, 2) {" +
+            "[3](2, 2) : {print(\"coucou\")}," +
+            "[_](2, 2) : {var a : Int = 3}" +
+            "}");
+
+        successInput("case [1, 2] {" +
+            "[3, 4] : {}," +
+            "[1] : {}," +
+            "default : {}" +
+            "}");
+
+        successInput("case 2.5 {" +
+            "1.2 : {}," +
+            "_ : {}" +
+            "}");
+
+        successInput("case 2 {" +
+            "1 : {}," +
+            "_ : {}" +
+            "}");
+
+        failureInputWith("case 2 {" +
+            "[1, 2] : {}," +
+            "_ : {}" +
+            "}", "Cannot compare Int and Int[]");
+
+        failureInputWith("case [1, 2] {" +
+            "1 : {}," +
+            "_ : {}" +
+            "}", "Cannot compare Int[] and Int");
+    }
+
+
 }

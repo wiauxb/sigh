@@ -27,6 +27,8 @@ public class GrammarTests extends AutumnTestFixture {
         return new FloatLiteralNode(null, d);
     }
 
+    private static StringLiteralNode stringlit (String str) {return new StringLiteralNode(null, str);}
+
     private static MatrixLiteralNode matlit(List<ArrayLiteralNode> m) {
         return new MatrixLiteralNode(null, m);
     }
@@ -527,6 +529,62 @@ public class GrammarTests extends AutumnTestFixture {
             arraylit(asList(intlit(1), intlit(2), intlit(3))),
             REMAINDER,
             arraylit(asList(intlit(4), intlit(5), intlit(6)))));
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    @Test public void testCaseStatement() {
+        rule = grammar.statement;
+
+        successExpect("case 2 {" +
+                            "1 : {}," +
+                            "_ : {}" +
+                            "}",
+            new CaseNode(null,
+                intlit(2), asList(new CaseBodyNode(null, intlit(1), new BlockNode(null, asList())),
+                                    new CaseBodyNode(null, new ReferenceNode(null, "_"), new BlockNode(null, asList()))),
+                null));
+
+        successExpect("case 2.5 {" +
+                "1.2 : {}," +
+                "_ : {}" +
+                "}",
+            new CaseNode(null,
+                floatlit(2.5), asList(new CaseBodyNode(null, floatlit(1.2), new BlockNode(null, asList())),
+                new CaseBodyNode(null, new ReferenceNode(null, "_"), new BlockNode(null, asList()))),
+                null));
+
+        successExpect("case [1, 2] {" +
+                "[3, 4] : {}," +
+                "[1] : {}," +
+                "default : {}" +
+                "}",
+            new CaseNode(null,
+                arraylit(asList(intlit(1), intlit(2))),
+                asList(new CaseBodyNode(null, arraylit(asList(intlit(3), intlit(4))), new BlockNode(null, asList())),
+                        new CaseBodyNode(null, arraylit(asList(intlit(1))), new BlockNode(null, asList()))),
+                new BlockNode(null, asList())));
+
+        successExpect("case [1](2, 2) {" +
+                "[3](2, 2) : {}," +
+                "[_](2, 2) : {}" +
+                "}",
+            new CaseNode(null,
+                new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2)),
+                asList(new CaseBodyNode(null, new MatrixGeneratorNode(null, intlit(3), intlit(2), intlit(2)), new BlockNode(null, asList())),
+                    new CaseBodyNode(null, new MatrixGeneratorNode(null, new ReferenceNode(null, "_"), intlit(2), intlit(2)), new BlockNode(null, asList()))),
+                null));
+
+        successExpect("case \"aaa\" {" +
+                "\"b\" : {}," +
+                "\"a_a\" : {}," +
+                "default : {}" +
+                "}",
+            new CaseNode(null,
+                stringlit("aaa"),
+                asList(new CaseBodyNode(null, stringlit("b"), new BlockNode(null, asList())),
+                    new CaseBodyNode(null, stringlit("a_a"), new BlockNode(null, asList()))),
+                new BlockNode(null, asList())));
     }
 
 }
