@@ -20,7 +20,8 @@ public final class Test
     public static void main (String[] args) {
 //         String file = "fizzbuzz.si";
 //        String file = "kitchensink.si";
-        String file = "test.si";
+//        String file = "test.si";
+        String file = "case.si";
         String path = Paths.get("examples/", file).toAbsolutePath().toString();
         String src = IO.slurp(path);
         SighGrammar grammar = new SighGrammar();
@@ -48,8 +49,8 @@ public final class Test
             return;
         }
 
-//        Interpreter interpreter = new Interpreter(reactor);
-//        interpreter.interpret(tree);
-//        System.out.println("success");
+        Interpreter interpreter = new Interpreter(reactor);
+        interpreter.interpret(tree);
+        System.out.println("success");
     }
 }

@@ -7,6 +7,7 @@ import norswap.sigh.scopes.Scope;
 import norswap.sigh.scopes.SyntheticDeclarationNode;
 import norswap.sigh.types.*;
 import norswap.uranium.Reactor;
+import norswap.uranium.SemanticError;
 import norswap.utils.Util;
 import norswap.utils.exceptions.Exceptions;
 import norswap.utils.exceptions.NoStackException;
@@ -88,6 +89,7 @@ public final class Interpreter
         visitor.register(ExpressionStatementNode.class,  this::expressionStmt);
         visitor.register(IfNode.class,                   this::ifStmt);
         visitor.register(WhileNode.class,                this::whileStmt);
+        visitor.register(CaseNode.class,                 this::caseStmt);
         visitor.register(ReturnNode.class,               this::returnStmt);
 
         visitor.registerFallback(node -> null);
@@ -1043,6 +1045,62 @@ public final class Interpreter
 
     // ---------------------------------------------------------------------------------------------
 
+    private Void caseStmt (CaseNode node){
+        Scope scope = reactor.get(node, "scope");
+        storage = new ScopeStorage(scope, storage);
+        storage.set(scope, "_", SymbolicValue.INSTANCE);
+
+        Object elem = get(node.element);
+
+        for (CaseBodyNode bodyNode: node.body) {
+            Object pattern = get(bodyNode.pattern);
+            if(checkPattern(pattern, elem)) {
+                get(bodyNode.statements);
+                storage = storage.parent;
+                return null;
+            }
+        }
+        get(node.defaultBlock);
+        storage = storage.parent;
+        return null;
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    private boolean checkPattern(Object pattern, Object element){
+        if (element instanceof Object[]){
+            if (! (pattern instanceof Object[]))
+                throw new Error("should not reach here");
+            int i = 0;
+            int mem = 0;
+            Object[] element_arr = (Object[]) element;
+            Object[] pattern_arr = (Object[]) pattern;
+            while (i < element_arr.length){
+                if (mem > pattern_arr.length - 1)
+                    return false;
+                if (pattern_arr[mem] instanceof SymbolicValue) {
+                    if (mem == pattern_arr.length - 1)
+                        return true;
+                    if (checkPattern(pattern_arr[mem + 1], element_arr[i])) { //FIXME _ should not match empty
+                        mem += 2;
+                    }
+                    i++;
+                }
+                else if (! checkPattern(pattern_arr[mem], element_arr[i]))
+                    return false;
+                else {
+                    i++;
+                    mem++;
+                }
+            }
+            return mem >= pattern_arr.length;
+        }
+        else
+            return pattern.equals(element);
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
     private Object reference (ReferenceNode node)
     {
         Scope scope = reactor.get(node, "scope");
@@ -1062,6 +1120,8 @@ public final class Interpreter
                 return ref;
             }
         }
+        else if (decl instanceof SymbolicVarDeclarationNode)
+            return storage.get(scope, SymbolicVarDeclarationNode.name);
 
         return decl; // structure or function
     }

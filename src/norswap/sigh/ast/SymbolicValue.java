@@ -1,17 +1,11 @@
 package norswap.sigh.ast;
 
-public enum SymbolicValue {
+public class SymbolicValue {
 
-    MATCH_ELEM("_");
+    public static final SymbolicValue INSTANCE = new SymbolicValue();
 
-    public final String string;
-
-    SymbolicValue(String string){
-        this.string = string;
+    @Override
+    public boolean equals(Object obj){
+        return true;
     }
-
-    public String contents(){
-        return string;
-    }
-
 }

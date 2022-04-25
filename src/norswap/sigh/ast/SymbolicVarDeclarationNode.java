@@ -5,7 +5,7 @@ import norswap.utils.Util;
 
 public final class SymbolicVarDeclarationNode extends DeclarationNode
 {
-    public final String name = "_";
+    public static final String name = "_";
 
     public SymbolicVarDeclarationNode (Span span) {
         super(span);
