@@ -141,6 +141,8 @@ public final class SemanticAnalysis
         walker.register(FunDeclarationNode.class,       PRE_VISIT,  analysis::funDecl);
         walker.register(StructDeclarationNode.class,    PRE_VISIT,  analysis::structDecl);
 
+        walker.register(CaseBodyNode.class,             PRE_VISIT,  node -> {});//analysis::caseBody);//
+
         walker.register(RootNode.class,                 POST_VISIT, analysis::popScope);
         walker.register(BlockNode.class,                POST_VISIT, analysis::popScope);
         walker.register(FunDeclarationNode.class,       POST_VISIT, analysis::popScope);
@@ -149,6 +151,7 @@ public final class SemanticAnalysis
         walker.register(ExpressionStatementNode.class,  PRE_VISIT,  node -> {});
         walker.register(IfNode.class,                   PRE_VISIT,  analysis::ifStmt);
         walker.register(WhileNode.class,                PRE_VISIT,  analysis::whileStmt);
+        walker.register(CaseNode.class,                 PRE_VISIT,  analysis::caseStmt);
         walker.register(ReturnNode.class,               PRE_VISIT,  analysis::returnStmt);
 
         walker.registerFallback(POST_VISIT, node -> {});
@@ -271,6 +274,10 @@ public final class SemanticAnalysis
                 R.rule(node, "type")
                     .using(context, "type")
                     .by(Rule::copyFirst);
+            else if (context instanceof SymbolicVarDeclarationNode)
+                R.rule(node, "type")
+                    .using(context, "type")
+                    .by(Rule::copyFirst);
             else if (context instanceof FunCallNode) {
                 R.rule(node, "type")
                     .using(((FunCallNode) context).function.attr("type"), node.attr("index"))
@@ -377,16 +384,21 @@ public final class SemanticAnalysis
 
     private void matrixGenerator (MatrixGeneratorNode node)
     {
-        if (node.shape1.value <= 0 || node.shape2.value <= 0){
-            R.error(new SemanticError(format("Invalid shape argument when initializing a matrix : [%d, %d]",
-                                                node.shape1.value, node.shape2.value), null, node));
-        }
+        R.rule()
+            .using(node.shape1.attr("type"),
+                        node.shape2.attr("type"))
+            .by(r -> {
+                if (!(r.get(0) instanceof IntType && r.get(1) instanceof IntType))
+                    r.error("Invalid shape type", node);
+            }
+            );
 
         R.rule(node, "type")
             .using(node.filler.attr("type"))
             .by(r -> {
                 Type supertype = r.get(0);
-                if (!(supertype instanceof IntType || supertype instanceof FloatType || supertype instanceof StringType))
+                if (!(supertype instanceof IntType || supertype instanceof FloatType
+                    || supertype instanceof StringType || supertype instanceof SymbolicType))
                     r.error("Invalid filler type", node);
                 else
                     r.set(0, new MatType(supertype));
@@ -968,6 +980,9 @@ public final class SemanticAnalysis
      */
     private static boolean isAssignableTo (Type a, Type b)
     {
+
+        if (a instanceof SymbolicType)
+            return true;
         if (a instanceof VoidType || b instanceof VoidType)
             return false;
 
@@ -1098,21 +1113,21 @@ public final class SemanticAnalysis
         R.set(node, "scope", scope);
 
         R.rule(node, "type")
-        .using(node.type, "value")
-        .by(Rule::copyFirst);
+            .using(node.type, "value")
+            .by(Rule::copyFirst);
 
         R.rule()
-        .using(node.type.attr("value"), node.initializer.attr("type"))
-        .by(r -> {
-            Type expected = r.get(0);
-            Type actual = r.get(1);
+            .using(node.type.attr("value"), node.initializer.attr("type"))
+            .by(r -> {
+                Type expected = r.get(0);
+                Type actual = r.get(1);
 
-            if (!isAssignableTo(actual, expected))
-                r.error(format(
-                    "incompatible initializer type provided for variable `%s`: expected %s but got %s",
-                    node.name, expected, actual),
-                    node.initializer);
-        });
+                if (!isAssignableTo(actual, expected))
+                    r.error(format(
+                            "incompatible initializer type provided for variable `%s`: expected %s but got %s",
+                            node.name, expected, actual),
+                        node.initializer);
+            });
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -1203,15 +1218,53 @@ public final class SemanticAnalysis
 
     private void whileStmt (WhileNode node) {
         R.rule()
-        .using(node.condition, "type")
-        .by(r -> {
-            Type type = r.get(0);
-            if (!(type instanceof BoolType)) {
-                r.error("While statement with a non-boolean condition of type: " + type,
-                    node.condition);
-            }
-        });
+            .using(node.condition, "type")
+            .by(r -> {
+                Type type = r.get(0);
+                if (!(type instanceof BoolType)) {
+                    r.error("While statement with a non-boolean condition of type: " + type,
+                        node.condition);
+                }
+            });
     }
+
+    // ---------------------------------------------------------------------------------------------
+
+    private void caseStmt (CaseNode node) {
+        scope = new Scope(node, scope);
+        R.set(node, "scope", scope);
+        SymbolicVarDeclarationNode decl = new SymbolicVarDeclarationNode(node.span);
+        scope.declare("_", decl);
+        R.set(decl, "type", SymbolicType.INSTANCE);
+
+        Attribute[] dependencies = new Attribute[node.body.size()+1];
+        dependencies[0] = new Attribute(node.element, "type");
+        forEachIndexed(node.body, (i, param) ->
+            dependencies[i+1] = param.pattern.attr("type"));
+
+        R.rule()
+            .using(dependencies)
+            .by (r -> {
+                Type ref = r.get(0);
+
+                for (int i = 0; i < node.body.size(); ++i){
+                    if (!r.get(i+1).equals(ref)) {
+                        r.error(format("Cannot compare %s and %s", ref.name(), r.get(i + 1).toString()), node);
+                    }
+                }
+            });
+
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+//    private void caseBody(CaseBodyNode node){
+//        R.rule(node, "type")
+//            .using(node.pattern, "type")
+//            .by(Rule::copyFirst);
+//        Type type = R.get(node.pattern, "type");
+//        R.set(node, "type", type);
+//    }
 
     // ---------------------------------------------------------------------------------------------
 

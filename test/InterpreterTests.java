@@ -584,4 +584,80 @@ public final class InterpreterTests extends TestFixture {
                                                                  new Object[]{3L, 4L, 5L},
                                                                  new Object[]{1L, 2L, 3L}});
     }//[[6, 7, 8], [3, 4, 5], [1, 2, 3]]
+
+
+    // ---------------------------------------------------------------------------------------------
+
+    @Test public void testCaseStatement() {
+        rule = grammar.root;
+
+        check("case 2 {" +
+            "1 : {return 1}," +
+            "2 : {return 2}," +
+            "default : {return -1}}", 2L);
+
+        check("case 2.5 {" +
+            "1.2 : {return 1}," +
+            "3.1 : {return 2}," +
+            "_ : {return 3}}", 3L);
+
+        check("case [1, 2, 3] {" +
+            "[1, 2] : {return 1}," +
+            "[1] : {return 2}," +
+            "[1, 2, 3] : {return 3}," +
+            "default : {return 4}}", 3L);
+
+        check("case [1, 2, 3, 4, 5] {" +
+            "[1, 2] : {return 1}," +
+            "[1, _] : {return 2}," +
+            "default : {return 3}}", 2L);
+
+        check("case [1, 2, 3, 4, 5] {" +
+            "[1, 2, _, 5] : {return 1}," +
+            "[1, 2, 3, 4, 5] : {return 2}," +
+            "default : {return 3}}", 1L);
+
+        check("case [1, 2, 3, 4, 5] {" +
+            "[_, 9] : {return 1}," +
+            "[_, 1] : {return 2}," +
+            "[_, 5] : {return 3}," +
+            "default : {return 4}}", 3L);
+
+        check("case [1](2, 2) {" +
+            "[[1, 2], [1, 2]] : {return 1}," +
+            "[[1, 1], [1, 1]] : {return 2}," +
+            "default : {return 3}}", 2L);
+
+        check("case [1](2, 2) {" +
+            "[[2, 2], _] : {return 1}," +
+            "[[1, 1], _] : {return 2}," +
+            "default : {return 3}}", 2L);
+
+        check("case [2](2, 2) {" +
+            "[_, [1, 1]] : {return 1}," +
+            "[[2, _], [2, 1]] : {return 2}," +
+            "[[2, _], _] : {return 3}," +
+            "default : {return 4}}", 3L);
+
+        check("case [1](2, 2) {" +
+            "[_, [1, 1]] : {return 1}," +
+            "[[1, 1, 1], [1, 1, 1], [1, 1, 1]] : {return 2}," +
+            "default : {return 3}}", 1L);
+
+        check("case [2](2, 3) {" +
+            "[_](1, 1) : {return 1}," +
+            "[_](2, 2) : {return 2}," +
+            "[_](3, 3) : {return 3}," +
+            "[_](2, 3) : {return 4}," +
+            "default : {return 5}}", 4L);
+
+        check("case [1](2, 2) {" +
+            "    [_, [1, _]] : {" +
+            "        return 1" +
+            "    },\n" +
+            "    default : {\n" +
+            "        return 2" +
+            "    }\n" +
+            "}", 1L);
+    }
 }

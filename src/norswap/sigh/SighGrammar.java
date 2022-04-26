@@ -42,7 +42,7 @@ public class SighGrammar extends Grammar
     public rule EQUALS_QMARK            = word("=?");
     public rule BANG_EQUALS_QMARK       = word("!=?");
     public rule LANGLE_EQUALS_RANGLE    = word("<=>");
-    public rule BANG_LANGLE_EQUALS_RANGLE= word("!<=>");
+    public rule BANG_LANGLE_EQUALS_RANGLE = word("!<=>");
     public rule EQUALS                  = word("=");
     public rule BANG_EQUAL              = word("!=");
     public rule LANGLE_EQUAL            = word("<=");
@@ -65,12 +65,15 @@ public class SighGrammar extends Grammar
     public rule COMMA                   = word(",");
     public rule HASHTAG                 = word("#");
     public rule AT                      = word("@");
+//    public rule UNDERSCORE              = word("_");
 
     public rule _var            = reserved("var");
     public rule _fun            = reserved("fun");
     public rule _struct         = reserved("struct");
     public rule _if             = reserved("if");
     public rule _else           = reserved("else");
+    public rule _case           = reserved("case");
+    public rule _default           = reserved("default");
     public rule _while          = reserved("while");
     public rule _return         = reserved("return");
     public rule _mat            = reserved("Mat");
@@ -139,19 +142,14 @@ public class SighGrammar extends Grammar
         seq(LSQUARE, matrix_expressions, RSQUARE) //[[], [], []]
             .push($ -> new MatrixLiteralNode($.span(), $.$[0]));
 
-    public rule filler = choice(
-        floating,
-        integer,
-        string
-    );
-
-    public rule matrix_generator = seq(LSQUARE, filler, RSQUARE, LPAREN, integer, seq(COMMA, integer).opt(), RPAREN)
+    public rule matrix_generator = lazy(() ->
+        seq(LSQUARE, this.expression, RSQUARE, LPAREN, this.expression, seq(COMMA, this.expression).opt(), RPAREN)
         .push($ -> {
             if ($.$.length < 3)
                 return new MatrixGeneratorNode($.span(), $.$[0], $.$[1]);
             else
                 return new MatrixGeneratorNode($.span(), $.$[0], $.$[1], $.$[2]);
-        });
+        }));
 
     public rule basic_expression = choice(
         constructor,
@@ -289,6 +287,7 @@ public class SighGrammar extends Grammar
         this.struct_decl,
         this.if_stmt,
         this.while_stmt,
+        this.case_stmt,
         this.return_stmt,
         this.expression_stmt));
 
@@ -333,6 +332,14 @@ public class SighGrammar extends Grammar
     public rule if_stmt =
         seq(_if, expression, statement, seq(_else, statement).or_push_null())
         .push($ -> new IfNode($.span(), $.$[0], $.$[1], $.$[2]));
+
+    public rule case_body =
+        seq(expression, COLON, statement) //LSQUARE, choice(UNDERSCORE.as_val(MATCH_ELEM), expression).sep(0, COMMA).as_list(null), RSQUARE
+            .push($ -> new CaseBodyNode($.span(), $.$[0], $.$[1]));
+
+    public rule case_stmt =
+        seq(_case, expression, LBRACE, case_body.sep(1, COMMA).as_list(CaseBodyNode.class), seq(COMMA, _default, COLON, statement).or_push_null(), RBRACE)
+            .push($ -> new CaseNode($.span(), $.$[0], $.$[1], $.$[2]));
 
     public rule while_stmt =
         seq(_while, expression, statement)
