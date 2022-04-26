@@ -644,7 +644,7 @@ public final class InterpreterTests extends TestFixture {
         check("case [1](2, 2) {" +
             "[_, [1, 1]] : {return 1}," +
             "[[1, 1, 1], [1, 1, 1], [1, 1, 1]] : {return 2}," +
-            "default : {return 3}}", 3L);
+            "default : {return 3}}", 1L);
 
         check("case [2](2, 3) {" +
             "[_](1, 1) : {return 1}," +
@@ -652,5 +652,14 @@ public final class InterpreterTests extends TestFixture {
             "[_](3, 3) : {return 3}," +
             "[_](2, 3) : {return 4}," +
             "default : {return 5}}", 4L);
+
+        check("case [1](2, 2) {" +
+            "    [_, [1, _]] : {" +
+            "        return 1" +
+            "    },\n" +
+            "    default : {\n" +
+            "        return 2" +
+            "    }\n" +
+            "}", 1L);
     }
 }

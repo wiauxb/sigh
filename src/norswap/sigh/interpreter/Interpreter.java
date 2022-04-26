@@ -1081,7 +1081,8 @@ public final class Interpreter
                 if (pattern_arr[mem] instanceof SymbolicValue) {
                     if (mem == pattern_arr.length - 1)
                         return true;
-                    if (checkPattern(pattern_arr[mem + 1], element_arr[i])) { //FIXME _ should not match empty
+                    if (mem == i) i++;
+                    if (checkPattern(pattern_arr[mem + 1], element_arr[i])) {
                         mem += 2;
                     }
                     i++;
