@@ -566,19 +566,22 @@ public final class SemanticAnalysis
             for (int i = 0; i < checkedArgs; ++i) {
                 Type argType = r.get(i + 1);
                 Type paramType = funType.paramTypes[i];
+                if(paramType instanceof GenericType) paramType = argType;
                 boolean isValidArrayLike = isArrayLikeAndNeedToCast(argType, paramType);
                 if (isValidArrayLike) isVectorized = true;
-                if (!isAssignableTo(argType, paramType) && !isValidArrayLike)
+                if (!isAssignableTo(paramType, argType) && !isValidArrayLike)
                     r.errorFor(format(
                             "incompatible argument provided for argument %d: expected %s but got %s",
                             i, paramType, argType),
                         node.arguments.get(i));
             }
 
+            Type ret = funType.returnType;
+
             if (isVectorized)
-                r.set(0, new MatType(funType.returnType));
+                r.set(0, new MatType(ret));
             else
-                r.set(0, funType.returnType);
+                r.set(0, ret);
         });
     }
 
@@ -611,7 +614,14 @@ public final class SemanticAnalysis
             Type left  = r.get(0);
             Type right = r.get(1);
 
-            if (node.operator == ADD && (left instanceof StringType || right instanceof StringType))
+            if (left instanceof GenericType || right instanceof GenericType)
+                if (left.equals(right))
+                    r.set(0, left);
+                else if (right.equals(left))
+                    r.set(0, right);
+                else
+                    r.set(0, GenericType.UNKNOWN);
+            else if (node.operator == ADD && (left instanceof StringType || right instanceof StringType))
                 r.set(0, StringType.INSTANCE);
             else if (isArithmetic(node.operator))
                 binaryArithmetic(r, node, left, right);
@@ -902,6 +912,7 @@ public final class SemanticAnalysis
     private void simpleType (SimpleTypeNode node)
     {
         final Scope scope = this.scope;
+        SighNode context = this.inferenceContext;
 
         R.rule()
         .by(r -> {
@@ -909,10 +920,26 @@ public final class SemanticAnalysis
             DeclarationContext ctx = scope.lookup(node.name);
             DeclarationNode decl = ctx == null ? null : ctx.declaration;
 
-            if (ctx == null)
-                r.errorFor("could not resolve: " + node.name,
-                    node,
-                    node.attr("value"));
+            if (ctx == null) {
+                if (context instanceof FunDeclarationNode){
+                    GenericType type = new GenericType(node.name);
+                    R.rule(node, "value")
+                        .by(s -> s.set(0, type));
+                    DeclarationNode typeDecl = new SyntheticDeclarationNode(node.name,  DeclarationKind.TYPE);
+                    scope.declare(node.name, typeDecl);
+
+                    R.rule(new Attribute(typeDecl, "declared"), new Attribute(typeDecl, "type"))
+                        .by(v -> {
+                            v.set(0, type);
+                            v.set(1, TypeType.INSTANCE);
+                        });
+                }
+                else {
+                    r.errorFor("could not resolve: " + node.name,
+                        node,
+                        node.attr("value"));
+                }
+            }
 
             else if (!isTypeDecl(decl))
                 r.errorFor(format(
@@ -980,7 +1007,8 @@ public final class SemanticAnalysis
      */
     private static boolean isAssignableTo (Type a, Type b)
     {
-
+        if (a == GenericType.UNKNOWN || b == GenericType.UNKNOWN)
+            return true;
         if (a instanceof SymbolicType)
             return true;
         if (a instanceof VoidType || b instanceof VoidType)
@@ -1155,6 +1183,7 @@ public final class SemanticAnalysis
 
     private void funDecl (FunDeclarationNode node)
     {
+        this.inferenceContext = node;
         scope.declare(node.name, node);
         scope = new Scope(node, scope);
         R.set(node, "scope", scope);

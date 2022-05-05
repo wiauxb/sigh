@@ -43,3 +43,61 @@ print("" + bigTester(mat1, mat2, mat3))
 print("" + [1](2, 2).shape)
 
 print("" + [1] @ [2])
+
+//---------------------------------------------------------
+
+var n : Int = 2
+
+case n {
+    4 : {},
+    6 : {},
+    8 : {},
+    default : {}
+
+}
+
+var arr : Int[] = [1, 2, 3]
+
+case arr {
+    [] : {},
+    [1, _] : {},
+    [_, 5] : {},
+    [_, 8, _] : {}
+}
+var mat : Mat#Int = [1+1](2, 2)
+
+var mat2 : Int[][] = [[1, 1], arr]
+
+print("" + mat2)
+
+case mat {
+    [_](3, 3) : {},
+    [[1, _],[2, 2]] : {},
+    [[_]] : {},
+    [[1, _], _] : {}
+}
+
+var a : Int[] = [1, 2, 3]
+case a {
+    [1, 2, 3, 4, 5] : {print("aaaaa")},
+    [1, _] : {print("bbbbb")},
+    [1, 2, _] : {print("cccc")}//,
+    //3 : {print("3")}
+}
+
+
+var b : Int = 5
+
+case b {
+    2 : {print("2")},
+    _ : {print("all ?")}
+}
+
+
+var c : Mat#Int = [0](2, 2)
+
+case c {
+    [1](2, 2) : {print("nope")},
+    [_](3, 3) : {print("?")},
+    default : {print("default")}
+}

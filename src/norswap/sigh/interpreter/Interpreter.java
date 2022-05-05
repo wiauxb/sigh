@@ -12,6 +12,7 @@ import norswap.utils.Util;
 import norswap.utils.exceptions.Exceptions;
 import norswap.utils.exceptions.NoStackException;
 import norswap.utils.visitors.ValuedVisitor;
+import javax.management.openmbean.SimpleType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -20,8 +21,7 @@ import java.util.Map;
 
 import static java.lang.String.format;
 import static norswap.utils.Util.cast;
-import static norswap.utils.Vanilla.coIterate;
-import static norswap.utils.Vanilla.map;
+import static norswap.utils.Vanilla.*;
 
 /**
  * Implements a simple but inefficient interpreter for Sigh.
@@ -204,6 +204,9 @@ public final class Interpreter
         Type leftType  = reactor.get(node.left, "type");
         Type rightType = reactor.get(node.right, "type");
 
+        if (leftType instanceof GenericType) leftType = ((GenericType) leftType).resolution;
+        if (rightType instanceof GenericType) rightType = ((GenericType) rightType).resolution;
+
         if (node.operator == BinaryOperator.ADD
                 && (leftType instanceof StringType || rightType instanceof StringType))
             return convertToString(left) + convertToString(right);
@@ -236,7 +239,6 @@ public final class Interpreter
             case NOT_EQUALS:
                 return  leftType.isPrimitive() ? !left.equals(right) : left != right;
         }
-
         throw new Error("should not reach here");
     }
 
@@ -882,6 +884,7 @@ public final class Interpreter
         Object decl = get(node.function);
         node.arguments.forEach(this::run);
         Object[] args = map(node.arguments, new Object[0], visitor);
+        Type[] argType = map(node.arguments, new Type[0], arg -> reactor.get(arg, "type"));
 
         if (decl == Null.INSTANCE)
             throw new PassthroughException(new NullPointerException("calling a null function"));
@@ -893,13 +896,29 @@ public final class Interpreter
             return buildStruct(((Constructor) decl).declaration, args);
 
         FunDeclarationNode funDecl = (FunDeclarationNode) decl;
-        TypeNode[] args_types = map(funDecl.parameters, new TypeNode[0], (param) -> param.type);
+
+        Type[] paramType = map(funDecl.parameters, new Type[0], param -> reactor.get(param.type, "value"));
+
+        for (Type type : paramType) {
+            if (type instanceof GenericType){
+                ((GenericType) type).reset();
+            }
+        }
+
+        forEachIndexed(paramType, (i, type) -> {
+            if (type instanceof GenericType){
+                if (!((GenericType) type).solve(argType[i]) &&
+                    ((GenericType) type).resolution != argType[i]){
+                    throw new InterpreterException(format("GenericType should be %s : got %s", type.name(), argType[i].name()), null);
+                }
+            }
+        });
 
         boolean vectorized = false;
         int[] shape = new int[2];
 
         for (int i = 0; i < args.length; i++) {
-            if (isVectorized(args[i], args_types[i])){
+            if (isVectorized(args[i], paramType[i])){
                 vectorized = true;
                 shape = getArrayLikeShape((Object[]) args[i]);
             }
@@ -910,9 +929,10 @@ public final class Interpreter
 
     // ---------------------------------------------------------------------------------------------
 
-    private boolean isVectorized (Object parameter, TypeNode type){
-        if (parameter instanceof Object[][] && type instanceof SimpleTypeNode) return true;
-        else return parameter instanceof Object[] && type instanceof SimpleTypeNode;
+    private boolean isVectorized (Object parameter, Type type){
+        if (type instanceof GenericType) return false;
+        else if (parameter instanceof Object[][] && !type.isArrayLike()) return true;
+        else return parameter instanceof Object[] && !type.isArrayLike();
     }
 
     // ---------------------------------------------------------------------------------------------

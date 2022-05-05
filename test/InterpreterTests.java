@@ -660,4 +660,157 @@ public final class InterpreterTests extends TestFixture {
             "    }\n" +
             "}", 1L);
     }
+
+    // ---------------------------------------------------------------------------------------------
+
+    @Test public void testGenericType() {
+        rule = grammar.root;
+
+        // simple cases
+
+        check("fun test1(a : T) : T {" +
+            "return a + 1" +
+            "}" +
+            "var i : Int = 3" +
+            "return test1(i)", 4L);
+
+        check("fun test1(a : T) : T {" +
+            "return a + 1" +
+            "}" +
+            "var i : Float = 3.5" +
+            "return test1(i)", 4.5d);
+
+        check("fun test1(a : T) : T {" +
+            "return a + 1" +
+            "}" +
+            "var i : Int[] = [1, 2]" +
+            "return test1(i)", new Object[][]{new Object[]{2L, 3L}});
+
+        check("fun test1(a : T) : T {" +
+            "return a + 1" +
+            "}" +
+            "var i : Float[] = [1.5, 2.5]" +
+            "return test1(i)", new Object[][]{new Object[]{2.5d, 3.5d}});
+
+        check("fun test1(a : T) : T {" +
+            "return a + 1" +
+            "}" +
+            "var i : Mat#Int = [1](2, 2)" +
+            "return test1(i)", new Object[][]{new Object[]{2L, 2L}, new Object[]{2L, 2L}});
+
+        check("fun test1(a : T) : T {" +
+            "return a + 1" +
+            "}" +
+            "var i : Mat#Float = [1.5](2, 2)" +
+            "return test1(i)", new Object[][]{new Object[]{2.5d, 2.5d}, new Object[]{2.5d, 2.5d}});
+
+
+        // test with more than one generic type
+
+        check("fun test2(a : T, b : U) : T {" +
+            "return a + b" +
+            "}" +
+            "var i : Int[] = [1, 2, 3]" +
+            "var j : Int = 2" +
+            "return test2(i, j)", new Object[][]{new Object[]{3L, 4L, 5L}});
+
+        check("fun test2(a : T, b : U) : T {" +
+            "return a + b" +
+            "}" +
+            "var i : Int = 4" +
+            "var j : Int = 2" +
+            "return test2(i, j)", 6L);
+
+        check("fun test2(a : T, b : U) : T {" +
+            "return a + b" +
+            "}" +
+            "var i : Mat#Int = [0](2, 2)" +
+            "var j : Int = 2" +
+            "return test2(i, j)", new Object[][]{new Object[]{2L, 2L}, new Object[]{2L, 2L}});
+
+
+        // test with using generic type in the function
+
+        check("fun test3(a : T, b : U) : T {" +
+            "var c : T = a + b " +
+            "return c" +
+            "}" +
+            "var i : Int = 1" +
+            "var j : Int = 2" +
+            "return test3(i, j)", 3L);
+
+        check("fun test3(a : T, b : U) : T {" +
+            "var c : T = a + b " +
+            "return c" +
+            "}" +
+            "var i : Int[] = [1, 2]" +
+            "var j : Int = 2" +
+            "return test3(i, j)", new Object[][]{new Object[]{3L, 4L}});
+
+        check("fun test3(a : T, b : U) : T {" +
+            "var c : T = a + b " +
+            "return c" +
+            "}" +
+            "var i : Mat#Int = [1](2, 2)" +
+            "var j : Int = 2" +
+            "return test3(i, j)", new Object[][]{new Object[]{3L, 3L}, new Object[]{3L, 3L}});
+
+        check("fun test3(a : T, b : U) : T {" +
+            "var c : T = a + b " +
+            "return c" +
+            "}" +
+            "var i : Mat#Int = [1](2, 2)" +
+            "var j : Mat#Int = [[1, 2], [3, 4]]" +
+            "return test3(i, j)", new Object[][]{new Object[]{2L, 3L}, new Object[]{4L, 5L}});
+
+
+        // test with second generic type as return type
+
+        check("fun test4(a : T, b : U) : U {" +
+            "var c : U = b " +
+            "return c" +
+            "}" +
+            "var i : Int = 1" +
+            "var j : Int = 2" +
+            "return test4(i, j)", 2L);
+
+        check("fun test4(a : T, b : U) : U {" +
+            "var c : U = b " +
+            "return c" +
+            "}" +
+            "var i : Int = 1" +
+            "var j : Int[] = [1, 2]" +
+            "return test4(i, j)", new Object[]{1L, 2L});
+
+        check("fun test4(a : T, b : U) : U {" +
+            "var c : U = b " +
+            "return c" +
+            "}" +
+            "var i : Int = 1" +
+            "var j : Mat#Int = [1](2, 2)" +
+            "return test4(i, j)", new Object[][]{new Object[]{1L, 1L}, new Object[]{1L, 1L}});
+
+
+        // test using both generic type in the function
+
+        check("fun test5(a : T, b : U) : U {" +
+            "var c : T = a + 1" +
+            "var d : U = b + c " +
+            "return d" +
+            "}" +
+            "var i : Int = 1" +
+            "var j : Int = 2" +
+            "return test5(i, j)", 4L);
+
+        check("fun test5(a : T, b : U) : U {" +
+            "var c : T = a + 1" +
+            "var d : U = b + c " +
+            "return d" +
+            "}" +
+            "var i : Int = 1" +
+            "var j : Float = 2.5" +
+            "return test5(i, j)", 4.5d);
+
+
+    }
 }

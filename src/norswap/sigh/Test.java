@@ -20,8 +20,8 @@ public final class Test
     public static void main (String[] args) {
 //         String file = "fizzbuzz.si";
 //        String file = "kitchensink.si";
-//        String file = "test.si";
-        String file = "case.si";
+        String file = "test.si";
+//        String file = "case.si";
         String path = Paths.get("examples/", file).toAbsolutePath().toString();
         String src = IO.slurp(path);
         SighGrammar grammar = new SighGrammar();
@@ -38,9 +38,6 @@ public final class Test
         Walker<SighNode> walker = SemanticAnalysis.createWalker(reactor);
         walker.walk(tree);
 
-//        System.out.println(
-//            AttributeTreeFormatter.formatWalkFields(tree, reactor, SighNode.class));
-
         reactor.run();
 
         if (!reactor.errors().isEmpty()) {
@@ -48,6 +45,10 @@ public final class Test
                 it.toString() + " (" + ((SighNode) it).span.startString(lineMap) + ")"));
             return;
         }
+
+        System.out.println(
+            AttributeTreeFormatter.formatWalkFields(tree, reactor, SighNode.class));
+
 
         Interpreter interpreter = new Interpreter(reactor);
         interpreter.interpret(tree);

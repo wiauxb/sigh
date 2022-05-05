@@ -1,55 +1,46 @@
-var n : Int = 2
-
-case n {
-    4 : {},
-    6 : {},
-    8 : {},
-    default : {}
-
+fun foo (arg1: Int): Int {
+ return arg1
 }
 
-var arr : Int[] = [1, 2, 3]
-
-case arr {
-    [] : {},
-    [1, _] : {},
-    [_, 5] : {},
-    [_, 8, _] : {}
-}
-var mat : Mat#Int = [1+1](2, 2)
-
-var mat2 : Int[][] = [[1, 1], arr]
-
-print("" + mat2)
-
-case mat {
-    [_](3, 3) : {},
-    [[1, _],[2, 2]] : {},
-    [[_]] : {},
-    [[1, _], _] : {}
+fun foo1 (arg1: T): T {
+  var tmp: T = arg1
+  return tmp
 }
 
-var a : Int[] = [1, 2, 3]
-case a {
-    [1, 2, 3, 4, 5] : {print("aaaaa")},
-    [1, _] : {print("bbbbb")},
-    [1, 2, _] : {print("cccc")}//,
-    //3 : {print("3")}
+fun foo2 (arg1: T, arg2: U): T{
+    return arg1 + arg2
 }
 
-
-var b : Int = 5
-
-case b {
-    2 : {print("2")},
-    _ : {print("all ?")}
+fun foo3 (arg1: T, arg2: T): Int{
+    return 1
 }
 
+var mat : Mat#Int = [1](2, 2)
 
-var c : Mat#Int = [0](2, 2)
+var n : Int = 2;
 
-case c {
-    [1](2, 2) : {print("nope")},
-    [_](3, 3) : {print("?")},
-    default : {print("default")}
+print("" + foo1("hello"))
+
+print("" + foo2(mat, n))
+print("" + foo2(mat, mat))
+print("" + foo2(n, n))
+
+print("" + foo3("hey", "ho"))
+
+fun test1(a : T) : T {
+  return a + 1
 }
+
+var i : Int[] = [1, 2]
+print("" + test1(i))
+
+print("-------------------------")
+
+fun test3(a : T, b : U) : T {
+    var c : T = a + b
+    return c
+}
+
+var i : Int = 1
+var j : Int = 2
+print("" + test3(i, j))

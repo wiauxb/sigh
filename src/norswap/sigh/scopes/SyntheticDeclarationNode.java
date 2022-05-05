@@ -1,5 +1,6 @@
 package norswap.sigh.scopes;
 
+import norswap.autumn.positions.Span;
 import norswap.sigh.ast.DeclarationNode;
 import java.util.Locale;
 
@@ -16,7 +17,7 @@ public final class SyntheticDeclarationNode extends DeclarationNode
     private final DeclarationKind kind;
 
     public SyntheticDeclarationNode(String name, DeclarationKind kind) {
-        super(null);
+        super(new Span(1, 1)); //FIXME should be null here
         this.name = name;
         this.kind = kind;
     }
