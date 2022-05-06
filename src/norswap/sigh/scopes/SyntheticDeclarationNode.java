@@ -17,7 +17,7 @@ public final class SyntheticDeclarationNode extends DeclarationNode
     private final DeclarationKind kind;
 
     public SyntheticDeclarationNode(String name, DeclarationKind kind) {
-        super(new Span(1, 1)); //FIXME should be null here
+        super(null);
         this.name = name;
         this.kind = kind;
     }

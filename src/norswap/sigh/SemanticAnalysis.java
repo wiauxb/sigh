@@ -141,7 +141,7 @@ public final class SemanticAnalysis
         walker.register(FunDeclarationNode.class,       PRE_VISIT,  analysis::funDecl);
         walker.register(StructDeclarationNode.class,    PRE_VISIT,  analysis::structDecl);
 
-        walker.register(CaseBodyNode.class,             PRE_VISIT,  node -> {});//analysis::caseBody);//
+        walker.register(CaseBodyNode.class,             PRE_VISIT,  node -> {});
 
         walker.register(RootNode.class,                 POST_VISIT, analysis::popScope);
         walker.register(BlockNode.class,                POST_VISIT, analysis::popScope);
@@ -1284,16 +1284,6 @@ public final class SemanticAnalysis
             });
 
     }
-
-    // ---------------------------------------------------------------------------------------------
-
-//    private void caseBody(CaseBodyNode node){
-//        R.rule(node, "type")
-//            .using(node.pattern, "type")
-//            .by(Rule::copyFirst);
-//        Type type = R.get(node.pattern, "type");
-//        R.set(node, "type", type);
-//    }
 
     // ---------------------------------------------------------------------------------------------
 
