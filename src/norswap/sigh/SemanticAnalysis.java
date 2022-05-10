@@ -146,6 +146,7 @@ public final class SemanticAnalysis
         walker.register(RootNode.class,                 POST_VISIT, analysis::popScope);
         walker.register(BlockNode.class,                POST_VISIT, analysis::popScope);
         walker.register(FunDeclarationNode.class,       POST_VISIT, analysis::popScope);
+        walker.register(CaseNode.class,                 POST_VISIT, analysis::popScope);
 
         // statements
         walker.register(ExpressionStatementNode.class,  PRE_VISIT,  node -> {});
@@ -285,6 +286,11 @@ public final class SemanticAnalysis
                         FunType funType = r.get(0);
                         r.set(0, funType.paramTypes[(int) r.get(1)]);
                     });
+            }
+            else if (context instanceof CaseNode){
+                R.rule(node, "type")
+                    .using(context, "type")
+                    .by(Rule::copyFirst);
             }
             return;
         }
@@ -1193,6 +1199,23 @@ public final class SemanticAnalysis
         forEachIndexed(node.parameters, (i, param) ->
             dependencies[i + 1] = param.attr("type"));
 
+        R.rule()
+            .using(dependencies)
+            .by(r -> {
+                Type retType = r.get(0);
+                boolean retTypeDeclared = false;
+                if (retType instanceof GenericType){
+                    for (int i = 0; i < node.parameters.size(); ++i){
+                        if (retType.equals(r.get(i + 1))) {
+                            retTypeDeclared = true;
+                            break;
+                        }
+                    }
+                    if (!retTypeDeclared)
+                        r.error("Generic return Type should be declared in parameters", node);
+                }
+            });
+
         R.rule(node, "type")
         .using(dependencies)
         .by (r -> {
@@ -1260,6 +1283,8 @@ public final class SemanticAnalysis
     // ---------------------------------------------------------------------------------------------
 
     private void caseStmt (CaseNode node) {
+        this.inferenceContext = node;
+
         scope = new Scope(node, scope);
         R.set(node, "scope", scope);
         SymbolicVarDeclarationNode decl = new SymbolicVarDeclarationNode(node.span);
@@ -1271,16 +1296,17 @@ public final class SemanticAnalysis
         forEachIndexed(node.body, (i, param) ->
             dependencies[i+1] = param.pattern.attr("type"));
 
-        R.rule()
+        R.rule(node, "type")
             .using(dependencies)
             .by (r -> {
                 Type ref = r.get(0);
-
                 for (int i = 0; i < node.body.size(); ++i){
+                    System.out.println(ref.toString()+" "+r.get(i+1));
                     if (!r.get(i+1).equals(ref)) {
                         r.error(format("Cannot compare %s and %s", ref.name(), r.get(i + 1).toString()), node);
                     }
                 }
+                r.set(0, r.get(0));
             });
 
     }

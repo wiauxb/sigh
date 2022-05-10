@@ -912,5 +912,30 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
             "}", "Cannot compare Int[] and Int");
     }
 
+    // ---------------------------------------------------------------------------------------------
+
+    @Test public void testGenericFunction() {
+        successInput(
+            "fun test1(x : T) : T {" +
+                "return x + 5" +
+            "}"
+        );
+
+        successInput(
+            "fun test2(x : T, y : U) : T {" +
+                "var tmp1 : T = x" +
+                "var tmp2 : U = y" +
+                "return tmp1" +
+            "}"
+        );
+
+        failureInputWith(
+            "fun test2(x : T) : U {" +
+                "return 1" +
+            "}",
+            "Generic return Type should be declared in parameters"
+        );
+    }
+
 
 }

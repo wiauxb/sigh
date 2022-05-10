@@ -20,7 +20,8 @@ public final class Test
     public static void main (String[] args) {
 //         String file = "fizzbuzz.si";
 //        String file = "kitchensink.si";
-        String file = "test.si";
+//        String file = "test.si";
+        String file = "example_file.si";
 //        String file = "case.si";
         String path = Paths.get("examples/", file).toAbsolutePath().toString();
         String src = IO.slurp(path);
@@ -46,8 +47,8 @@ public final class Test
             return;
         }
 
-        System.out.println(
-            AttributeTreeFormatter.formatWalkFields(tree, reactor, SighNode.class));
+//        System.out.println(
+//            AttributeTreeFormatter.formatWalkFields(tree, reactor, SighNode.class));
 
 
         Interpreter interpreter = new Interpreter(reactor);

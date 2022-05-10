@@ -44,3 +44,11 @@ fun test3(a : T, b : U) : T {
 var i : Int = 1
 var j : Int = 2
 print("" + test3(i, j))
+
+print("-------------------------")
+
+case [1, 2, 3] {
+    [] : {},
+    _ : {print("yes")},
+    default : {print("no")}
+}

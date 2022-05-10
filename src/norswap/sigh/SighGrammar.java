@@ -334,11 +334,11 @@ public class SighGrammar extends Grammar
         .push($ -> new IfNode($.span(), $.$[0], $.$[1], $.$[2]));
 
     public rule case_body =
-        seq(expression, COLON, statement) //LSQUARE, choice(UNDERSCORE.as_val(MATCH_ELEM), expression).sep(0, COMMA).as_list(null), RSQUARE
+        seq(expression, COLON, block) //LSQUARE, choice(UNDERSCORE.as_val(MATCH_ELEM), expression).sep(0, COMMA).as_list(null), RSQUARE
             .push($ -> new CaseBodyNode($.span(), $.$[0], $.$[1]));
 
     public rule case_stmt =
-        seq(_case, expression, LBRACE, case_body.sep(1, COMMA).as_list(CaseBodyNode.class), seq(COMMA, _default, COLON, statement).or_push_null(), RBRACE)
+        seq(_case, expression, LBRACE, case_body.sep(1, COMMA).as_list(CaseBodyNode.class), seq(COMMA, _default, COLON, block).or_push_null(), RBRACE)
             .push($ -> new CaseNode($.span(), $.$[0], $.$[1], $.$[2]));
 
     public rule while_stmt =
