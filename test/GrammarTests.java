@@ -587,4 +587,23 @@ public class GrammarTests extends AutumnTestFixture {
                 new BlockNode(null, asList())));
     }
 
+    // ---------------------------------------------------------------------------------------------
+
+    @Test public void testGenericFunction() {
+        rule = grammar.statement;
+
+        successExpect("fun f (x: T): T { return x }",
+            new FunDeclarationNode(null, "f",
+                asList(new ParameterNode(null, "x", new SimpleTypeNode(null, "T"))),
+                new SimpleTypeNode(null, "T"),
+                new BlockNode(null, asList(new ReturnNode(null, new ReferenceNode(null, "x"))))));
+
+        successExpect("fun f (x: T, y : U): Int { return 1 }",
+            new FunDeclarationNode(null, "f",
+                asList(new ParameterNode(null, "x", new SimpleTypeNode(null, "T")),
+                    new ParameterNode(null, "y", new SimpleTypeNode(null, "U"))),
+                new SimpleTypeNode(null, "Int"),
+                new BlockNode(null, asList(new ReturnNode(null, intlit(1))))));
+    }
+
 }
