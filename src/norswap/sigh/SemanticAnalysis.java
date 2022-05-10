@@ -1301,7 +1301,7 @@ public final class SemanticAnalysis
             .by (r -> {
                 Type ref = r.get(0);
                 for (int i = 0; i < node.body.size(); ++i){
-                    System.out.println(ref.toString()+" "+r.get(i+1));
+//                    System.out.println(ref.toString()+" "+r.get(i+1));
                     if (!r.get(i+1).equals(ref)) {
                         r.error(format("Cannot compare %s and %s", ref.name(), r.get(i + 1).toString()), node);
                     }

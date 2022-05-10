@@ -1,0 +1,73 @@
+
+// var i : Int = i + 1
+// Exception in thread "main" norswap.sigh.interpreter.InterpreterException: exception while executing BinaryExpression(i + 1)
+
+
+// test matrix -------------------------------------------------------------------------------------
+
+// var m : Mat#Int = [0](0, 0)
+// Exception in thread "main" norswap.sigh.interpreter.InterpreterException: Invalid shape argument when initializing a matrix : [0, 0]
+
+// var m : Mat#SimpleType = [1](0, 0)
+// could not resolve: SimpleType
+
+// var m : Mat#Float = [1](2, 2, 2)
+// trying to call a non-function expression: ArrayLiteral([1])
+
+// var _ : Int = 2
+// var m : Mat#Int = [_](2, 2)
+// working ?
+
+// var a : Mat#Int = [1](2, 2)
+// var b : Mat#Float = [10](2, 2)
+// var m : Mat#Float = a @ b
+// Exception in thread "main" norswap.sigh.interpreter.InterpreterException: exception while executing BinaryExpression(a @ b)
+
+
+
+// test vectorized ---------------------------------------------------------------------------------
+
+//fun f(a : Int, b : Mat#Int) : Mat#Int {
+//    return a + b
+//}
+// print("" + f([1](2, 2), [1](2, 2)))
+// Exception in thread "main" java.lang.Error: should not reach here
+
+// fun f(a : Int) : Mat#Int {
+//     var b : Int = a + 1
+//     return [b](2, 2)
+// }
+// var m : Mat#Int = f([1](2, 2))
+// incompatible initializer type provided for variable `m`: expected Mat#Int but got Mat#Mat#Int
+
+
+
+// test case ---------------------------------------------------------------------------------------
+
+//var _ : Int[] = [1, 2, 3, 4, 5]
+//case _ {
+//    [1, 2] : {print("no1")},
+//   [1, _, 7] : {print("no2")},
+//    [_, 5] : {print("ok")},
+//    default : {print("no3")}
+//}
+// prints no3 instead of ok (-> cause of the var _)
+
+// var a : String = "aaabbb"
+// case a {
+//     "a"+_ : {print("aa_")},
+//     "a_b_" : {print("a_b_")},
+//     default : {print("default")}
+// }
+// prints default (but not really implemented for the string...)
+
+
+// test generic ------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
