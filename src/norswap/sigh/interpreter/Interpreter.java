@@ -170,8 +170,8 @@ public final class Interpreter
     // ---------------------------------------------------------------------------------------------
 
     private Object[] matrixGenerator (MatrixGeneratorNode node) {
-        int shape1 = ((Long) get(node.shape1)).intValue();
-        int shape2 = ((Long) get(node.shape2)).intValue();
+        int shape1 = ((Long) get(node.shape.get(0))).intValue();
+        int shape2 = ((Long) get(node.shape.get(1))).intValue();
 
         if (shape1 <= 0 || shape2 <= 0){
             throw new InterpreterException(format("Invalid shape argument when initializing a matrix : [%d, %d]",

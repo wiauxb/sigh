@@ -49,8 +49,8 @@ public class GrammarTests extends AutumnTestFixture {
         successExpect("(42)", new ParenthesizedNode(null, intlit(42)));
         successExpect("[1, 2, 3]", new ArrayLiteralNode(null, asList(intlit(1), intlit(2), intlit(3))));
         successExpect("[[1, 2, 3],[4, 5, 6]]", matlit(asList(arraylit(asList(intlit(1), intlit(2), intlit(3))), arraylit(asList(intlit(4), intlit(5), intlit(6))))));
-        successExpect("[0](2)", new MatrixGeneratorNode(null, intlit(0), intlit(2)));
-        successExpect("[0](2, 2)", new MatrixGeneratorNode(null, intlit(0), intlit(2), intlit(2)));
+        successExpect("[0](2)", new MatrixGeneratorNode(null, intlit(0), asList(intlit(2))));
+        successExpect("[0](2, 2)", new MatrixGeneratorNode(null, intlit(0), asList(intlit(2), intlit(2))));
         successExpect("true", new ReferenceNode(null, "true"));
         successExpect("false", new ReferenceNode(null, "false"));
         successExpect("null", new ReferenceNode(null, "null"));
@@ -167,7 +167,7 @@ public class GrammarTests extends AutumnTestFixture {
 
         successExpect("var n : Mat#Int = [1](2, 2)", new VarDeclarationNode(null,
             "n", new MatrixTypeNode(null, new SimpleTypeNode(null, "Int")),
-            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2))));
+            new MatrixGeneratorNode(null, intlit(1),asList(intlit(2), intlit(2)))));
 
         successExpect("return [[1, 2], [3, 4]].shape", new ReturnNode(null, new FieldAccessNode(null,
             matlit(asList(arraylit(asList(intlit(1), intlit(2))), arraylit(asList(intlit(3), intlit(4))))),
@@ -185,7 +185,7 @@ public class GrammarTests extends AutumnTestFixture {
             "shape")));
 
         successExpect("return [1](2, 2).shape", new ReturnNode(null, new FieldAccessNode(null,
-            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2)),
+            new MatrixGeneratorNode(null, intlit(1), asList(intlit(2), intlit(2))),
             "shape")));
     }
 
@@ -195,7 +195,7 @@ public class GrammarTests extends AutumnTestFixture {
         rule = grammar.expression;
 
         successExpect("[1](2, 2)[1]", new ArrayAccessNode(null,
-            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2)),
+            new MatrixGeneratorNode(null, intlit(1), asList(intlit(2), intlit(2))),
             intlit(1)));
 
         successExpect("[[1, 2], [3, 4]][1]", new ArrayAccessNode(null,
@@ -211,15 +211,15 @@ public class GrammarTests extends AutumnTestFixture {
         rule = grammar.expression;
 
         successExpect("[1](3, 3)[:1]", new SlicingAccessNode(null,
-            new MatrixGeneratorNode(null, intlit(1), intlit(3), intlit(3)),
+            new MatrixGeneratorNode(null, intlit(1), asList(intlit(3), intlit(3))),
             intlit(0), intlit(1)));
 
         successExpect("[1](3, 3)[1:]", new SlicingAccessNode(null,
-            new MatrixGeneratorNode(null, intlit(1), intlit(3), intlit(3)),
+            new MatrixGeneratorNode(null, intlit(1), asList(intlit(3), intlit(3))),
             intlit(1)));
 
         successExpect("[1](3, 3)[1:2]", new SlicingAccessNode(null,
-            new MatrixGeneratorNode(null, intlit(1), intlit(3), intlit(3)),
+            new MatrixGeneratorNode(null, intlit(1), asList(intlit(3), intlit(3))),
             intlit(1), intlit(2)));
 
         successExpect("[[1, 2], [3, 4]][:1]", new SlicingAccessNode(null,
@@ -253,64 +253,64 @@ public class GrammarTests extends AutumnTestFixture {
         rule = grammar.expression;
 
         successExpect("[1](2, 2) =? [1](2, 2)", new BinaryExpressionNode(null,
-            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2)),
+            new MatrixGeneratorNode(null, intlit(1), asList(intlit(2), intlit(2))),
             M_ONE_EQUAL,
-            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2))));
+            new MatrixGeneratorNode(null, intlit(1), asList(intlit(2), intlit(2)))));
 
         successExpect("[1](2, 2) !=? [1](2, 2)", new BinaryExpressionNode(null,
-            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2)),
+            new MatrixGeneratorNode(null, intlit(1), asList(intlit(2), intlit(2))),
             M_ONE_NOT_EQUAL,
-            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2))));
+            new MatrixGeneratorNode(null, intlit(1), asList(intlit(2), intlit(2)))));
 
         successExpect("[1](2, 2) <=> [1](2, 2)", new BinaryExpressionNode(null,
-            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2)),
+            new MatrixGeneratorNode(null, intlit(1), asList(intlit(2), intlit(2))),
             M_ALL_EQUAL,
-            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2))));
+            new MatrixGeneratorNode(null, intlit(1), asList(intlit(2), intlit(2)))));
 
         successExpect("[1](2, 2) !<=> [1](2, 2)", new BinaryExpressionNode(null,
-            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2)),
+            new MatrixGeneratorNode(null, intlit(1), asList(intlit(2), intlit(2))),
             M_ALL_NOT_EQUAL,
-            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2))));
+            new MatrixGeneratorNode(null, intlit(1), asList(intlit(2), intlit(2)))));
 
         successExpect("[1](2, 2) <=? [1](2, 2)", new BinaryExpressionNode(null,
-            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2)),
+            new MatrixGeneratorNode(null, intlit(1), asList(intlit(2), intlit(2))),
             M_ONE_LOWER_EQUAL,
-            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2))));
+            new MatrixGeneratorNode(null, intlit(1), asList(intlit(2), intlit(2)))));
 
         successExpect("[1](2, 2) <<= [1](2, 2)", new BinaryExpressionNode(null,
-            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2)),
+            new MatrixGeneratorNode(null, intlit(1), asList(intlit(2), intlit(2))),
             M_ALL_LOWER_EQUAL,
-            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2))));
+            new MatrixGeneratorNode(null, intlit(1), asList(intlit(2), intlit(2)))));
 
         successExpect("[1](2, 2) >=? [1](2, 2)", new BinaryExpressionNode(null,
-            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2)),
+            new MatrixGeneratorNode(null, intlit(1), asList(intlit(2), intlit(2))),
             M_ONE_GREATER_EQUAL,
-            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2))));
+            new MatrixGeneratorNode(null, intlit(1), asList(intlit(2), intlit(2)))));
 
         successExpect("[1](2, 2) >>= [1](2, 2)", new BinaryExpressionNode(null,
-            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2)),
+            new MatrixGeneratorNode(null, intlit(1), asList(intlit(2), intlit(2))),
             M_ALL_GREATER_EQUAL,
-            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2))));
+            new MatrixGeneratorNode(null, intlit(1), asList(intlit(2), intlit(2)))));
 
         successExpect("[1](2, 2) << [1](2, 2)", new BinaryExpressionNode(null,
-            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2)),
+            new MatrixGeneratorNode(null, intlit(1), asList(intlit(2), intlit(2))),
             M_ALL_LOWER,
-            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2))));
+            new MatrixGeneratorNode(null, intlit(1), asList(intlit(2), intlit(2)))));
 
         successExpect("[1](2, 2) <? [1](2, 2)", new BinaryExpressionNode(null,
-            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2)),
+            new MatrixGeneratorNode(null, intlit(1), asList(intlit(2), intlit(2))),
             M_ONE_LOWER,
-            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2))));
+            new MatrixGeneratorNode(null, intlit(1), asList(intlit(2), intlit(2)))));
 
         successExpect("[1](2, 2) >> [1](2, 2)", new BinaryExpressionNode(null,
-            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2)),
+            new MatrixGeneratorNode(null, intlit(1), asList(intlit(2), intlit(2))),
             M_ALL_GREATER,
-            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2))));
+            new MatrixGeneratorNode(null, intlit(1), asList(intlit(2), intlit(2)))));
 
         successExpect("[1](2, 2) >? [1](2, 2)", new BinaryExpressionNode(null,
-            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2)),
+            new MatrixGeneratorNode(null, intlit(1), asList(intlit(2), intlit(2))),
             M_ONE_GREATER,
-            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2))));
+            new MatrixGeneratorNode(null, intlit(1), asList(intlit(2), intlit(2)))));
 
         // --- without generator ---
 
@@ -438,34 +438,34 @@ public class GrammarTests extends AutumnTestFixture {
         rule = grammar.expression;
 
         successExpect("[1](2, 2) + [1](2, 2)", new BinaryExpressionNode(null,
-            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2)),
+            new MatrixGeneratorNode(null, intlit(1), asList(intlit(2), intlit(2))),
             ADD,
-            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2))));
+            new MatrixGeneratorNode(null, intlit(1), asList(intlit(2), intlit(2)))));
 
         successExpect("[1](2, 2) - [1](2, 2)", new BinaryExpressionNode(null,
-            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2)),
+            new MatrixGeneratorNode(null, intlit(1), asList(intlit(2), intlit(2))),
             SUBTRACT,
-            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2))));
+            new MatrixGeneratorNode(null, intlit(1), asList(intlit(2), intlit(2)))));
 
         successExpect("[1](2, 2) / [1](2, 2)", new BinaryExpressionNode(null,
-            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2)),
+            new MatrixGeneratorNode(null, intlit(1), asList(intlit(2), intlit(2))),
             DIVIDE,
-            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2))));
+            new MatrixGeneratorNode(null, intlit(1), asList(intlit(2), intlit(2)))));
 
         successExpect("[1](2, 2) * [1](2, 2)", new BinaryExpressionNode(null,
-            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2)),
+            new MatrixGeneratorNode(null, intlit(1), asList(intlit(2), intlit(2))),
             MULTIPLY,
-            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2))));
+            new MatrixGeneratorNode(null, intlit(1), asList(intlit(2), intlit(2)))));
 
         successExpect("[1](2, 2) % [1](2, 2)", new BinaryExpressionNode(null,
-            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2)),
+            new MatrixGeneratorNode(null, intlit(1), asList(intlit(2), intlit(2))),
             REMAINDER,
-            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2))));
+            new MatrixGeneratorNode(null, intlit(1), asList(intlit(2), intlit(2)))));
 
         successExpect("[1](2, 2) @ [1](2, 2)", new BinaryExpressionNode(null,
-            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2)),
+            new MatrixGeneratorNode(null, intlit(1), asList(intlit(2), intlit(2))),
             DOT_PRODUCT,
-            new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2))));
+            new MatrixGeneratorNode(null, intlit(1), asList(intlit(2), intlit(2)))));
 
         // --- without generator ---
 
@@ -570,9 +570,9 @@ public class GrammarTests extends AutumnTestFixture {
                 "[_](2, 2) : {}" +
                 "}",
             new CaseNode(null,
-                new MatrixGeneratorNode(null, intlit(1), intlit(2), intlit(2)),
-                asList(new CaseBodyNode(null, new MatrixGeneratorNode(null, intlit(3), intlit(2), intlit(2)), new BlockNode(null, asList())),
-                    new CaseBodyNode(null, new MatrixGeneratorNode(null, new ReferenceNode(null, "_"), intlit(2), intlit(2)), new BlockNode(null, asList()))),
+                new MatrixGeneratorNode(null, intlit(1), asList(intlit(2), intlit(2))),
+                asList(new CaseBodyNode(null, new MatrixGeneratorNode(null, intlit(3), asList(intlit(2), intlit(2))), new BlockNode(null, asList())),
+                    new CaseBodyNode(null, new MatrixGeneratorNode(null, new ReferenceNode(null, "_"), asList(intlit(2), intlit(2))), new BlockNode(null, asList()))),
                 null));
 
         successExpect("case \"aaa\" {" +

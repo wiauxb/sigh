@@ -1,54 +1,5 @@
-fun foo (arg1: Int): Int {
- return arg1
-}
 
-fun foo1 (arg1: T): T {
-  var tmp: T = arg1
-  return tmp
-}
+var m : Mat#Float = [1](2)
 
-fun foo2 (arg1: T, arg2: U): T{
-    return arg1 + arg2
-}
-
-fun foo3 (arg1: T, arg2: T): Int{
-    return 1
-}
-
-var mat : Mat#Int = [1](2, 2)
-
-var n : Int = 2;
-
-print("" + foo1("hello"))
-
-print("" + foo2(mat, n))
-print("" + foo2(mat, mat))
-print("" + foo2(n, n))
-
-print("" + foo3("hey", "ho"))
-
-fun test1(a : T) : T {
-  return a + 1
-}
-
-var i : Int[] = [1, 2]
-print("" + test1(i))
-
-print("-------------------------")
-
-fun test3(a : T, b : U) : T {
-    var c : T = a + b
-    return c
-}
-
-var i : Int = 1
-var j : Int = 2
-print("" + test3(i, j))
-
-print("-------------------------")
-
-case [1, 2, 3] {
-    [] : {},
-    _ : {print("yes")},
-    default : {print("no")}
-}
+print("" + m)
+// trying to call a non-function expression: ArrayLiteral([1])

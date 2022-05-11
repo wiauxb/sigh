@@ -143,13 +143,9 @@ public class SighGrammar extends Grammar
             .push($ -> new MatrixLiteralNode($.span(), $.$[0]));
 
     public rule matrix_generator = lazy(() ->
-        seq(LSQUARE, this.expression, RSQUARE, LPAREN, this.expression, seq(COMMA, this.expression).opt(), RPAREN)
-        .push($ -> {
-            if ($.$.length < 3)
-                return new MatrixGeneratorNode($.span(), $.$[0], $.$[1]);
-            else
-                return new MatrixGeneratorNode($.span(), $.$[0], $.$[1], $.$[2]);
-        }));
+        seq(LSQUARE, this.expression, RSQUARE,
+            LPAREN, this.expression.sep(1, COMMA).as_list(ExpressionNode.class), RPAREN)
+        .push($ -> new MatrixGeneratorNode($.span(), $.$[0], $.$[1])));
 
     public rule basic_expression = choice(
         constructor,

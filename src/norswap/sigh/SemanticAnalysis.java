@@ -391,9 +391,13 @@ public final class SemanticAnalysis
     private void matrixGenerator (MatrixGeneratorNode node)
     {
         R.rule()
-            .using(node.shape1.attr("type"),
-                        node.shape2.attr("type"))
+            .using(node.shape.get(0).attr("type"),
+                        node.shape.get(1).attr("type"))
             .by(r -> {
+                if (node.shape.size() > 2){
+                    r.error(format("Too many arguments for matrixGenerator, expected 1 or 2 but got %s", node.shape.size()), node);
+                }
+
                 if (!(r.get(0) instanceof IntType && r.get(1) instanceof IntType))
                     r.error("Invalid shape type", node);
             }
