@@ -1295,6 +1295,11 @@ public final class SemanticAnalysis
         scope.declare("_", decl);
         R.set(decl, "type", SymbolicType.INSTANCE);
 
+        if (node.element instanceof ReferenceNode && ((ReferenceNode) node.element).name.equals("_")){
+            R.error(new SemanticError("Cannot use case on variable named '_'", null, node));
+            return;
+        }
+
         Attribute[] dependencies = new Attribute[node.body.size()+1];
         dependencies[0] = new Attribute(node.element, "type");
         forEachIndexed(node.body, (i, param) ->

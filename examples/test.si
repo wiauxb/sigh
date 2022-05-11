@@ -1,4 +1,9 @@
-case 2 {
-   [1, 2] : {},
-    _ : {}
+var _ : Int[] = [1, 2, 3, 4, 5]
+var a : Int[] = _
+case a {
+    [1, 2] : {print("no1")},
+   [1, _, 7] : {print("no2")},
+    [_, 5] : {print("ok")},
+    default : {print("no3")}
 }
+// prints no3 instead of ok (-> cause of the var _)
