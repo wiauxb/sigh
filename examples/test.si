@@ -1,9 +1,20 @@
-var _ : Int[] = [1, 2, 3, 4, 5]
-var a : Int[] = _
-case a {
-    [1, 2] : {print("no1")},
-   [1, _, 7] : {print("no2")},
-    [_, 5] : {print("ok")},
-    default : {print("no3")}
+var a : String = "aaabbb"
+ case a {
+     _+"c"+_ : {print("aa_")},
+     _+"b" : {print("a_b_")},
+     default : {print("default")}
 }
-// prints no3 instead of ok (-> cause of the var _)
+
+var a : Int[] = [1, 1, 1, 2, 2, 2]
+  case a {
+      [_, 3, _] : {print("11_")},
+      [_, 2] : {print("1_2_")},
+      default : {print("default[]")}
+ }
+
+ case [1](2, 2) {
+     [[1, 2], [1, 2]] : {print(""+1)},
+     [[1, 1], [1, 1]] : {print(""+2)},
+     default : {print(""+3)}
+ }
+// prints default (but not really implemented for the string...)

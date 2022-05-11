@@ -208,8 +208,8 @@ public final class Interpreter
         if (rightType instanceof GenericType) rightType = ((GenericType) rightType).resolution;
 
         if (node.operator == BinaryOperator.ADD
-                && (leftType instanceof StringType || rightType instanceof StringType))
-            return convertToString(left) + convertToString(right);
+                && (leftType instanceof StringType || rightType instanceof StringType)){
+            return convertToString(left) + convertToString(right);}
 
         boolean floating = leftType instanceof FloatType || rightType instanceof FloatType;
         boolean numeric  = floating || leftType instanceof IntType || rightType instanceof IntType ;
@@ -1033,6 +1033,8 @@ public final class Interpreter
             return ((StructDeclarationNode) arg).name;
         else if (arg instanceof Constructor)
             return "$" + ((Constructor) arg).declaration.name;
+        else if (arg == SymbolicValue.INSTANCE)
+            return Character.toString(12);
         else
             return arg.toString();
     }
@@ -1095,33 +1097,81 @@ public final class Interpreter
         if (element instanceof Object[]){
             if (! (pattern instanceof Object[]))
                 throw new Error("should not reach here");
-            int i = 0;
-            int mem = 0;
-            Object[] element_arr = (Object[]) element;
-            Object[] pattern_arr = (Object[]) pattern;
-            while (i < element_arr.length){
-                if (mem > pattern_arr.length - 1)
-                    return false;
-                if (pattern_arr[mem] instanceof SymbolicValue) {
-                    if (mem == pattern_arr.length - 1)
-                        return true;
-                    if (mem == i) i++;
-                    if (checkPattern(pattern_arr[mem + 1], element_arr[i])) {
-                        mem += 2;
-                    }
-                    i++;
-                }
-                else if (! checkPattern(pattern_arr[mem], element_arr[i]))
-                    return false;
-                else {
-                    i++;
-                    mem++;
-                }
-            }
-            return mem >= pattern_arr.length;
+            return matchArray((Object[]) pattern, (Object[]) element);
+        }
+        else if (element instanceof String){
+            if (! (pattern instanceof String))
+                throw new Error("should not reach here");
+            return matchString((String) pattern, (String) element);
         }
         else
             return pattern.equals(element);
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    //Adapted from https://www.geeksforgeeks.org/wildcard-character-matching/
+    private boolean matchArray(Object[] first, Object[] second){
+        // If we reach at the end of both strings,
+        // we are done
+        if (first.length == 0 && second.length == 0)
+            return true;
+
+        // Make sure that the characters after '_'
+        // are present in second string.
+        // This function assumes that the first
+        // string will not contain two consecutive '_'
+        if (first.length > 1 && first[0] instanceof SymbolicValue &&
+            second.length == 0)
+            return false;
+
+        // If current characters of both strings match
+        if (first.length != 0 && second.length != 0)
+            if (first[0] instanceof Object[] && second[0] instanceof Object[] &&
+                matchArray((Object[]) first[0], (Object[]) second[0]))
+                    return matchArray(Arrays.copyOfRange(first, 1, first.length),
+                                        Arrays.copyOfRange(second, 1, second.length));
+            else if (first[0] == second[0])
+                return matchArray(Arrays.copyOfRange(first, 1, first.length),
+                                    Arrays.copyOfRange(second, 1, second.length));
+
+        // If there is _, then there are two possibilities
+        // a) We consider current character of second string
+        // b) We ignore current character of second string.
+        if (first.length > 0 && first[0] instanceof SymbolicValue)
+            return matchArray(Arrays.copyOfRange(first, 1, first.length), second) ||
+                matchArray(first, Arrays.copyOfRange(second, 1, second.length));
+        return false;
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    //Adapted from https://www.geeksforgeeks.org/wildcard-character-matching/
+    private boolean matchString(String first, String second){
+        // If we reach at the end of both strings,
+        // we are done
+        if (first.length() == 0 && second.length() == 0)
+            return true;
+
+        // Make sure that the characters after '_'
+        // are present in second string.
+        // This function assumes that the first
+        // string will not contain two consecutive '_'
+        if (first.length() > 1 && first.charAt(0) == 12 &&
+            second.length() == 0)
+            return false;
+
+        // If current characters of both strings match
+        if (first.length() != 0 && second.length() != 0 && first.charAt(0) == second.charAt(0))
+            return matchString(first.substring(1), second.substring(1));
+
+        // If there is _, then there are two possibilities
+        // a) We consider current character of second string
+        // b) We ignore current character of second string.
+        if (first.length() > 0 && first.charAt(0) == 12)
+            return matchString(first.substring(1), second) ||
+                matchString(first, second.substring(1));
+        return false;
     }
 
     // ---------------------------------------------------------------------------------------------
