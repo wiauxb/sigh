@@ -182,7 +182,7 @@ public final class Interpreter
 
         for (int i = 0; i < shape1; i++) {
             for (int j = 0; j < shape2; j++) {
-                result[i][j] = visitor.apply(node.filler);
+                result[i][j] = get(node.filler);
             }
         }
         return result;
@@ -1170,7 +1170,32 @@ public final class Interpreter
 
     private void assign (Scope scope, String name, Object value, Type targetType)
     {
-        if (value instanceof Long && targetType instanceof FloatType)
+        if (targetType.isArrayLike() && ((ArrayLikeType) targetType).componentType instanceof FloatType){
+            if (value instanceof Object[][]){
+                value = Arrays.stream((Object[][]) value)
+                    .map(line -> Arrays.stream(line)
+                        .map(o -> {
+                            if (o instanceof Double)
+                                return (Double) o;
+                            else
+                                return ((Long) o).doubleValue();
+                        })
+                        .toArray(Double[]::new))
+                    .toArray(Double[][]::new);
+            }
+            else if (value instanceof Object[]){
+                value = Arrays.stream((Object[]) value)
+                    .map(o -> {
+                        if (o instanceof Double)
+                            return (Double) o;
+                        else
+                            return ((Long) o).doubleValue();
+                    })
+                    .toArray(Double[]::new);
+            }
+
+        }
+        else if (value instanceof Long && targetType instanceof FloatType)
             value = ((Long) value).doubleValue();
         storage.set(scope, name, value);
     }

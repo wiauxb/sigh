@@ -1,11 +1,10 @@
 package norswap.sigh.types;
 
-public final class ArrayType extends Type
+public final class ArrayType extends ArrayLikeType
 {
-    public final Type componentType;
 
     public ArrayType (Type componentType) {
-        this.componentType = componentType;
+        super(componentType);
     }
 
     @Override public String name() {
@@ -18,12 +17,4 @@ public final class ArrayType extends Type
             ((ArrayType)componentType).componentType.equals(((MatType) o).componentType);
     }
 
-    @Override public int hashCode () {
-        return componentType.hashCode();
-    }
-
-    @Override
-    public boolean isArrayLike () {
-        return true;
-    }
 }

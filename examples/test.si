@@ -1,5 +1,8 @@
 
-var m : Mat#Float = [1](2)
+var c : Float = 1
 
+var a : Mat#Int = [1](2, 2)
+var b : Mat#Float = [10](2, 2)
+var m : Mat#Float = a @ b
 print("" + m)
-// trying to call a non-function expression: ArrayLiteral([1])
+// Exception in thread "main" norswap.sigh.interpreter.InterpreterException: exception while executing BinaryExpression(a @ b)
