@@ -1,8 +1,4 @@
-
-var c : Float = 1
-
-var a : Mat#Int = [1](2, 2)
-var b : Mat#Float = [10](2, 2)
-var m : Mat#Float = a @ b
-print("" + m)
-// Exception in thread "main" norswap.sigh.interpreter.InterpreterException: exception while executing BinaryExpression(a @ b)
+case 2 {
+   [1, 2] : {},
+    _ : {}
+}

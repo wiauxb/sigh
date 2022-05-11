@@ -923,8 +923,8 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
 
         successInput(
             "fun test2(x : T, y : U) : T {" +
-                "var tmp1 : T = x" +
-                "var tmp2 : U = y" +
+                "var tmp1 : T = x " +
+                "var tmp2 : U = y " +
                 "return tmp1" +
             "}"
         );
@@ -933,6 +933,7 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
             "fun test2(x : T) : U {" +
                 "return 1" +
             "}",
+            "Incompatible return type, expected U (Generic) but got Int",
             "Generic return Type should be declared in parameters"
         );
     }

@@ -42,8 +42,8 @@ public final class Test
 
         reactor.run();
 
-        System.out.println(
-            AttributeTreeFormatter.formatWalkFields(tree, reactor, SighNode.class));
+//        System.out.println(
+//            AttributeTreeFormatter.formatWalkFields(tree, reactor, SighNode.class));
 
         if (!reactor.errors().isEmpty()) {
             System.out.println(reactor.reportErrors(it ->
