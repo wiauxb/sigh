@@ -862,9 +862,9 @@ public final class Interpreter
             return Util.<Map<String, Object>>cast(stem).get(node.fieldName);
         else if (stem instanceof Object[][]) {
             Object[][] matrix = (Object[][]) stem;
-            Integer[] res = new Integer[2];
-            res[0] = matrix.length;
-            res[1] = matrix[0].length;
+            Object[] res = new Long[2];
+            res[0] = (long) matrix.length;
+            res[1] = (long) matrix[0].length;
             return res;
         }
         else {

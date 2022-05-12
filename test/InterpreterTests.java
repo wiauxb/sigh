@@ -644,11 +644,11 @@ public final class InterpreterTests extends TestFixture {
             "[[1, 1, 1], [1, 1, 1], [1, 1, 1]] : {return 2}," +
             "default : {return 3}}", 1L);
 
-        check("case [2](2, 3) {" +
-            "[_](1, 1) : {return 1}," +
-            "[_](2, 2) : {return 2}," +
-            "[_](3, 3) : {return 3}," +
-            "[_](2, 3) : {return 4}," +
+        check("case [2](2, 3).shape {" +
+            "[1, 1] : {return 1}," +
+            "[2, 2] : {return 2}," +
+            "[3, 3] : {return 3}," +
+            "[2, 3] : {return 4}," +
             "default : {return 5}}", 4L);
 
         check("case [1](2, 2) {" +

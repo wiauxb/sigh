@@ -1,20 +1,8 @@
-var a : String = "aaabbb"
- case a {
-     _+"c"+_ : {print("aa_")},
-     _+"b" : {print("a_b_")},
-     default : {print("default")}
-}
+print(""+[2](2, 3).shape)
 
-var a : Int[] = [1, 1, 1, 2, 2, 2]
-  case a {
-      [_, 3, _] : {print("11_")},
-      [_, 2] : {print("1_2_")},
-      default : {print("default[]")}
- }
-
- case [1](2, 2) {
-     [[1, 2], [1, 2]] : {print(""+1)},
-     [[1, 1], [1, 1]] : {print(""+2)},
-     default : {print(""+3)}
- }
-// prints default (but not really implemented for the string...)
+ case [2](2, 3).shape {
+     [1, 1] : {print(""+1)},
+     [2, 2] : {print(""+2)},
+     [3, 3] : {print(""+3)},
+     [2, 3] : {print(""+4)},
+     default : {print(""+5)}}
