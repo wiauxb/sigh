@@ -20,8 +20,8 @@ public final class Test
     public static void main (String[] args) {
 //         String file = "fizzbuzz.si";
 //        String file = "kitchensink.si";
-        String file = "test.si";
-//        String file = "example_file.si";
+//        String file = "test.si";
+        String file = "example_file.si";
 //        String file = "tests_tordus.si";
 //        String file = "case.si";
         String path = Paths.get("examples/", file).toAbsolutePath().toString();
