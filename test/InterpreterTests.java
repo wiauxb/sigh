@@ -386,6 +386,10 @@ public final class InterpreterTests extends TestFixture {
                 new Object[]{7L, 8L, 9L}}
         );
 
+        checkThrows(
+            "return [1](2, 2)[1000]",
+            ArrayIndexOutOfBoundsException.class
+        );
 
     }
 
@@ -410,6 +414,15 @@ public final class InterpreterTests extends TestFixture {
                                                                 new Object[]{7L, 8L, 9L}});
         checkExpr("[[1, 2, 3], [4, 5, 6], [7, 8, 9]][1:2]", new Object[][]{
                                                                 new Object[]{4L, 5L, 6L}});
+        checkThrows(
+            "return [1](2, 2)[:1000]",
+            InterpreterException.class
+        );
+
+        checkThrows(
+            "return [1](2, 2)[1000:]",
+            InterpreterException.class
+        );
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -531,6 +544,9 @@ public final class InterpreterTests extends TestFixture {
         checkExpr("[[1], [2]] >? [[0], [3]]", true);
         checkExpr("[[1], [2]] >? [[2], [2]]", false);
 
+        checkThrows("[[1, 2, 3]] >> [[1, 2]]", Error.class);
+        checkThrows("[[1, 2, 3]] >> 2", Error.class);
+
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -562,6 +578,9 @@ public final class InterpreterTests extends TestFixture {
         checkExpr("[1, 2] >? [0, 3]", true);
         checkExpr("[1, 2] >? [2, 2]", false);
 
+        checkThrows("[1] >? [1, 2]", Error.class);
+        checkThrows("[1, 2] > 2", Error.class);
+
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -583,6 +602,12 @@ public final class InterpreterTests extends TestFixture {
             "return bigTester(mat1, mat2, mat3)", new Object[][]{new Object[]{6L, 7L, 8L},
                                                                  new Object[]{3L, 4L, 5L},
                                                                  new Object[]{1L, 2L, 3L}});
+
+        checkThrows("fun fail(a : Int, b : Int) : Int {" +
+            "   return a + b " +
+            "}" +
+            "return fail([1](2, 2), [3](5, 5))", InterpreterException.class);
+
     }//[[6, 7, 8], [3, 4, 5], [1, 2, 3]]
 
 

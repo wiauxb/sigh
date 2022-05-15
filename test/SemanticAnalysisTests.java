@@ -183,6 +183,9 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
 
         successInput("return 2 + [[1]]");
         successInput("return [[1]] + 2");
+
+        failureInputWith("return [[\"a\"]] * [[1]]", "Trying to multiply Mat#String with Mat#Int");
+        failureInputWith("return [[\"a\"]] * [[1.0]]", "Trying to multiply Mat#String with Mat#Float");
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -222,6 +225,9 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
 
         successInput("return [2] + [[1]]");
         successInput("return [[1]] + [2]");
+
+        failureInputWith("return [\"a\"] * [[1]]", "Trying to multiply String[] with Mat#Int");
+        failureInputWith("return [[\"a\"]] * [1]", "Trying to multiply Mat#String with Int[]");
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -385,6 +391,9 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
         successInput("return [1] >=? [2.0]");
         successInput("return [1.0] >=? [1]");
         successInput("return [1.0] >=? [2]");
+
+        failureInputWith("return [1](2, 2) >> 2",
+            "Attempting to perform arithmetic comparison on non-arraylike type: Int");
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -503,6 +512,11 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
         failureInputWith("return [[1, 2, 3]] < [[1, 2, 3]]", "");
         failureInputWith("return [[1, 2, 3]] > [[1, 2, 3]]", "");
         failureInputWith("return [[1, 2, 3]] != [[1, 2, 3]]", "");
+
+        failureInputWith("return [[1, 2, 3]] >> \"2\"",
+            "Attempting to perform arithmetic comparison on non-arraylike type: String");
+        failureInputWith("return [[1, 2, 3]] >> 2",
+            "Attempting to perform arithmetic comparison on non-arraylike type: Int");
     }
 
     // ---------------------------------------------------------------------------------------------

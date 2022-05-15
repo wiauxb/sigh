@@ -1070,7 +1070,7 @@ public final class Interpreter
         else if (arg instanceof Constructor)
             return "$" + ((Constructor) arg).declaration.name;
         else if (arg == SymbolicValue.INSTANCE)
-            return Character.toString(12);
+            return Character.toString('\f');
         else
             return arg.toString();
     }
@@ -1193,7 +1193,7 @@ public final class Interpreter
         // are present in second string.
         // This function assumes that the first
         // string will not contain two consecutive '_'
-        if (first.length() > 1 && first.charAt(0) == 12 &&
+        if (first.length() > 1 && first.charAt(0) == '\f' &&
             second.length() == 0)
             return false;
 
@@ -1204,7 +1204,7 @@ public final class Interpreter
         // If there is _, then there are two possibilities
         // a) We consider current character of second string
         // b) We ignore current character of second string.
-        if (first.length() > 0 && first.charAt(0) == 12)
+        if (first.length() > 0 && first.charAt(0) == '\f')
             return matchString(first.substring(1), second) ||
                 matchString(first, second.substring(1));
         return false;
