@@ -407,8 +407,7 @@ public final class SemanticAnalysis
             .using(node.filler.attr("type"))
             .by(r -> {
                 Type supertype = r.get(0);
-                if (!(supertype instanceof IntType || supertype instanceof FloatType
-                    || supertype instanceof StringType || supertype instanceof SymbolicType))
+                if (supertype.isArrayLike())
                     r.error("Invalid filler type", node);
                 else
                     r.set(0, new MatType(supertype));

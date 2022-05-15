@@ -1,4 +1,14 @@
 
+var k : Mat#Int = [[1, 1]]
+
+var a : String = "aaabbb"
+case a {
+    "c"+_ : {print("aa_")},
+    _ + "b" : {print("_b")},
+    "a_b_" : {print("a_b_")},
+    default : {print("default")}
+}
+
  case [2](2, 3).shape {
      [1, 1] : {print(""+1)},
      [2, 2] : {print(""+2)},
@@ -16,13 +26,13 @@ var i : Mat#Pair = [[$Pair(2, 3)]]
 var j : Mat#Pair = [[$Pair(4, 5)]]
 print("" + (i !<=> j))
 
-
-var k : Mat#Int = [[1, 1]]
-
-var a : String = "aaabbb"
-case a {
-    "c"+_ : {print("aa_")},
-    _ + "b" : {print("_b")},
-    "a_b_" : {print("a_b_")},
-    default : {print("default")}
+fun simple_function(a : Int, b : Int) : Int {
+    return a + b
 }
+
+print("" + simple_function(2, 2)) // common case
+print("" + simple_function([2](2, 2), [1](2, 2))) // vectorized case, prints [[3, 3], [3, 3]
+
+
+var j : Mat#Pair = [$Pair(4, 5)](2, 2)
+print(""+j)
