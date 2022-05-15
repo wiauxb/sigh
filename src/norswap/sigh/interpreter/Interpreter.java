@@ -997,10 +997,10 @@ public final class Interpreter
 
             if (arg instanceof Object[]){
                 if(!Arrays.equals(getArrayLikeShape((Object[]) arg), shape))
-                    throw new RuntimeException(
+                    throw new InterpreterException(
                         format("Arguments of vectorized function should be of same shape: %s != %s",
                             Arrays.toString(getArrayLikeShape((Object[]) arg)),
-                            Arrays.toString(shape)));
+                            Arrays.toString(shape)), null);
                 return arrayToMat((Object[]) arg);
             }
             else {
