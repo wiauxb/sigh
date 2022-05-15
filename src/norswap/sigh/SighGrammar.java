@@ -269,8 +269,8 @@ public class SighGrammar extends Grammar
         .suffix(seq(LSQUARE, RSQUARE),
             $ -> new ArrayTypeNode($.span(), $.$[0]));
 
-    public rule matrix_type = seq(_mat, HASHTAG, simple_type)
-        .push($ -> new MatrixTypeNode($.span(), $.$[0]));
+    public rule matrix_type = lazy(() -> seq(_mat, HASHTAG, this.type)
+        .push($ -> new MatrixTypeNode($.span(), $.$[0])));
 
     public rule type = choice(
         seq(array_type),

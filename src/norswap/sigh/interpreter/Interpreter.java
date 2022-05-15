@@ -560,31 +560,53 @@ public final class Interpreter
 
         for (int i = 0; i < shape1[0]; i++) {
             for (int j = 0; j < shape1[1]; j++) {
-                Number nleft = getWithType(tleft[i][j], insideType);
-                Number nright = getWithType(tright[i][j], insideType);
-                switch(operator) {
-                    case M_ONE_EQUAL:
-                        if (nleft.equals(nright)) return true;
-                        break;
-                    case M_ONE_NOT_EQUAL:
-                        if (!(nleft.equals(nright))) return true;
-                        break;
-                    case M_ONE_LOWER:
-                        if (insideType.equals(IntType.INSTANCE) && nleft.longValue() < nright.longValue()) return true;
-                        else if (insideType.equals(FloatType.INSTANCE) && nleft.floatValue() < nright.floatValue()) return true;
-                        break;
-                    case M_ONE_LOWER_EQUAL:
-                        if (insideType.equals(IntType.INSTANCE) && nleft.longValue() <= nright.longValue()) return true;
-                        else if (insideType.equals(FloatType.INSTANCE) && nleft.floatValue() <= nright.floatValue()) return true;
-                        break;
-                    case M_ONE_GREATER:
-                        if (insideType.equals(IntType.INSTANCE) && nleft.longValue() > nright.longValue()) return true;
-                        else if (insideType.equals(FloatType.INSTANCE) && nleft.floatValue() > nright.floatValue()) return true;
-                        break;
-                    case M_ONE_GREATER_EQUAL:
-                        if (insideType.equals(IntType.INSTANCE) && nleft.longValue() >= nright.longValue()) return true;
-                        else if (insideType.equals(FloatType.INSTANCE) && nleft.floatValue() >= nright.floatValue()) return true;
-                        break;
+                if (insideType.isPrimitive()) {
+                    Number nleft = getWithType(tleft[i][j], insideType);
+                    Number nright = getWithType(tright[i][j], insideType);
+                    switch (operator) {
+                        case M_ONE_EQUAL:
+                            if (nleft.equals(nright)) return true;
+                            break;
+                        case M_ONE_NOT_EQUAL:
+                            if (!(nleft.equals(nright))) return true;
+                            break;
+                        case M_ONE_LOWER:
+                            if (insideType.equals(IntType.INSTANCE) && nleft.longValue() < nright.longValue())
+                                return true;
+                            else if (insideType.equals(FloatType.INSTANCE) && nleft.floatValue() < nright.floatValue())
+                                return true;
+                            break;
+                        case M_ONE_LOWER_EQUAL:
+                            if (insideType.equals(IntType.INSTANCE) && nleft.longValue() <= nright.longValue())
+                                return true;
+                            else if (insideType.equals(FloatType.INSTANCE) && nleft.floatValue() <= nright.floatValue())
+                                return true;
+                            break;
+                        case M_ONE_GREATER:
+                            if (insideType.equals(IntType.INSTANCE) && nleft.longValue() > nright.longValue())
+                                return true;
+                            else if (insideType.equals(FloatType.INSTANCE) && nleft.floatValue() > nright.floatValue())
+                                return true;
+                            break;
+                        case M_ONE_GREATER_EQUAL:
+                            if (insideType.equals(IntType.INSTANCE) && nleft.longValue() >= nright.longValue())
+                                return true;
+                            else if (insideType.equals(FloatType.INSTANCE) && nleft.floatValue() >= nright.floatValue())
+                                return true;
+                            break;
+                    }
+                }
+                else{
+                    switch (operator){
+                        case M_ALL_EQUAL:
+                            if (left == right) return true;
+                            break;
+                        case M_ALL_NOT_EQUAL:
+                            if (left != right) return true;
+                            break;
+                        default:
+                            throw new Error("should not reach here");
+                    }
                 }
             }
         }
@@ -606,31 +628,45 @@ public final class Interpreter
 
         for (int i = 0; i < shape1[0]; i++) {
             for (int j = 0; j < shape1[1]; j++) {
-                Number nleft = getWithType(tleft[i][j], insideType);
-                Number nright = getWithType(tright[i][j], insideType);
-                switch(operator) {
-                    case M_ALL_EQUAL:
-                        if (!(nleft.equals(nright))) return false;
-                        break;
-                    case M_ALL_NOT_EQUAL:
-                        if (nleft.equals(nright)) return false;
-                        break;
-                    case M_ALL_LOWER:
-                        if (insideType.equals(IntType.INSTANCE) && nleft.longValue() >= nright.longValue()) return false;
-                        else if (insideType.equals(FloatType.INSTANCE) && nleft.floatValue() >= nright.floatValue()) return false;
-                        break;
-                    case M_ALL_LOWER_EQUAL:
-                        if (insideType.equals(IntType.INSTANCE) && nleft.longValue() > nright.longValue()) return false;
-                        else if (insideType.equals(FloatType.INSTANCE) && nleft.floatValue() > nright.floatValue()) return false;
-                        break;
-                    case M_ALL_GREATER:
-                        if (insideType.equals(IntType.INSTANCE) && nleft.longValue() <= nright.longValue()) return false;
-                        else if (insideType.equals(FloatType.INSTANCE) && nleft.floatValue() <= nright.floatValue()) return false;
-                        break;
-                    case M_ALL_GREATER_EQUAL:
-                        if (insideType.equals(IntType.INSTANCE) && nleft.longValue() < nright.longValue()) return false;
-                        else if (insideType.equals(FloatType.INSTANCE) && nleft.floatValue() < nright.floatValue()) return false;
-                        break;
+                if (insideType.isPrimitive()){
+                    Number nleft = getWithType(tleft[i][j], insideType);
+                    Number nright = getWithType(tright[i][j], insideType);
+                    switch(operator) {
+                        case M_ALL_EQUAL:
+                            if (!(nleft.equals(nright))) return false;
+                            break;
+                        case M_ALL_NOT_EQUAL:
+                            if (nleft.equals(nright)) return false;
+                            break;
+                        case M_ALL_LOWER:
+                            if (insideType.equals(IntType.INSTANCE) && nleft.longValue() >= nright.longValue()) return false;
+                            else if (insideType.equals(FloatType.INSTANCE) && nleft.floatValue() >= nright.floatValue()) return false;
+                            break;
+                        case M_ALL_LOWER_EQUAL:
+                            if (insideType.equals(IntType.INSTANCE) && nleft.longValue() > nright.longValue()) return false;
+                            else if (insideType.equals(FloatType.INSTANCE) && nleft.floatValue() > nright.floatValue()) return false;
+                            break;
+                        case M_ALL_GREATER:
+                            if (insideType.equals(IntType.INSTANCE) && nleft.longValue() <= nright.longValue()) return false;
+                            else if (insideType.equals(FloatType.INSTANCE) && nleft.floatValue() <= nright.floatValue()) return false;
+                            break;
+                        case M_ALL_GREATER_EQUAL:
+                            if (insideType.equals(IntType.INSTANCE) && nleft.longValue() < nright.longValue()) return false;
+                            else if (insideType.equals(FloatType.INSTANCE) && nleft.floatValue() < nright.floatValue()) return false;
+                            break;
+                    }
+                }
+                else {
+                    switch (operator){
+                        case M_ALL_EQUAL:
+                            if (left != right) return false;
+                            break;
+                        case M_ALL_NOT_EQUAL:
+                            if (left == right) return false;
+                            break;
+                        default:
+                            throw new Error("should not reach here");
+                    }
                 }
             }
         }

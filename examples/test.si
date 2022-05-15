@@ -6,3 +6,16 @@ print(""+[2](2, 3).shape)
      [3, 3] : {print(""+3)},
      [2, 3] : {print(""+4)},
      default : {print(""+5)}}
+
+
+struct Pair {
+    var a: Int
+    var b: Int
+}
+
+var i : Mat#Pair = [[$Pair(2, 3)]]
+var j : Mat#Pair = [[$Pair(4, 5)]]
+print("" + (i !<=> j))
+
+
+var k : Mat#Int = [[1, 1]]

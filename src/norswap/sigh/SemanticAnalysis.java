@@ -843,12 +843,13 @@ public final class SemanticAnalysis
     {
         r.set(0, BoolType.INSTANCE);
 
-        if (!(left instanceof MatType) &&
-            !(left instanceof ArrayType))
+        if (!((left instanceof MatType) || (left instanceof ArrayType)) ||
+            !(((ArrayLikeType) left).componentType instanceof IntType || ((ArrayLikeType) left).componentType instanceof FloatType))
             r.errorFor("Attempting to perform arithmetic comparison on non-arraylike type: " + left,
                 node.left);
-        if (!(right instanceof MatType) &&
-            !(right instanceof ArrayType))
+
+        if (!((right instanceof MatType) || (right instanceof ArrayType)) ||
+            !(((ArrayLikeType) right).componentType instanceof IntType || ((ArrayLikeType) right).componentType instanceof FloatType))
             r.errorFor("Attempting to perform arithmetic comparison on non-arraylike type: " + right,
                 node.right);
 
@@ -980,7 +981,14 @@ public final class SemanticAnalysis
     {
         R.rule(node, "value")
             .using(node.componentType, "value")
-            .by(r -> r.set(0, new MatType(r.get(0))));
+            .by(r -> {
+                Type cptType = r.get(0);
+                if (cptType.isArrayLike()){
+                    r.error("Cannot declare a matrix of type "+cptType, node);
+                    return;
+                }
+                r.set(0, new MatType(cptType));
+            });
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -1074,24 +1082,12 @@ public final class SemanticAnalysis
         if (a instanceof VoidType || b instanceof VoidType)
             return false;
 
-        return (a.isArrayLike() && b.isArrayLike())
+        return (a.isArrayLike() && b.isArrayLike() && isComparableTo(((ArrayLikeType)a).componentType, ((ArrayLikeType) b).componentType))
             || (a.isArrayLike() || b.isArrayLike()) &&
             (  a instanceof IntType || b instanceof IntType
             || a instanceof FloatType || b instanceof FloatType
             || a instanceof StringType || b instanceof StringType
             );
-//            a instanceof MatType && b instanceof MatType
-//            || a instanceof ArrayType && b instanceof ArrayType
-//            || a instanceof MatType && b instanceof ArrayType
-//            || a instanceof ArrayType && b instanceof MatType
-//            || a instanceof MatType && b instanceof IntType
-//            || a instanceof IntType && b instanceof MatType
-//            || a instanceof MatType && b instanceof FloatType
-//            || a instanceof FloatType && b instanceof MatType
-//            || a instanceof ArrayType && b instanceof IntType
-//            || a instanceof IntType && b instanceof ArrayType
-//            || a instanceof ArrayType && b instanceof FloatType
-//            || a instanceof FloatType && b instanceof ArrayType;
     }
 
     // ---------------------------------------------------------------------------------------------
