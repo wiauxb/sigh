@@ -426,9 +426,9 @@ public final class Interpreter
         int[] shape2 = getArrayLikeShape(right);
 
         if (!Arrays.equals(shape1, shape2) && operator != BinaryOperator.DOT_PRODUCT)
-            throw new Error(format("Operand must be same sizes: %s != %s", Arrays.toString(shape1), Arrays.toString(shape2)));
+            throw new InterpreterException(format("Operand must be same sizes: %s != %s", Arrays.toString(shape1), Arrays.toString(shape2)), null);
         else if (operator == BinaryOperator.DOT_PRODUCT && shape1[1] != shape2[0])
-            throw new Error(format("Invalid shape for dot product: %s and %s", Arrays.toString(shape1), Arrays.toString(shape2)));
+            throw new InterpreterException(format("Invalid shape for dot product: %s and %s", Arrays.toString(shape1), Arrays.toString(shape2)), null);
 
         Object[][] tleft = (left instanceof Object[][]) ? (Object[][]) left : arrayToMat(left);
         Object[][] tright = (right instanceof Object[][]) ? (Object[][]) right : arrayToMat(right);
