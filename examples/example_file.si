@@ -50,6 +50,14 @@ case m_case {
 } // 3
 
 
+var a : String = "aaabbb"
+case a {
+    "c"+_ : {print("aa_")},
+    "a_b_" : {print("a_b_")},  // the _ is in the string
+    _ + "b" : {print("_b")},
+    default : {print("default")}
+} // _b
+
 
 // generic type demo -------------------------------------------------------------------------------
 

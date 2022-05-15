@@ -1,0 +1,68 @@
+
+// vect function
+// generic type
+
+
+fun is_shape_wanted(m : Mat#Int) : Int {
+    // checks if the shape is one we want
+    // m : a matrix of any type
+    // returns 1 if the shape is smtg we want, 0 otherwise
+
+    case m.shape {
+        [2, 2] : {return 1},
+        [2, 4] : {return 1},
+        [2, 6] : {return 1}
+    }
+    return 0
+}
+
+
+fun power(base : Int, exp : Int) : Int {
+    var i : Int = 0
+    var res : Int = 1
+    while (i < exp) {
+        res = res * base
+        i = i + 1
+    }
+    return res
+}
+
+
+fun sum_mat(mat: Mat#Int): Mat#Int{
+    var tmp : Mat#Int = [1](mat.shape[0])
+    return tmp @ mat
+}
+
+
+fun add(a:T, b:T):T{
+    return a+b
+}
+
+
+var i : Int = 1
+while i < 10 {
+    var mInt : Mat#Int = [i](2, i)
+
+    if (is_shape_wanted(mInt) == 1) {
+        var mSquared : Mat#Int = power(mInt, 2)
+        var mCubed : Mat#Int = power(mInt, 3)
+
+        print("Sympatic numbers ! "+add(mSquared, mCubed))
+    }
+
+
+
+    i = i + 1
+
+}
+
+
+
+
+
+
+
+
+
+
+

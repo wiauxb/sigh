@@ -436,6 +436,29 @@ public final class Interpreter
 
         Object[][] rep = new Object[shape1[0]][shape2[1]];
 
+        if (operator == BinaryOperator.DOT_PRODUCT){
+            for (int i = 0; i < shape1[0]; i++) {
+                for (int j = 0; j < shape2[1]; j++) {
+                    double res = 0.;
+                    for (int k = 0; k < shape1[1]; k++) {
+                        if (insideTypes[0] instanceof IntType)
+                            if (insideTypes[1] instanceof IntType)
+                                res += ((Long) tleft[i][k]) * ((Long) tright[k][j]);
+                            else
+                                res += ((Long) tleft[i][k]) * ((Double) tright[k][j]);
+                        else if (insideTypes[1] instanceof IntType)
+                            res += ((Double) tleft[i][k]) * ((Long) tright[k][j]);
+                        else
+                            res += ((Double) tleft[i][k]) * ((Double) tright[k][j]);
+                    }
+                    if (insideTypes[0] instanceof IntType &&
+                        insideTypes[1] instanceof IntType) rep[i][j] = (long) res;
+                    else rep[i][j] = res;
+                }
+            }
+            return rep;
+        }
+
         for (int i = 0; i < shape1[0]; i++) {
             for (int j = 0; j < shape2[1]; j++) {
 
@@ -518,24 +541,6 @@ public final class Interpreter
                                 rep[i][j] = fleft - iright;
                             else
                                 rep[i][j] = fleft - fright;
-                        break;
-                    case DOT_PRODUCT:
-                        double res = 0.;
-                        for (int k = 0; k < shape1[1]; k++) {
-                            if (insideTypes[0] instanceof IntType)
-                                if (insideTypes[1] instanceof IntType)
-                                    res += ((Long) tleft[i][k]) * ((Long) tright[k][j]);
-                                else
-                                    res += ((Long) tleft[i][k]) * ((Double) tright[k][j]);
-                            else
-                                if (insideTypes[1] instanceof IntType)
-                                    res += ((Double) tleft[i][k]) * ((Long) tright[k][j]);
-                                else
-                                    res += ((Double) tleft[i][k]) * ((Double) tright[k][j]);
-                        }
-                        if (insideTypes[0] instanceof IntType &&
-                            insideTypes[1] instanceof IntType) rep[i][j] = (long) res;
-                        else rep[i][j] = res;
                         break;
                     default:
                         throw new Error("should not reach here");
@@ -944,7 +949,7 @@ public final class Interpreter
         forEachIndexed(paramType, (i, type) -> {
             if (type instanceof GenericType){
                 if (!((GenericType) type).solve(argType[i]) &&
-                    ((GenericType) type).resolution != argType[i]){
+                    !((GenericType) type).resolution.equals(argType[i])){
                     throw new InterpreterException(format("GenericType should be %s : got %s", type.name(), argType[i].name()), null);
                 }
             }

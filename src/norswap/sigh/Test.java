@@ -21,7 +21,8 @@ public final class Test
 //         String file = "fizzbuzz.si";
 //        String file = "kitchensink.si";
 //        String file = "test.si";
-        String file = "example_file.si";
+//        String file = "example_file.si";
+        String file = "integration_test.si";
 //        String file = "tests_tordus.si";
 //        String file = "case.si";
         String path = Paths.get("examples/", file).toAbsolutePath().toString();
